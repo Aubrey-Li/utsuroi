@@ -5,6 +5,8 @@ export interface TypedInputOptions {
   onChange(text: string): void;
   /** Called when typing would go past the limit. */
   onFull?(): void;
+  /** Whether the scene is accepting typing right now. */
+  isActive(): boolean;
 }
 
 /**
@@ -34,6 +36,30 @@ export class TypedInput {
       }
     });
     field.addEventListener('select', () => this.pinCaret());
+
+    // If focus wandered off (a click elsewhere, switching windows), the next
+    // keystroke brings it back. Focusing during keydown lets that key land here.
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        if (!options.isActive() || field.disabled || document.activeElement === field) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const target = e.target as HTMLElement | null;
+        if (target && (target.tagName === 'BUTTON' || target.tagName === 'A') && (e.key === 'Enter' || e.key === ' ')) return;
+        if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Enter' || e.key === 'Process') this.focus();
+      },
+      true,
+    );
+  }
+
+  /** Keeps focus in the field when the scene itself is clicked or touched. */
+  holdFocusOn(surface: HTMLElement): void {
+    surface.addEventListener('pointerdown', (e) => {
+      if (!this.options.isActive()) return;
+      // The default would move focus to the page; keep it with the text instead.
+      e.preventDefault();
+      this.focus();
+    });
   }
 
   get value(): string {

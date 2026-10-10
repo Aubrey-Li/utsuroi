@@ -30,6 +30,7 @@ export class FireScene {
   ) {
     this.shell = new SceneShell(root, events);
     this.input = new TypedInput(this.shell.field, {
+      isActive: () => this.active && !this.burning,
       maxLength: 2400,
       onChange: (text) => {
         if (this.world && !this.world.setText(text)) {
@@ -42,7 +43,7 @@ export class FireScene {
       },
     });
     this.shell.action.addEventListener('click', () => this.light());
-    this.shell.canvas.addEventListener('pointerdown', () => this.input.focus());
+    this.input.holdFocusOn(this.shell.canvas);
     window.addEventListener('resize', () => this.active && this.resize());
   }
 

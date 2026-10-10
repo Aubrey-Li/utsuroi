@@ -25,6 +25,7 @@ export class WindScene {
   constructor(root: HTMLElement, events: RitualEvents) {
     this.shell = new SceneShell(root, events);
     this.input = new TypedInput(this.shell.field, {
+      isActive: () => this.active && !this.releasing,
       maxLength: 160,
       onChange: (text) => {
         this.world?.setText(text);
@@ -33,7 +34,7 @@ export class WindScene {
       onFull: () => this.flashHint(COPY.full),
     });
     this.shell.action.addEventListener('click', () => this.release());
-    this.shell.canvas.addEventListener('pointerdown', () => this.input.focus());
+    this.input.holdFocusOn(this.shell.canvas);
     window.addEventListener('resize', () => this.active && this.resize());
     this.events = events;
   }
