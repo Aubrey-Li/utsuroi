@@ -13,8 +13,15 @@ changing or the color going out of a flower.
 
 ## Status
 
-**M0: sand-writing prototype.** One scene, the ocean at dusk, in a
-painted, stylized look (Journey, The Witness) rather than photoreal:
+**Landing page, calendar, and the ocean scene.** Painted and stylized
+(Journey, The Witness) rather than photoreal.
+
+- **Landing** (`#/`): choose where to write. Ocean is ready; wind, fire and
+  stone are coming. A quiet "Need to talk to someone?" link is always there.
+- **Your days** (`#/calendar`): each completed ritual leaves its icon on the
+  day it happened. Only the date and the ritual are stored, on the device
+  (IndexedDB). No words.
+- **Ocean** (`#/ocean`):
 
 - Write anywhere on the sand by hand, with a mouse, trackpad, finger or
   stylus. A driftwood stick follows your hand.
@@ -24,6 +31,8 @@ painted, stylized look (Journey, The Witness) rather than photoreal:
   swell builds and a bigger wave runs up and takes some of the writing,
   nearest the water first. The sea eases off a little while you're writing.
 - When the sand is smooth everywhere, the marks are forgotten: "The sea has it."
+  That completes the ritual and leaves an ocean mark on today in the calendar.
+  Leaving before then leaves no mark.
 
 Nothing you write is stored, sent anywhere, or logged. The words exist only
 as marks in the sand; once the sea takes them, the text is gone from memory
@@ -52,7 +61,8 @@ WebGPU isn't available.
 | URL | What it does |
 | --- | --- |
 | `/?demo=some%20words` | A robot hand writes the words in cursive (uses the stroke engine below). |
-| `/?sea=rough` | Big waves most of the time, for watching the sea take the words. |
+| `/?sea=rough#/ocean` | Big waves most of the time, for watching the sea take the words. |
+| `__utsuroi.addMark('2026-10-03', 'fire')` | In the dev console (development builds only): add a calendar mark. |
 | `/?tune` | Opens a panel for tuning the groove and the sea. |
 | `/tools/glyphs.html` | Glyph sheet: every letter's stroke order and direction, plus a line written by the real writer. |
 
@@ -89,8 +99,11 @@ strokes rather than drawing a font:
 
 ```
 src/
-  main.ts              app wiring: input, phases of the ritual, frame loop
-  strokes/             handwriting engine (pure TypeScript, unit tested)
+  main.ts              routes between the pages
+  pages/               landing page, calendar, icons
+  journal/             ritual marks (IndexedDB) and calendar month math
+  ocean/               the ocean ritual: drawing, looking around, the frame loop
+  strokes/             cursive stroke engine (pure TypeScript, unit tested)
   sand/                sand height grid, water state, tide
   scene/               three.js world and the sand shader
   style.css            interface

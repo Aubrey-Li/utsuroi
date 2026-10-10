@@ -247,7 +247,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 
 <header>
   <div class="meta">
-    <span class="label">Design doc · Draft 0.7</span>
+    <span class="label">Design doc · Draft 0.8</span>
     <span class="label">Updated Oct 10, 2026</span>
     <span class="label">移ろい · utsuroi</span>
   </div>
@@ -259,13 +259,14 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 </header>
 
 <section id="changes" class="changes">
-  <span class="label">What changed in 0.7</span>
+  <span class="label">What changed in 0.8</span>
   <ul>
-    <li><b>No typing in the ocean scene.</b> Writing is by hand only: mouse, trackpad, finger or stylus.</li>
-    <li><b>The whole beach is writable</b>, from in front of your feet to the waterline.</li>
-    <li><b>Look around by dragging</b> the sea or sky (or scrolling, or two fingers): tilt up to the horizon, turn left and right.</li>
+    <li><b>Landing page</b> to choose a ritual (ocean ready; wind, fire and stone coming), with the support link always there.</li>
+    <li><b>Calendar ("Your days")</b> built: each ritual leaves its icon on its day; only date and ritual are stored, on the device.</li>
+    <li><b>The ocean ritual is complete when the sea has taken everything.</b> That's when its mark is left. Leaving earlier leaves none.</li>
+    <li><b>Typing:</b> off only in textured scenes (the ocean, for now). Fire, wind and stone can use typed characters.</li>
   </ul>
-  <p style="color:var(--muted);font-size:0.9rem">0.6: the ocean takes words on its own, a downward view of the sand, and a painted look.</p>
+  <p style="color:var(--muted);font-size:0.9rem">0.7: hand-drawing only in the ocean, the whole beach writable, drag to look around. 0.6: the ocean takes words on its own, a downward view, a painted look.</p>
   <p style="color:var(--muted);font-size:0.9rem">0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones. 0.3 added the stick that writes typed text, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
 </section>
 
@@ -341,7 +342,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <table>
       <thead><tr><th>Topic</th><th>Decision</th></tr></thead>
       <tbody>
-        <tr><td>Input</td><td>By hand only in the ocean scene (mouse, trackpad, finger, stylus). Typing was removed in 0.7; whether other scenes keep it is open.</td></tr>
+        <tr><td>Input</td><td>No typing in textured scenes (the ocean, for now): by hand with mouse, trackpad, finger or stylus. Fire, wind and stone can use typed characters.</td></tr>
         <tr><td>Typed text</td><td>Keeps a handwritten feel. In the ocean and stone scenes, typed text is written stroke by stroke. In fire and wind it appears in a hand-lettered font.</td></tr>
         <tr><td>Handwriting style</td><td>One carefully tuned cursive by default, or your own handwriting after a one-time alphabet setup.</td></tr>
         <tr><td>Entry length</td><td>No minimum. A single word can be released.</td></tr>
@@ -689,8 +690,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   <span class="label">Open questions</span>
   <h2>Left to decide</h2>
   <ol class="questions">
-    <li><b>Typing in other scenes.</b> Typing is gone from the ocean. Should fire, wind and stone also be by hand only? If so, the cursive stroke engine and the "your own hand" alphabet are only needed for the opening 移ろい animation.</li>
-    <li><b>The default cursive.</b> Only matters if typing stays somewhere.</li>
+    <li><b>Typed text in fire, wind and stone.</b> Shown in a hand-lettered font, or written stroke by stroke with the cursive engine?</li>
     <li><b>Icon.</b> Which of the concepts in <a href="#name">Name</a> to develop.</li>
   </ol>
   <h3>Resolved</h3>
@@ -709,7 +709,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   </ul>
 </section>
 
-<footer>Draft 0.7 · A snapshot lives in the repository at docs/design.html.</footer>
+<footer>Draft 0.8 · A snapshot lives in the repository at docs/design.html.</footer>
 
 </div>
 

@@ -25,7 +25,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#scene {
+/* ---- Ocean scene ---- */
+
+.ocean canvas {
   cursor: crosshair;
   position: fixed;
   inset: 0;
@@ -122,10 +124,11 @@ button:disabled {
   margin: 0;
   font-size: 1rem;
   font-style: italic;
-  color: var(--ink-soft);
+  /* Dark ink: the hint sits over the sand. */
+  color: rgba(74, 43, 58, 0.82);
   text-align: center;
   text-wrap: balance;
-  text-shadow: 0 1px 10px rgba(20, 20, 40, 0.45);
+  text-shadow: 0 1px 10px rgba(255, 240, 222, 0.7);
   min-height: 1.5em;
 }
 

@@ -15,26 +15,30 @@
     <title>Utsuroi</title>
   </head>
   <body>
-    <canvas id="scene" aria-label="A beach at dusk. Draw in the sand; the waves come and go."></canvas>
+    <section id="home" class="page home" hidden></section>
+    <section id="calendar" class="page calendar" hidden></section>
 
-    <div class="hud">
-      <header class="brand">
-        <span class="brand-name">utsuroi</span>
-        <span class="brand-jp" lang="ja">移ろい</span>
-      </header>
+    <section id="ocean" class="page ocean" hidden>
+      <canvas aria-label="A beach at dusk. Draw in the sand; the waves come and go."></canvas>
+      <div class="hud">
+        <header class="brand">
+          <span class="brand-name">utsuroi</span>
+          <span class="brand-jp" lang="ja">移ろい</span>
+        </header>
 
-      <button class="leave" id="leave" type="button">Leave</button>
+        <button class="leave" type="button" data-leave>Leave</button>
 
-      <div class="dock" id="dock">
-        <p class="hint" id="hint" aria-live="polite">Draw in the sand. Drag the sea or sky to look around.</p>
+        <div class="dock">
+          <p class="hint" aria-live="polite" data-hint></p>
+        </div>
+
+        <div class="message" hidden aria-live="polite" data-message>
+          <p>The sea has it.</p>
+        </div>
+
+        <div class="veil" data-veil></div>
       </div>
-
-      <div class="message" id="message" hidden aria-live="polite">
-        <p>The sea has it.</p>
-      </div>
-
-      <div class="veil" id="veil"></div>
-    </div>
+    </section>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
