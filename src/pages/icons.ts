@@ -12,8 +12,8 @@ const PATHS: Record<Ritual, string[]> = {
 
 export const RITUAL_INFO: Record<Ritual, { name: string; seal: string; line: string; ready: boolean }> = {
   ocean: { name: 'Ocean', seal: '波', line: 'Write in the sand. The tide takes it.', ready: true },
-  wind: { name: 'Wind', seal: '風', line: 'Let the wind scatter your words.', ready: false },
-  fire: { name: 'Fire', seal: '火', line: 'Write a letter, then burn it.', ready: false },
+  wind: { name: 'Wind', seal: '風', line: 'Let the wind carry your words away.', ready: true },
+  fire: { name: 'Fire', seal: '火', line: 'Write a letter by candlelight, then burn it.', ready: true },
   stone: { name: 'Stone', seal: '石', line: 'Carve what you want to keep.', ready: false },
 };
 

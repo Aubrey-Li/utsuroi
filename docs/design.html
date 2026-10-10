@@ -247,7 +247,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 
 <header>
   <div class="meta">
-    <span class="label">Design doc · Draft 0.8</span>
+    <span class="label">Design doc · Draft 0.9</span>
     <span class="label">Updated Oct 10, 2026</span>
     <span class="label">移ろい · utsuroi</span>
   </div>
@@ -259,14 +259,13 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 </header>
 
 <section id="changes" class="changes">
-  <span class="label">What changed in 0.8</span>
+  <span class="label">What changed in 0.9</span>
   <ul>
-    <li><b>Landing page</b> to choose a ritual (ocean ready; wind, fire and stone coming), with the support link always there.</li>
-    <li><b>Calendar ("Your days")</b> built: each ritual leaves its icon on its day; only date and ritual are stored, on the device.</li>
-    <li><b>The ocean ritual is complete when the sea has taken everything.</b> That's when its mark is left. Leaving earlier leaves none.</li>
-    <li><b>Typing:</b> off only in textured scenes (the ocean, for now). Fire, wind and stone can use typed characters.</li>
+    <li><b>Wind is built.</b> A meadow under a tree on a sunny day, sunlight through the leaves. Typed words float in the air until you press <b>Let the wind take it</b>.</li>
+    <li><b>Fire is built.</b> A dark room lit by one candle. Type a letter on a blank page; when it's done, press <b>Light it</b>.</li>
+    <li>Both use a hand-lettered font (Caveat). No mic or match gestures for now: release is a button press, by choice.</li>
   </ul>
-  <p style="color:var(--muted);font-size:0.9rem">0.7: hand-drawing only in the ocean, the whole beach writable, drag to look around. 0.6: the ocean takes words on its own, a downward view, a painted look.</p>
+  <p style="color:var(--muted);font-size:0.9rem">0.8: landing page, calendar, the ocean's mark when the sea has taken everything, typing only off in textured scenes.</p>
   <p style="color:var(--muted);font-size:0.9rem">0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones. 0.3 added the stick that writes typed text, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
 </section>
 
@@ -401,10 +400,10 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <article class="ritual">
       <div class="ritual-head c-wind"><svg><use href="#i-wind"/></svg><h3>Wind</h3><span class="label">Released</span></div>
       <dl>
-        <dt>Where you write</dt><dd>A grassy hilltop in the late afternoon. Your words appear as if made of dandelion seed and pollen.</dd>
+        <dt>Where you write</dt><dd>A meadow under a tree on a sunny day: blue sky, sunlight coming through the leaves.</dd>
         <dt>How you write</dt><dd>Hand-drawing: traced in the air above the grass, leaving a trail of seed. Typing: letters gather out of drifting seed in a hand-lettered shape.</dd>
         <dt>How much fits</dt><dd>A sentence or two.</dd>
-        <dt>Release gesture</dt><dd>Blow into the microphone. Fallback: press and drag across the screen to make a gust.</dd>
+        <dt>Release gesture</dt><dd>Only when you confirm: <b>Let the wind take it</b>. (Blowing into the mic stays an idea for later.)</dd>
         <dt>What happens</dt><dd>Letters loosen from their edges, lift, and scatter over the hills in the gust's direction. The last specks catch the light.</dd>
         <dt>Technique</dt><dd>Sample points from the text mask into a GPU particle system (position and velocity textures), moved by curl noise plus the gust vector. The grass shader bends with the same gust. Breath detection uses a Web Audio analyser on low-frequency energy.</dd>
         <dt>Sound</dt><dd>Wind that swells with your breath, rustling grass.</dd>
@@ -414,10 +413,10 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <article class="ritual">
       <div class="ritual-head c-fire"><svg><use href="#i-fire"/></svg><h3>Fire</h3><span class="label">Released</span></div>
       <dl>
-        <dt>Where you write</dt><dd>A sheet of paper beside a small fire by a lake at night.</dd>
+        <dt>Where you write</dt><dd>A blank sheet of paper on a desk in a dark room, lit by a single candle.</dd>
         <dt>How you write</dt><dd>Hand-drawing: ink on the paper. Typing: a hand-lettered font, set as if written in ink.</dd>
         <dt>How much fits</dt><dd>A full letter. The page scrolls.</dd>
-        <dt>Release gesture</dt><dd>Drag a match along the box to strike it, then hold the flame to a corner of the page.</dd>
+        <dt>Release gesture</dt><dd>When the letter is done, <b>Light it</b>: the candle's flame is carried to the corner of the page.</dd>
         <dt>What happens</dt><dd>A burn front spreads from where you lit it. The paper browns, curls, and turns to ash, and glowing embers drift up into the dark.</dd>
         <dt>Technique</dt><dd>Paper is a subdivided plane. Burn amount = distance from the ignition point + noise, compared against time: a brown char band, an emissive ember edge, transparency behind it. Vertices curl near the front. Ember particles and bloom.</dd>
         <dt>Sound</dt><dd>Match strike, procedural crackle, then quiet.</dd>
@@ -709,7 +708,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   </ul>
 </section>
 
-<footer>Draft 0.8 · A snapshot lives in the repository at docs/design.html.</footer>
+<footer>Draft 0.9 · A snapshot lives in the repository at docs/design.html.</footer>
 
 </div>
 

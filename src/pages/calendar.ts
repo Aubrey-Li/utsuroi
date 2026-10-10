@@ -130,7 +130,7 @@ export class CalendarPage {
     if (!this.store.persistent) {
       this.note.textContent = 'This browser isn’t saving your days (private browsing or storage turned off), so they’ll be gone when you close the tab.';
     } else if (marks.length === 0) {
-      this.note.textContent = 'Nothing here yet this month. When the sea takes what you wrote, its mark appears on that day.';
+      this.note.textContent = 'Nothing here yet this month. When a place takes what you wrote, its mark appears on that day.';
     } else {
       this.note.textContent = '';
     }

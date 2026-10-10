@@ -40,6 +40,54 @@
       </div>
     </section>
 
+    <section id="wind" class="page scene wind-scene" hidden>
+      <canvas aria-label="A meadow under a tree on a sunny day. Your words float in the air."></canvas>
+      <div class="hud">
+        <header class="brand">
+          <span class="brand-name">utsuroi</span>
+          <span class="brand-jp" lang="ja">移ろい</span>
+        </header>
+
+        <button class="leave" type="button" data-leave>Leave</button>
+
+        <div class="dock">
+          <p class="hint" aria-live="polite" data-hint></p>
+          <button class="action" type="button" data-action disabled>Let the wind take it</button>
+        </div>
+
+        <div class="message" hidden aria-live="polite" data-message>
+          <p></p>
+        </div>
+
+        <textarea class="typed-sink" aria-label="Write here" autocapitalize="sentences" autocomplete="off" spellcheck="false" rows="1"></textarea>
+        <div class="veil" data-veil></div>
+      </div>
+    </section>
+
+    <section id="fire" class="page scene fire-scene" hidden>
+      <canvas aria-label="A dark room. A blank page lies on a desk beside a candle."></canvas>
+      <div class="hud">
+        <header class="brand">
+          <span class="brand-name">utsuroi</span>
+          <span class="brand-jp" lang="ja">移ろい</span>
+        </header>
+
+        <button class="leave" type="button" data-leave>Leave</button>
+
+        <div class="dock">
+          <p class="hint" aria-live="polite" data-hint></p>
+          <button class="action" type="button" data-action disabled>Light it</button>
+        </div>
+
+        <div class="message" hidden aria-live="polite" data-message>
+          <p></p>
+        </div>
+
+        <textarea class="typed-sink" aria-label="Write here" autocapitalize="sentences" autocomplete="off" spellcheck="false" rows="1"></textarea>
+        <div class="veil" data-veil></div>
+      </div>
+    </section>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

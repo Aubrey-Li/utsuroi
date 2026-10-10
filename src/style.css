@@ -202,3 +202,71 @@ button:disabled {
     transition: none;
   }
 }
+
+/* ---- Typed scenes (wind, fire) ---- */
+
+.scene canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: text;
+  touch-action: none;
+}
+
+/* Receives typing for the scene. On screen (so IME popups have a place) but invisible. */
+.typed-sink {
+  position: absolute;
+  left: 50%;
+  bottom: 28%;
+  width: 2px;
+  height: 2px;
+  opacity: 0;
+  resize: none;
+  border: 0;
+  padding: 0;
+  pointer-events: none;
+  caret-color: transparent;
+}
+
+.action {
+  font-size: 1.05rem;
+  padding: 9px 22px;
+}
+
+.action:not(:disabled) {
+  border-color: rgba(255, 236, 205, 0.7);
+}
+
+.wind-scene .hint {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 10px rgba(30, 70, 120, 0.55);
+}
+
+.wind-scene .action {
+  background: rgba(40, 90, 150, 0.32);
+}
+
+.wind-scene .message p {
+  text-shadow: 0 2px 18px rgba(30, 70, 120, 0.55);
+}
+
+.fire-scene .hint {
+  color: rgba(255, 226, 190, 0.78);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+}
+
+.fire-scene .action {
+  background: rgba(80, 40, 20, 0.45);
+  border-color: rgba(255, 180, 110, 0.35);
+}
+
+.fire-scene .action:not(:disabled) {
+  border-color: rgba(255, 180, 110, 0.75);
+}
+
+.fire-scene .brand,
+.fire-scene .leave {
+  opacity: 0.7;
+}

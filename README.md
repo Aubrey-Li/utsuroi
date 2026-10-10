@@ -13,11 +13,11 @@ changing or the color going out of a flower.
 
 ## Status
 
-**Landing page, calendar, and the ocean scene.** Painted and stylized
-(Journey, The Witness) rather than photoreal.
+**Landing page, calendar, and three rituals: ocean, wind and fire.**
+Painted and stylized (Journey, The Witness) rather than photoreal.
 
-- **Landing** (`#/`): choose where to write. Ocean is ready; wind, fire and
-  stone are coming. A quiet "Need to talk to someone?" link is always there.
+- **Landing** (`#/`): choose where to write. Ocean, wind and fire are ready;
+  stone is coming. A quiet "Need to talk to someone?" link is always there.
 - **Your days** (`#/calendar`): each completed ritual leaves its icon on the
   day it happened. Only the date and the ritual are stored, on the device
   (IndexedDB). No words.
@@ -33,6 +33,14 @@ changing or the color going out of a flower.
 - When the sand is smooth everywhere, the marks are forgotten: "The sea has it."
   That completes the ritual and leaves an ocean mark on today in the calendar.
   Leaving before then leaves no mark.
+- **Wind** (`#/wind`): a meadow under a tree on a sunny day, sunlight coming
+  through the leaves. Type, and your words float in the air in a hand-lettered
+  font. They wait until you press **Let the wind take it**; then a gust bends
+  the grass and carries them off one by one.
+- **Fire** (`#/fire`): a dark room, a desk, a candle, and a blank page. Type a
+  letter; when it's done, press **Light it**. The candle's flame is carried to
+  the corner of the page, which browns, chars, curls and burns away with
+  flames, embers and smoke. Then a fresh page.
 
 Nothing you write is stored, sent anywhere, or logged. The words exist only
 as marks in the sand; once the sea takes them, the text is gone from memory
@@ -103,6 +111,9 @@ src/
   pages/               landing page, calendar, icons
   journal/             ritual marks (IndexedDB) and calendar month math
   ocean/               the ocean ritual: drawing, looking around, the frame loop
+  wind/                the wind ritual: meadow, canopy, words in the air, flight
+  fire/                the fire ritual: desk, candle, paper, burn map, flames
+  text/, ui/           hand-lettered font, wrapping, typed input, scene shell
   strokes/             cursive stroke engine (pure TypeScript, unit tested)
   sand/                sand height grid, water state, tide
   scene/               three.js world and the sand shader
@@ -117,3 +128,5 @@ docs/design.html       product design doc
 - [three.js](https://threejs.org) (MIT).
 - EMS Allure single-line font, derived from Allura by Rob Leuschke (TypeSETit).
   SIL Open Font License 1.1. See [`assets-src/fonts`](assets-src/fonts).
+- Caveat by The Caveat Project Authors, for typed words in the wind and fire
+  scenes. SIL Open Font License 1.1, see `public/fonts/Caveat-OFL.txt`.
