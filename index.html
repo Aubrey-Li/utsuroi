@@ -32,13 +32,11 @@
             <button type="button" id="mode-type" aria-pressed="true">Type</button>
             <button type="button" id="mode-draw" aria-pressed="false">Draw</button>
           </div>
-          <button type="button" class="release" id="release" disabled>Turn to the sea</button>
         </div>
       </div>
 
-      <div class="message" id="message" hidden>
-        <p id="message-text">The sea has it.</p>
-        <button type="button" id="again" hidden>Write again</button>
+      <div class="message" id="message" hidden aria-live="polite">
+        <p>The sea has it.</p>
       </div>
 
       <textarea

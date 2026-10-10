@@ -169,6 +169,31 @@ describe('SandLayout', () => {
     expect(layout.add('\n')).toBeNull();
   });
 
+  it('writes on a line again once the sea has cleared it, forgetting what came before', () => {
+    const layout = new SandLayout(font, { ...narrow, maxLines: 2 }, createRng(6));
+    const cleared = new Set<number>();
+    layout.lineIsClear = (line) => cleared.has(line) || !layout.chars.some((c) => c.line === line);
+    const typeWritten = (text: string) => {
+      for (const ch of text) {
+        const c = layout.add(ch);
+        if (!c) return false;
+        c.state = 'written';
+      }
+      return true;
+    };
+    expect(typeWritten('first\nsecond')).toBe(true);
+    expect(layout.currentLine).toBe(1);
+    // Both lines hold writing, so there's no room for another.
+    expect(typeWritten('\n')).toBe(false);
+    cleared.add(0);
+    expect(typeWritten('again')).toBe(true);
+    expect(layout.currentLine).toBe(0);
+    // Everything written before the wrap is sealed and dropped.
+    expect(layout.chars.map((c) => c.ch).join('')).toBe('again');
+    for (let i = 0; i < 5; i++) expect(layout.removeLast()).toBeDefined();
+    expect(layout.removeLast()).toBeUndefined();
+  });
+
   it('restores the pen position on backspace', () => {
     const layout = new SandLayout(font, DEFAULT_LAYOUT, createRng(3));
     layout.add('a');
@@ -258,6 +283,13 @@ describe('SandWriter', () => {
     expect(sink.wipes.length).toBeGreaterThan(0);
     expect(sink.wipes[sink.wipes.length - 1]!.to).toBe(1);
     expect(writer.markedLetters).toBe(0);
+  });
+
+  it('reports when there is nothing left to take back', () => {
+    const { writer } = makeWriter();
+    expect(writer.backspace()).toBe(false);
+    writer.type('a');
+    expect(writer.backspace()).toBe(true);
   });
 
   it('cancels a letter mid-stroke', () => {

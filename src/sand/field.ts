@@ -151,7 +151,7 @@ export class SandField implements WriterSink {
     const dxB = (BEACH.x1 - BEACH.x0) / BEACH.w;
     const dyB = (BEACH.y1 - BEACH.y0) / BEACH.h;
     for (let i = 0; i < BEACH.w; i++) this.fronts[i] = tide.frontAt(BEACH.x0 + (i + 0.5) * dxB);
-    const dry = Math.exp(-dt / 70);
+    const dry = Math.exp(-dt / 28);
     const foamFade = Math.exp(-dt * 0.9);
     const rushFoam = tide.rushing ? 1 : 0.55;
     const out = this.waterBytes;
@@ -198,6 +198,22 @@ export class SandField implements WriterSink {
     const j = Math.floor((y - ZONE.y0) / ZONE_DY);
     if (i < 0 || j < 0 || i >= ZONE.w || j >= ZONE.h) return 0;
     return this.carve[j * ZONE.w + i]!;
+  }
+
+  /** Deepest mark within a rectangle of sand (m). */
+  maxCarveIn(rect: Rect): number {
+    const i0 = Math.max(0, Math.floor((rect.minX - ZONE.x0) / ZONE_DX));
+    const i1 = Math.min(ZONE.w - 1, Math.ceil((rect.maxX - ZONE.x0) / ZONE_DX));
+    const j0 = Math.max(0, Math.floor((rect.minY - ZONE.y0) / ZONE_DY));
+    const j1 = Math.min(ZONE.h - 1, Math.ceil((rect.maxY - ZONE.y0) / ZONE_DY));
+    let m = 0;
+    for (let j = j0; j <= j1; j++) {
+      for (let i = i0; i <= i1; i++) {
+        const v = Math.abs(this.carve[j * ZONE.w + i]!);
+        if (v > m) m = v;
+      }
+    }
+    return m;
   }
 
   /** Deepest groove left anywhere, so we can tell when the sea has taken everything. */

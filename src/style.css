@@ -41,8 +41,7 @@ body {
   padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(env(safe-area-inset-bottom, 0px) + 22px);
 }
 
-.hud button,
-.hud .message {
+.hud button {
   pointer-events: auto;
 }
 
@@ -117,13 +116,6 @@ button:disabled {
   transition: opacity 0.8s;
 }
 
-.dock.gone {
-  opacity: 0;
-}
-
-.dock.gone button {
-  pointer-events: none;
-}
 
 .hint {
   margin: 0;
@@ -164,9 +156,6 @@ button:disabled {
   background: rgba(251, 239, 226, 0.16);
 }
 
-.release:not(:disabled) {
-  border-color: rgba(246, 201, 145, 0.6);
-}
 
 .message {
   position: absolute;
@@ -186,15 +175,16 @@ button:disabled {
   display: none;
 }
 
+.message.fading {
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
 .message p {
   margin: 0;
   font-size: clamp(1.4rem, 3.2vw, 2rem);
   font-style: italic;
   text-shadow: 0 2px 18px rgba(30, 25, 50, 0.5);
-}
-
-.message button {
-  animation: rise 1.6s ease both;
 }
 
 @keyframes rise {
@@ -238,8 +228,7 @@ button:disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .message,
-  .message button {
+  .message {
     animation: none;
   }
   .veil,

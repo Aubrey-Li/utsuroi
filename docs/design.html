@@ -247,7 +247,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 
 <header>
   <div class="meta">
-    <span class="label">Design doc · Draft 0.5</span>
+    <span class="label">Design doc · Draft 0.6</span>
     <span class="label">Updated Oct 10, 2026</span>
     <span class="label">移ろい · utsuroi</span>
   </div>
@@ -259,12 +259,14 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 </header>
 
 <section id="changes" class="changes">
-  <span class="label">What changed in 0.5</span>
+  <span class="label">What changed in 0.6</span>
   <ul>
-    <li>The app has a name: <b>Utsuroi</b> (<span class="jp" lang="ja">移ろい</span>). See <a href="#name">Name</a> for the meaning and icon concepts.</li>
-    <li>Japanese typed text gets real stroke order from KanjiVG, so the stick can write <span class="jp" lang="ja">移ろい</span> in the sand the way a person would.</li>
+    <li><b>The ocean takes words on its own.</b> No "turn to the sea" gesture. Waves come with varied timing and reach, in sets when the swell builds; most lap at the waterline, and some run up into the writing. The sea eases off a little while you're writing.</li>
+    <li><b>Washed lines can be written on again.</b> Once the sand is smooth everywhere, the words are forgotten and a quiet "The sea has it." appears.</li>
+    <li><b>Camera looks down at the sand</b>, as if standing over the writing. The app opens on the horizon and lowers its gaze.</li>
+    <li><b>Painted, not photoreal.</b> Designed color bands, colored shadows, crisp foam, sparkle and an outlined stick, closer to Journey and The Witness.</li>
   </ul>
-  <p style="color:var(--muted);font-size:0.9rem">0.4 added encrypted backup files, the "your own hand" alphabet, no minimum length, and stones that settle on the cairn by themselves. 0.3 added the stick that writes typed text into sand, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
+  <p style="color:var(--muted);font-size:0.9rem">0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones. 0.3 added the stick that writes typed text, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
 </section>
 
 <section id="name">
@@ -326,7 +328,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <li><strong>Release is a gesture</strong><span>You strike the match, blow the words away, turn toward the sea. No "Delete" button.</span></li>
     <li><strong>Released means gone</strong><span>Released words are never saved to disk, sent to a server, or logged. Only the date and the ritual remain.</span></li>
     <li><strong>The medium shapes the words</strong><span>Sand fits a sentence. A letter fits pages. Stone fits a few words, because carving is slow.</span></li>
-    <li><strong>Dreamy, not photoreal</strong><span>Stylized realism in the spirit of Journey and The Witness: soft light, big skies, strong silhouettes.</span></li>
+    <li><strong>Painted, not photoreal</strong><span>An animated-game look in the spirit of Journey and The Witness: designed colors, soft bands of light, strong silhouettes.</span></li>
     <li><strong>It always feels handwritten</strong><span>Even typed words arrive as strokes: traced in sand, carved by a chisel.</span></li>
     <li><strong>Never judged</strong><span>The app never reads, scores, or reacts to what you write. Support is always there, but quiet.</span></li>
   </ul>
@@ -349,7 +351,9 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
         <tr><td>Kept entries</td><td>Only stone entries keep their words. Stones can't be removed. They settle on top of a cairn by themselves.</td></tr>
         <tr><td>Backup</td><td>Stones and calendar marks can be saved to an encrypted backup file and restored on another device.</td></tr>
         <tr><td>Kept places</td><td>A calendar view instead of a walkable garden. Only days with stone entries can be opened.</td></tr>
-        <tr><td>Visual direction</td><td>Stylized realism with a dreamy atmosphere (Journey, The Witness). Fixed, designed mood per scene.</td></tr>
+        <tr><td>Visual direction</td><td>Painted and stylized, like an animated game (Journey, The Witness), not photoreal. Fixed, designed mood per scene.</td></tr>
+        <tr><td>Ocean release</td><td>No gesture. The sea washes the words on its own, with varied wave timing and reach.</td></tr>
+        <tr><td>Camera</td><td>Looking down at the writing, as if standing over it.</td></tr>
         <tr><td>Care</td><td>Support resources are always reachable and never triggered by content. Writing is never judged.</td></tr>
         <tr><td>MVP scenes</td><td>Ocean, Wind, Fire, Stone.</td></tr>
         <tr><td>Platform</td><td>Web first as an installable PWA, then wrapped for iOS and Android.</td></tr>
@@ -386,8 +390,8 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
         <dt>Where you write</dt><dd>Wet sand at the waterline, at dusk.</dd>
         <dt>How you write</dt><dd>Hand-drawing: your finger draws grooves in the sand. Typing: a driftwood stick writes each letter into the sand as you type, a few letters behind you, with real pen lifts and uneven pressure.</dd>
         <dt>How much fits</dt><dd>One to three short lines. The strip of sand runs out.</dd>
-        <dt>Release gesture</dt><dd>Turn toward the sea (drag the view up to the horizon). The tide starts coming in.</dd>
-        <dt>What happens</dt><dd>Each wave reaches a little higher and softens part of the words. Foam lingers in the grooves. After four to six waves the sand is smooth.</dd>
+        <dt>Release gesture</dt><dd>None. The sea is always coming in, the way it does on a real beach.</dd>
+        <dt>What happens</dt><dd>Most waves lap at the waterline. Now and then the swell builds and a bigger wave runs up and takes some of the words, nearest the water first. Washed lines can be written on again; when the sand is smooth everywhere, the words are forgotten.</dd>
         <dt>Technique</dt><dd>Strokes, drawn or synthesized from typing, are stamped into a sand height buffer: the groove sinks and the sand piles into a low ridge on each side. A wave-coverage buffer builds up frame by frame (ping-pong render targets) and relaxes the height back to flat. Wet-sand darkening and a foam line in the shader.</dd>
         <dt>Sound</dt><dd>Surf getting closer, distant gulls.</dd>
       </dl>
@@ -705,7 +709,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   </ul>
 </section>
 
-<footer>Draft 0.5 · A snapshot lives in the repository at docs/design.html.</footer>
+<footer>Draft 0.6 · A snapshot lives in the repository at docs/design.html.</footer>
 
 </div>
 

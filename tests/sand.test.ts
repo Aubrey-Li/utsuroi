@@ -41,61 +41,89 @@ describe('SandField', () => {
     expect(f.carveBytes[k]).toBeLessThan(110);
   });
 
-  it('lets the release waves wash the words away', () => {
+  it('the sea washes the words away on its own, given time', () => {
     const f = new SandField();
     for (let line = 0; line < 3; line++) {
-      const y = 1.45 - line * 0.72;
+      const y = 1.4 - line * 0.64;
       f.stamp(-2.5, y, 0.9, 2.5, y + 0.05, 0.9);
     }
+    const before = f.maxCarve();
     const tide = new Tide(3);
-    tide.release();
     const dt = 1 / 30;
-    let t = 0;
-    while (t < 120 && (tide.pendingReleaseWaves > 0 || tide.mode === 'release')) {
+    for (let t = 0; t < 8 * 60; t += dt) {
       tide.update(dt);
       f.erode(dt, tide);
-      t += dt;
     }
-    expect(f.maxCarve()).toBeLessThan(0.0015);
+    expect(f.maxCarve()).toBeLessThan(before * 0.1);
+  });
+
+  it('finds the deepest mark inside a rectangle only', () => {
+    const f = new SandField();
+    f.stamp(0, 1, 1, 0.1, 1, 1);
+    expect(f.maxCarveIn({ minX: -0.2, maxX: 0.3, minY: 0.8, maxY: 1.2 })).toBeGreaterThan(0.005);
+    expect(f.maxCarveIn({ minX: -2, maxX: -1, minY: 0.8, maxY: 1.2 })).toBe(0);
   });
 });
+
+function simulate(tide: Tide, seconds: number, each: (front: number) => void) {
+  const dt = 1 / 30;
+  for (let t = 0; t < seconds; t += dt) {
+    tide.update(dt);
+    each(tide.frontAt(0));
+  }
+}
 
 describe('Tide', () => {
   it('keeps the waterline wet', () => {
     const tide = new Tide(1);
-    for (let i = 0; i < 600; i++) {
-      tide.update(1 / 30);
-      expect(tide.frontAt((i % 30) - 15)).toBeGreaterThan(0.1);
-    }
+    simulate(tide, 60, (f) => expect(f).toBeGreaterThan(0.1));
   });
 
-  it('idle waves stay well below the writing', () => {
+  it('mostly laps at the waterline, but now and then runs up into the writing', () => {
     const tide = new Tide(2);
-    let highest = 0;
-    for (let i = 0; i < 30 * 120; i++) {
-      tide.update(1 / 30);
-      highest = Math.max(highest, tide.frontAt(0));
-    }
-    expect(highest).toBeLessThan(WATERLINE_Y - 2.35);
-  });
-
-  it('each release wave reaches a little higher, then the tide calms', () => {
-    const tide = new Tide(5);
-    tide.release();
     const peaks: number[] = [];
-    let wave = -1;
+    let wave = tide.waves;
     let peak = 0;
-    for (let i = 0; i < 30 * 120 && (tide.mode === 'release' || tide.pendingReleaseWaves > 0); i++) {
-      tide.update(1 / 30);
-      if (tide.releaseWaves !== wave) {
-        if (wave > 0) peaks.push(peak);
-        wave = tide.releaseWaves;
+    simulate(tide, 10 * 60, (f) => {
+      if (tide.waves !== wave) {
+        peaks.push(peak);
+        wave = tide.waves;
         peak = 0;
       }
-      peak = Math.max(peak, tide.frontAt(0));
-    }
-    expect(peaks.length).toBeGreaterThanOrEqual(5);
-    for (let i = 1; i < peaks.length; i++) expect(peaks[i]!).toBeGreaterThan(peaks[i - 1]! - 0.2);
-    expect(tide.mode).toBe('idle');
+      peak = Math.max(peak, f);
+    });
+    const intoWriting = peaks.filter((p) => p > WATERLINE_Y - 1.5).length;
+    const small = peaks.filter((p) => p < 2).length;
+    expect(peaks.length).toBeGreaterThan(60);
+    expect(small / peaks.length).toBeGreaterThan(0.6);
+    expect(intoWriting).toBeGreaterThan(2);
+  });
+
+  it('eases off the big waves while someone is writing', () => {
+    const calm = new Tide(4);
+    const busy = new Tide(4);
+    busy.writing = true;
+    simulate(calm, 15 * 60, () => {});
+    simulate(busy, 15 * 60, () => {});
+    expect(busy.bigWaves).toBeLessThan(calm.bigWaves);
+  });
+
+  it('varies how far waves reach and how often they come', () => {
+    const tide = new Tide(9);
+    const gaps: number[] = [];
+    let lastWaveAt = 0;
+    let wave = tide.waves;
+    let t = 0;
+    simulate(tide, 5 * 60, () => {
+      t += 1 / 30;
+      if (tide.waves !== wave) {
+        gaps.push(t - lastWaveAt);
+        lastWaveAt = t;
+        wave = tide.waves;
+      }
+    });
+    const min = Math.min(...gaps.slice(1));
+    const max = Math.max(...gaps.slice(1));
+    expect(max - min).toBeGreaterThan(2);
   });
 });

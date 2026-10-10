@@ -3,6 +3,7 @@ import { createRng, fbm1 } from '../strokes/random';
 /**
  * Distances here are measured up the beach from the waterline, in meters
  * ("u"). A front of 3 means the water reaches 3 m up the sand at that x.
+ * The writing sits roughly 3.3 to 5 m up the beach.
  */
 interface Wave {
   reach: number;
@@ -15,39 +16,66 @@ interface Wave {
   seedB: number;
 }
 
+export interface TideParams {
+  /** Seconds between waves, min and max. */
+  gapMin: number;
+  gapMax: number;
+  /** Chance that a wave is a big one that runs up into the writing, at calm and at full swell. */
+  bigChanceCalm: number;
+  bigChanceSwell: number;
+  /** How far big waves reach (m up the beach). */
+  bigReachMin: number;
+  bigReachMax: number;
+  /** Seconds for the swell to build and fade. Big waves come in sets when the swell is up. */
+  swellPeriod: number;
+  /** Big waves are this much less likely while someone is writing. */
+  writingLull: number;
+}
+
+export const DEFAULT_TIDE: TideParams = {
+  gapMin: 0.3,
+  gapMax: 2.2,
+  bigChanceCalm: 0.08,
+  bigChanceSwell: 0.45,
+  bigReachMin: 2.8,
+  bigReachMax: 6.4,
+  swellPeriod: 45,
+  writingLull: 0.3,
+};
+
 /** Lowest the water ever sits, so the waterline always stays wet and meets the sea. */
 const MIN_FRONT = 0.18;
 
-// Each wave in the release reaches a little higher, so the tide takes the
-// words a piece at a time. The text sits roughly 3.3 to 5.0 m up the beach.
-const RELEASE_REACHES = [2.3, 3.4, 4.0, 4.6, 5.15, 5.55, 5.9];
-
-export type TideMode = 'idle' | 'release';
-
+/**
+ * The sea, always moving. Most waves lap at the waterline; now and then the
+ * swell builds and a set of bigger waves runs up the beach and takes some of
+ * whatever is written there. Nothing is triggered by the writer.
+ */
 export class Tide {
-  mode: TideMode = 'idle';
   /** Seconds since the tide started. */
   time = 0;
+  params: TideParams;
+  /** Set by the app while someone is writing, to ease off the big waves a little. */
+  writing = false;
+  /** Total waves so far, and how many of them were big. */
+  waves = 0;
+  bigWaves = 0;
   private wave: Wave;
   private gap = 0;
-  private readonly queue: number[] = [];
   private readonly rng: () => number;
-  /** Count of release waves that have begun. */
-  releaseWaves = 0;
+  private readonly swellSeed: number;
 
-  constructor(seed = 7) {
+  constructor(seed = 7, params: TideParams = DEFAULT_TIDE) {
     this.rng = createRng(seed);
-    this.wave = this.idleWave();
+    this.params = { ...params };
+    this.swellSeed = Math.floor(this.rng() * 1e6);
+    this.wave = this.smallWave();
     this.wave.t = this.wave.rise * 0.6;
   }
 
   /** How strongly the current wave erodes what it covers (1/s). */
   get erosion(): number {
     return this.wave.strength;
-  }
-
-  get pendingReleaseWaves(): number {
-    return this.queue.length;
   }
 
   /** Highest the water reaches anywhere right now, for skipping dry rows. */
@@ -60,22 +88,10 @@ export class Tide {
     return this.wave.t < this.wave.rise;
   }
 
-  release(): void {
-    this.mode = 'release';
-    this.queue.length = 0;
-    this.queue.push(...RELEASE_REACHES);
-    this.releaseWaves = 0;
-    // Let the current little wave finish; the release starts on the next one.
-  }
-
-  /** Adds one more large wave, for when the words haven't quite gone. */
-  addWave(reach = 6.1): void {
-    this.queue.push(reach);
-  }
-
-  calm(): void {
-    this.mode = 'idle';
-    this.queue.length = 0;
+  /** 0 when the sea is calm, 1 at the height of a swell. */
+  get swell(): number {
+    const s = 0.5 + 0.5 * fbm1(this.time / this.params.swellPeriod, this.swellSeed);
+    return Math.min(1, Math.max(0, (s - 0.25) / 0.6));
   }
 
   update(dt: number): void {
@@ -87,15 +103,19 @@ export class Tide {
     }
     this.gap -= dt;
     if (this.gap > 0) return;
-    const reach = this.queue.shift();
-    if (reach !== undefined) {
-      this.wave = this.releaseWave(reach);
-      this.releaseWaves++;
+    const p = this.params;
+    const swell = this.swell;
+    let chance = p.bigChanceCalm + (p.bigChanceSwell - p.bigChanceCalm) * swell * swell;
+    if (this.writing) chance *= p.writingLull;
+    if (this.rng() < chance) {
+      const r = Math.pow(this.rng(), 0.6) * (0.7 + 0.3 * swell);
+      this.wave = this.bigWave(p.bigReachMin + (p.bigReachMax - p.bigReachMin) * r);
+      this.bigWaves++;
     } else {
-      if (this.mode === 'release') this.mode = 'idle';
-      this.wave = this.idleWave();
+      this.wave = this.smallWave();
     }
-    this.gap = this.mode === 'release' ? 0.2 + this.rng() * 0.5 : 0.4 + this.rng() * 1.3;
+    this.waves++;
+    this.gap = p.gapMin + (p.gapMax - p.gapMin) * this.rng();
   }
 
   /** Distance up the beach (m) the water reaches at world x. */
@@ -119,13 +139,14 @@ export class Tide {
     return MIN_FRONT + (w.reach - MIN_FRONT) * (1 - u * u);
   }
 
-  private idleWave(): Wave {
+  private smallWave(): Wave {
     const r = this.rng;
+    const swell = this.swell;
     return {
-      reach: 0.45 + r() * 0.6,
-      rise: 1.9 + r() * 0.7,
+      reach: 0.4 + r() * (0.6 + swell * 0.7),
+      rise: 1.8 + r() * 0.8,
       hold: 0.25,
-      fall: 2.8 + r() * 0.8,
+      fall: 2.6 + r() * 1.0,
       t: 0,
       strength: 0.45,
       seedA: Math.floor(r() * 1e6),
@@ -133,15 +154,15 @@ export class Tide {
     };
   }
 
-  private releaseWave(reach: number): Wave {
+  private bigWave(reach: number): Wave {
     const r = this.rng;
     return {
-      reach: reach * (0.97 + r() * 0.06),
-      rise: 2.3 + r() * 0.6 + reach * 0.08,
+      reach,
+      rise: 2.2 + r() * 0.7 + reach * 0.08,
       hold: 0.35,
-      fall: 3.2 + r() * 0.7 + reach * 0.1,
+      fall: 3.0 + r() * 0.8 + reach * 0.1,
       t: 0,
-      strength: 0.95 + r() * 0.3,
+      strength: 0.85 + r() * 0.35,
       seedA: Math.floor(r() * 1e6),
       seedB: Math.floor(r() * 1e6),
     };

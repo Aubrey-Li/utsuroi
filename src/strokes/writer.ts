@@ -83,7 +83,7 @@ function endOf(m: Motion): { x: number; y: number; lift: number } | null {
 
 type Action = { kind: 'char'; char: PlacedChar } | { kind: 'wipe'; char: PlacedChar; rect: Rect };
 
-const REST_LIFT = 0.04;
+const REST_LIFT = 0.018;
 
 /**
  * The stick's brain: turns typed characters into timed strokes and plays them back.
@@ -130,9 +130,10 @@ export class SandWriter {
     return true;
   }
 
-  backspace(): void {
+  /** Removes the last character. Returns false if there's nothing left that can be taken back. */
+  backspace(): boolean {
     const c = this.layout.removeLast();
-    if (!c) return;
+    if (!c) return false;
     if (c.state === 'queued') {
       for (let i = this.queue.length - 1; i >= 0; i--) {
         const a = this.queue[i]!;
@@ -141,7 +142,7 @@ export class SandWriter {
           break;
         }
       }
-      return;
+      return true;
     }
     // Already started: cancel whatever is left of it, then sweep it away.
     this.dropMotionsFor(c.id);
@@ -150,6 +151,7 @@ export class SandWriter {
     const rect = this.bounds.get(c.id);
     this.bounds.delete(c.id);
     if (rect && !isEmptyRect(rect)) this.queue.push({ kind: 'wipe', char: c, rect });
+    return true;
   }
 
   reset(): void {

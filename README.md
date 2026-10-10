@@ -13,19 +13,22 @@ changing or the color going out of a flower.
 
 ## Status
 
-**M0: sand-writing prototype.** One scene, the ocean at dusk:
+**M0: sand-writing prototype.** One scene, the ocean at dusk, in a
+painted, stylized look (Journey, The Witness) rather than photoreal:
 
 - Type, and a driftwood stick writes your words into the sand in cursive,
   stroke by stroke, a few letters behind you. Backspace and the stick
   smooths the letter away.
 - Or switch to **Draw** and write with your finger or mouse.
-- **Turn to the sea** (button, or drag upward) and the tide comes in. Each
-  wave reaches a little higher and takes a little more until the sand is
-  smooth.
+- The sea never stops. Most waves lap at the waterline; now and then the
+  swell builds and a bigger wave runs up and takes some of the writing,
+  nearest the water first. The sea eases off a little while you're writing.
+  Once a line is smooth again you can write on it.
+- When the sand is smooth everywhere, the words are forgotten: "The sea has it."
 
 Nothing you write is stored, sent anywhere, or logged. The words exist only
-as marks in the sand, and once you turn to the sea even the text is
-discarded.
+as marks in the sand; once the sea takes them, the text is gone from memory
+too.
 
 The full product design (four rituals, the calendar, stones, privacy model,
 milestones) is in [`docs/design.html`](docs/design.html).
@@ -50,8 +53,8 @@ WebGPU isn't available.
 | URL | What it does |
 | --- | --- |
 | `/?demo=some%20words` | Types the text automatically. |
-| `/?demo=some%20words&release` | Types it, then turns to the sea. |
-| `/?tune` | Opens a panel for tuning the handwriting and the groove. |
+| `/?sea=rough` | Big waves most of the time, for watching the sea take the words. |
+| `/?tune` | Opens a panel for tuning the handwriting, the groove and the sea. |
 | `/tools/glyphs.html` | Glyph sheet: every letter's stroke order and direction, plus a line written by the real writer. |
 
 ## How the handwriting works
@@ -74,8 +77,11 @@ Typed text is turned into pen strokes, not drawn as a font:
    lifting where the cursive connects.
 6. **Sand.** Each step of the stick stamps a groove with low ridges into a
    height grid (`src/sand/field.ts`). Waves relax and blur it. The sand
-   shader (`src/scene/sand-material.ts`, TSL) derives normals, cavity
-   shading, wet sand and foam on the GPU.
+   shader (`src/scene/sand-material.ts`, TSL) shades it in a few designed
+   color bands (light, mid, shadow, inked groove), with wet sand, crisp foam,
+   sparkle, and the stick's shadow drawn analytically.
+7. **Sea.** `src/sand/tide.ts` runs waves with varied gaps and reach. A slow
+   swell makes big waves come in sets.
 
 ## Layout
 

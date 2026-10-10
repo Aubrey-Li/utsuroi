@@ -28,11 +28,11 @@ export interface LayoutOptions {
 export const DEFAULT_LAYOUT: LayoutOptions = {
   left: -2.9,
   width: 5.8,
-  firstBaseline: 1.45,
-  lineHeight: 0.72,
+  firstBaseline: 1.4,
+  lineHeight: 0.64,
   maxLines: 3,
   xHeight: 0.17,
-  stretch: 1.45,
+  stretch: 1.15,
   wordSpacing: 1.35,
   baselineDrift: 0.02,
   variation: { size: 0.045, slant: 0.05, rotation: 0.025 },
@@ -69,9 +69,16 @@ export interface PlacedChar {
  * Positions are fixed once a letter has been written. A word that hasn't
  * been started yet moves to the next line if it runs out of room; a word
  * already being written breaks where it is.
+ *
+ * Lines are reused once the sea has washed them smooth, so writing can go
+ * on as long as the tide keeps taking it. Moving back to a reused line
+ * seals everything written before: it can no longer be backspaced, and the
+ * characters are dropped from memory.
  */
 export class SandLayout {
   readonly chars: PlacedChar[] = [];
+  /** Optional check that a line's sand is smooth enough to write on again. */
+  lineIsClear: ((line: number) => boolean) | null = null;
   readonly unit: number;
   private penX: number;
   private line = 0;
@@ -107,11 +114,11 @@ export class SandLayout {
     const right = o.left + o.width;
 
     if (ch === '\n') {
-      if (this.line + 1 >= o.maxLines) return null;
+      const next = this.nextLine();
+      if (next === null) return null;
       const c = this.makeChar(ch, null, 0);
       this.chars.push(c);
-      this.line++;
-      this.penX = o.left;
+      this.moveToLine(next, []);
       return c;
     }
 
@@ -120,11 +127,11 @@ export class SandLayout {
     const advance = (glyph ? glyph.advance * variation.scale : this.font.spaceAdvance * this.options.wordSpacing) * this.unit;
 
     if (ch !== ' ' && this.penX + advance > right + 1e-9) {
-      if (this.line + 1 >= o.maxLines) return null;
+      const next = this.nextLine();
+      if (next === null) return null;
       const word = this.currentWord();
       const canMove = word.length > 0 && word[0]!.x > o.left + 1e-6 && word.every((c) => c.state === 'queued');
-      this.line++;
-      this.penX = o.left;
+      this.moveToLine(next, canMove ? word : []);
       if (canMove) {
         for (const c of word) {
           if (c !== word[0]) c.penBefore = { x: this.penX, line: this.line };
@@ -155,6 +162,40 @@ export class SandLayout {
     this.chars.length = 0;
     this.penX = this.options.left;
     this.line = 0;
+  }
+
+  /** The next line with room: below the current one, else back around to any the sea has cleared. */
+  nextLine(): number | null {
+    const n = this.options.maxLines;
+    for (let step = 1; step < n; step++) {
+      const k = (this.line + step) % n;
+      if (this.isFree(k)) return k;
+    }
+    return null;
+  }
+
+  private isFree(line: number): boolean {
+    let has = false;
+    for (const c of this.chars) {
+      if (c.line !== line) continue;
+      if (c.state !== 'written') return false;
+      has = true;
+    }
+    return this.lineIsClear ? this.lineIsClear(line) : !has;
+  }
+
+  private moveToLine(line: number, keep: PlacedChar[]): void {
+    const wrapped = line <= this.line;
+    this.line = line;
+    this.penX = this.options.left;
+    if (wrapped) this.seal(keep);
+  }
+
+  /** Forgets every written character before the ones still in play. */
+  private seal(keep: PlacedChar[]): void {
+    let i = 0;
+    while (i < this.chars.length && this.chars[i]!.state === 'written' && !keep.includes(this.chars[i]!)) i++;
+    if (i > 0) this.chars.splice(0, i);
   }
 
   private currentWord(): PlacedChar[] {
