@@ -16,17 +16,16 @@ const SKY = [
 ];
 const FOG = '#f4c0a0';
 
-export interface CameraPose {
-  position: THREE.Vector3;
-  target: THREE.Vector3;
-}
-
-export const POSES = {
-  // Opening view across the water to the sun.
-  arrive: { position: new THREE.Vector3(0, 1.7, 3.4), target: new THREE.Vector3(0, 1.0, -20) },
-  // Standing over the writing, looking down at the sand with the waterline at the top.
-  writing: { position: new THREE.Vector3(0, 3.35, 2.8), target: new THREE.Vector3(0, 0, -1.35) },
-} satisfies Record<string, CameraPose>;
+/**
+ * The view is one tilt between two ends: looking down at the sand (0) and
+ * out to the horizon (1). The eye also lowers as you look up, the way you'd
+ * crouch to watch the sea. Yaw turns left and right.
+ */
+const VIEW = {
+  down: { position: new THREE.Vector3(0, 3.35, 2.8), pitch: -Math.atan2(3.35, 4.15) },
+  up: { position: new THREE.Vector3(0, 1.7, 3.4), pitch: THREE.MathUtils.degToRad(2) },
+  maxYaw: 0.6,
+};
 
 function skyTexture(): THREE.CanvasTexture {
   const w = 2048;
@@ -130,15 +129,12 @@ export class World {
   readonly stick = makeStick();
   readonly carveTex: THREE.DataTexture;
   readonly waterTex: THREE.DataTexture;
-  /** Half the width of the writing (m); the camera backs off until it fits. */
-  fitHalfWidth = 3.2;
   private readonly sand: SandMaterial;
   private readonly sea: SeaMaterial;
-  private readonly lookTarget = new THREE.Vector3();
-  private readonly camFrom: CameraPose = { position: new THREE.Vector3(), target: new THREE.Vector3() };
-  private readonly camTo: CameraPose = { position: new THREE.Vector3(), target: new THREE.Vector3() };
-  private camT = 1;
-  private camDur = 1;
+  /** Where the view is heading, and where it is now. */
+  private readonly view = { tilt: 0, yaw: 0, rate: 10 };
+  private tiltNow = 0;
+  private yawNow = 0;
   private readonly stickLean = new THREE.Vector3();
   private readonly lastTip = new THREE.Vector3();
 
@@ -187,7 +183,6 @@ export class World {
     this.scene.add(new THREE.Mesh(seaGeo, this.sea.material));
 
     this.scene.add(this.stick);
-    this.setPose(POSES.writing, 0);
   }
 
   async init(): Promise<void> {
@@ -207,21 +202,29 @@ export class World {
     this.camera.updateProjectionMatrix();
   }
 
-  /** Glides the camera to a pose (or jumps there when seconds is 0). */
-  setPose(pose: CameraPose, seconds: number): void {
-    if (seconds > 0) {
-      const e = this.camT * this.camT * (3 - 2 * this.camT);
-      this.camFrom.position.lerp(this.camTo.position, e);
-      this.camFrom.target.copy(this.lookTarget);
-    } else {
-      this.camFrom.position.copy(pose.position);
-      this.camFrom.target.copy(pose.target);
-    }
-    this.camTo.position.copy(pose.position);
-    this.camTo.target.copy(pose.target);
-    this.camT = seconds > 0 ? 0 : 1;
-    this.camDur = Math.max(seconds, 1e-3);
-    if (seconds <= 0) this.lookTarget.copy(pose.target);
+  get tilt(): number {
+    return this.view.tilt;
+  }
+
+  get yaw(): number {
+    return this.view.yaw;
+  }
+
+  /**
+   * Sets where the view should go. `rate` is how quickly it follows:
+   * high while dragging, low for a slow glide.
+   */
+  setView(tilt: number, yaw: number, rate = 12): void {
+    this.view.tilt = THREE.MathUtils.clamp(tilt, 0, 1);
+    this.view.yaw = THREE.MathUtils.clamp(yaw, -VIEW.maxYaw, VIEW.maxYaw);
+    this.view.rate = rate;
+  }
+
+  /** Moves the view there immediately. */
+  jumpView(tilt: number, yaw: number): void {
+    this.setView(tilt, yaw);
+    this.tiltNow = this.view.tilt;
+    this.yawNow = this.view.yaw;
   }
 
   /** Places the stick so its tip is at a sand position, leaning into its motion. */
@@ -261,17 +264,19 @@ export class World {
     if (carveChanged) this.carveTex.needsUpdate = true;
     this.waterTex.needsUpdate = true;
 
-    if (this.camT < 1) this.camT = Math.min(1, this.camT + dt / this.camDur);
-    const e = this.camT * this.camT * (3 - 2 * this.camT);
-    const base = this.camFrom.position.clone().lerp(this.camTo.position, e);
-    this.lookTarget.copy(this.camFrom.target).lerp(this.camTo.target, e);
-    // Pull back along the view direction until the writing fits the screen's width.
-    const dist = Math.min(base.distanceTo(this.lookTarget), 5.4);
-    const halfView = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * this.camera.aspect * dist;
-    const fit = Math.min(2.2, Math.max(1, this.fitHalfWidth / halfView));
-    const pos = this.lookTarget.clone().add(base.sub(this.lookTarget).multiplyScalar(Math.pow(fit, 0.85)));
+    const follow = 1 - Math.exp(-dt * this.view.rate);
+    this.tiltNow += (this.view.tilt - this.tiltNow) * follow;
+    this.yawNow += (this.view.yaw - this.yawNow) * follow;
+    const e = this.tiltNow * this.tiltNow * (3 - 2 * this.tiltNow);
+    const pos = VIEW.down.position.clone().lerp(VIEW.up.position, e);
+    const pitch = VIEW.down.pitch + (VIEW.up.pitch - VIEW.down.pitch) * e;
+    const dir = new THREE.Vector3(
+      Math.sin(this.yawNow) * Math.cos(pitch),
+      Math.sin(pitch),
+      -Math.cos(this.yawNow) * Math.cos(pitch),
+    );
     this.camera.position.copy(pos);
-    this.camera.lookAt(this.lookTarget);
+    this.camera.lookAt(pos.clone().add(dir));
     this.sea.cameraX.value = pos.x;
     this.sea.cameraZ.value = pos.z;
   }

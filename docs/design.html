@@ -247,7 +247,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 
 <header>
   <div class="meta">
-    <span class="label">Design doc · Draft 0.6</span>
+    <span class="label">Design doc · Draft 0.7</span>
     <span class="label">Updated Oct 10, 2026</span>
     <span class="label">移ろい · utsuroi</span>
   </div>
@@ -259,13 +259,13 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 </header>
 
 <section id="changes" class="changes">
-  <span class="label">What changed in 0.6</span>
+  <span class="label">What changed in 0.7</span>
   <ul>
-    <li><b>The ocean takes words on its own.</b> No "turn to the sea" gesture. Waves come with varied timing and reach, in sets when the swell builds; most lap at the waterline, and some run up into the writing. The sea eases off a little while you're writing.</li>
-    <li><b>Washed lines can be written on again.</b> Once the sand is smooth everywhere, the words are forgotten and a quiet "The sea has it." appears.</li>
-    <li><b>Camera looks down at the sand</b>, as if standing over the writing. The app opens on the horizon and lowers its gaze.</li>
-    <li><b>Painted, not photoreal.</b> Designed color bands, colored shadows, crisp foam, sparkle and an outlined stick, closer to Journey and The Witness.</li>
+    <li><b>No typing in the ocean scene.</b> Writing is by hand only: mouse, trackpad, finger or stylus.</li>
+    <li><b>The whole beach is writable</b>, from in front of your feet to the waterline.</li>
+    <li><b>Look around by dragging</b> the sea or sky (or scrolling, or two fingers): tilt up to the horizon, turn left and right.</li>
   </ul>
+  <p style="color:var(--muted);font-size:0.9rem">0.6: the ocean takes words on its own, a downward view of the sand, and a painted look.</p>
   <p style="color:var(--muted);font-size:0.9rem">0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones. 0.3 added the stick that writes typed text, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
 </section>
 
@@ -341,7 +341,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <table>
       <thead><tr><th>Topic</th><th>Decision</th></tr></thead>
       <tbody>
-        <tr><td>Input</td><td>Handwriting by default on touch devices, typing by default on desktop. Either can be switched manually on any device.</td></tr>
+        <tr><td>Input</td><td>By hand only in the ocean scene (mouse, trackpad, finger, stylus). Typing was removed in 0.7; whether other scenes keep it is open.</td></tr>
         <tr><td>Typed text</td><td>Keeps a handwritten feel. In the ocean and stone scenes, typed text is written stroke by stroke. In fire and wind it appears in a hand-lettered font.</td></tr>
         <tr><td>Handwriting style</td><td>One carefully tuned cursive by default, or your own handwriting after a one-time alphabet setup.</td></tr>
         <tr><td>Entry length</td><td>No minimum. A single word can be released.</td></tr>
@@ -353,7 +353,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
         <tr><td>Kept places</td><td>A calendar view instead of a walkable garden. Only days with stone entries can be opened.</td></tr>
         <tr><td>Visual direction</td><td>Painted and stylized, like an animated game (Journey, The Witness), not photoreal. Fixed, designed mood per scene.</td></tr>
         <tr><td>Ocean release</td><td>No gesture. The sea washes the words on its own, with varied wave timing and reach.</td></tr>
-        <tr><td>Camera</td><td>Looking down at the writing, as if standing over it.</td></tr>
+        <tr><td>Camera</td><td>Looking down at the writing, as if standing over it. Drag the sea or sky to tilt up to the horizon or turn.</td></tr>
         <tr><td>Care</td><td>Support resources are always reachable and never triggered by content. Writing is never judged.</td></tr>
         <tr><td>MVP scenes</td><td>Ocean, Wind, Fire, Stone.</td></tr>
         <tr><td>Platform</td><td>Web first as an installable PWA, then wrapped for iOS and Android.</td></tr>
@@ -388,8 +388,8 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
       <div class="ritual-head c-ocean"><svg><use href="#i-ocean"/></svg><h3>Ocean</h3><span class="label">Released</span></div>
       <dl>
         <dt>Where you write</dt><dd>Wet sand at the waterline, at dusk.</dd>
-        <dt>How you write</dt><dd>Hand-drawing: your finger draws grooves in the sand. Typing: a driftwood stick writes each letter into the sand as you type, a few letters behind you, with real pen lifts and uneven pressure.</dd>
-        <dt>How much fits</dt><dd>One to three short lines. The strip of sand runs out.</dd>
+        <dt>How you write</dt><dd>By hand, anywhere on the beach. A driftwood stick follows your finger or mouse and draws grooves in the sand.</dd>
+        <dt>How much fits</dt><dd>The whole beach, but the closer you write to the water, the sooner it goes.</dd>
         <dt>Release gesture</dt><dd>None. The sea is always coming in, the way it does on a real beach.</dd>
         <dt>What happens</dt><dd>Most waves lap at the waterline. Now and then the swell builds and a bigger wave runs up and takes some of the words, nearest the water first. Washed lines can be written on again; when the sand is smooth everywhere, the words are forgotten.</dd>
         <dt>Technique</dt><dd>Strokes, drawn or synthesized from typing, are stamped into a sand height buffer: the groove sinks and the sand piles into a low ridge on each side. A wave-coverage buffer builds up frame by frame (ping-pong render targets) and relaxes the height back to flat. Wet-sand darkening and a foam line in the shader.</dd>
@@ -689,9 +689,9 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   <span class="label">Open questions</span>
   <h2>Left to decide</h2>
   <ol class="questions">
+    <li><b>Typing in other scenes.</b> Typing is gone from the ocean. Should fire, wind and stone also be by hand only? If so, the cursive stroke engine and the "your own hand" alphabet are only needed for the opening 移ろい animation.</li>
+    <li><b>The default cursive.</b> Only matters if typing stays somewhere.</li>
     <li><b>Icon.</b> Which of the concepts in <a href="#name">Name</a> to develop.</li>
-    <li><b>UI shell.</b> Plain TypeScript or a small framework for menus, calendar, and settings. Decided at repo setup.</li>
-    <li><b>The default cursive.</b> Which single-line font to start from, based on how it looks after tuning and on its license.</li>
   </ol>
   <h3>Resolved</h3>
   <ul>
@@ -709,7 +709,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   </ul>
 </section>
 
-<footer>Draft 0.6 · A snapshot lives in the repository at docs/design.html.</footer>
+<footer>Draft 0.7 · A snapshot lives in the repository at docs/design.html.</footer>
 
 </div>
 

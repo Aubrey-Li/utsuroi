@@ -15,7 +15,7 @@
     <title>Utsuroi</title>
   </head>
   <body>
-    <canvas id="scene" aria-label="A beach at dusk. The sand is smooth and the tide is low."></canvas>
+    <canvas id="scene" aria-label="A beach at dusk. Draw in the sand; the waves come and go."></canvas>
 
     <div class="hud">
       <header class="brand">
@@ -26,29 +26,13 @@
       <button class="leave" id="leave" type="button">Leave</button>
 
       <div class="dock" id="dock">
-        <p class="hint" id="hint" aria-live="polite">Type, and the stick writes it in the sand.</p>
-        <div class="controls">
-          <div class="mode" role="group" aria-label="How to write">
-            <button type="button" id="mode-type" aria-pressed="true">Type</button>
-            <button type="button" id="mode-draw" aria-pressed="false">Draw</button>
-          </div>
-        </div>
+        <p class="hint" id="hint" aria-live="polite">Draw in the sand. Drag the sea or sky to look around.</p>
       </div>
 
       <div class="message" id="message" hidden aria-live="polite">
         <p>The sea has it.</p>
       </div>
 
-      <textarea
-        id="sink"
-        class="sink"
-        aria-label="Write in the sand"
-        autocapitalize="off"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-        rows="1"
-      ></textarea>
       <div class="veil" id="veil"></div>
     </div>
 

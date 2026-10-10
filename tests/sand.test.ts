@@ -22,6 +22,34 @@ describe('SandField', () => {
     for (let i = 0; i < ZONE.w; i++) expect(f.carve[(ZONE.h - 1) * ZONE.w + i]).toBe(0);
   });
 
+  it('can be written on anywhere on the beach, not just in the middle', () => {
+    const f = new SandField();
+    f.stamp(6.5, 4.6, 1, 6.6, 4.6, 1);
+    f.stamp(-6.5, -2.5, 1, -6.4, -2.5, 1);
+    expect(f.carveAt(6.55, 4.6)).toBeLessThan(-0.005);
+    expect(f.carveAt(-6.45, -2.5)).toBeLessThan(-0.005);
+    expect(f.maxCarve()).toBeGreaterThan(0.005);
+    f.packCarve();
+    f.clear();
+    f.packCarve();
+    expect(f.maxCarve()).toBe(0);
+    expect(f.carveBytes.every((b) => b === 128)).toBe(true);
+  });
+
+  it('only repacks rows that changed, and keeps earlier rows intact', () => {
+    const f = new SandField();
+    f.packCarve();
+    f.stamp(0, 0, 1, 0.1, 0, 1);
+    f.packCarve();
+    const row = (y: number) => Math.floor((y - ZONE.y0) / ((ZONE.y1 - ZONE.y0) / ZONE.h));
+    const col = Math.floor((0.05 - ZONE.x0) / ((ZONE.x1 - ZONE.x0) / ZONE.w));
+    expect(f.carveBytes[row(0) * ZONE.w + col]).toBeLessThan(110);
+    f.stamp(0, 3, 1, 0.1, 3, 1);
+    f.packCarve();
+    expect(f.carveBytes[row(0) * ZONE.w + col]).toBeLessThan(110);
+    expect(f.carveBytes[row(3) * ZONE.w + col]).toBeLessThan(110);
+  });
+
   it('wipes a letter back to nearly flat sand', () => {
     const f = new SandField();
     f.stamp(0, 1, 1, 0.1, 1.1, 1);

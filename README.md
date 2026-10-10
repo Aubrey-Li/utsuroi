@@ -16,15 +16,14 @@ changing or the color going out of a flower.
 **M0: sand-writing prototype.** One scene, the ocean at dusk, in a
 painted, stylized look (Journey, The Witness) rather than photoreal:
 
-- Type, and a driftwood stick writes your words into the sand in cursive,
-  stroke by stroke, a few letters behind you. Backspace and the stick
-  smooths the letter away.
-- Or switch to **Draw** and write with your finger or mouse.
+- Write anywhere on the sand by hand, with a mouse, trackpad, finger or
+  stylus. A driftwood stick follows your hand.
+- Drag the sea or sky (or scroll, or use two fingers) to look around: tilt
+  up to the horizon, turn left and right.
 - The sea never stops. Most waves lap at the waterline; now and then the
   swell builds and a bigger wave runs up and takes some of the writing,
   nearest the water first. The sea eases off a little while you're writing.
-  Once a line is smooth again you can write on it.
-- When the sand is smooth everywhere, the words are forgotten: "The sea has it."
+- When the sand is smooth everywhere, the marks are forgotten: "The sea has it."
 
 Nothing you write is stored, sent anywhere, or logged. The words exist only
 as marks in the sand; once the sea takes them, the text is gone from memory
@@ -52,14 +51,17 @@ WebGPU isn't available.
 
 | URL | What it does |
 | --- | --- |
-| `/?demo=some%20words` | Types the text automatically. |
+| `/?demo=some%20words` | A robot hand writes the words in cursive (uses the stroke engine below). |
 | `/?sea=rough` | Big waves most of the time, for watching the sea take the words. |
-| `/?tune` | Opens a panel for tuning the handwriting, the groove and the sea. |
+| `/?tune` | Opens a panel for tuning the groove and the sea. |
 | `/tools/glyphs.html` | Glyph sheet: every letter's stroke order and direction, plus a line written by the real writer. |
 
-## How the handwriting works
+## How it works
 
-Typed text is turned into pen strokes, not drawn as a font:
+**Cursive stroke engine** (`src/strokes/`). Not used for input in the app
+right now (writing is by hand only), but kept for `?demo`, for the stone
+scene, and for writing in someone's own hand later. It turns text into pen
+strokes rather than drawing a font:
 
 1. **Single-line font.** EMS Allure stores each letter as centerline
    strokes. `npm run fonts` converts the SVG font to JSON.

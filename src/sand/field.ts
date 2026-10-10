@@ -8,11 +8,24 @@ import type { Tide } from './tide';
  */
 export const WATERLINE_Y = 5;
 
-/** High-resolution grid that holds carved grooves, covering only the writing area. */
-export const ZONE = { x0: -3.2, x1: 3.2, y0: -0.4, y1: 2.35, w: 1024, h: 440 } as const;
+/** Size of one cell of the carve grid (m). */
+const CELL = 0.008;
+
+/**
+ * High-resolution grid that holds carved grooves: all the sand you can
+ * reach, from in front of your feet to the waterline.
+ */
+export const ZONE = {
+  x0: -896 * CELL,
+  x1: 896 * CELL,
+  y0: WATERLINE_Y - 1024 * CELL,
+  y1: WATERLINE_Y,
+  w: 1792,
+  h: 1024,
+} as const;
 
 /** Low-resolution grid for water, wetness and foam, covering the whole visible beach. */
-export const BEACH = { x0: -8, x1: 8, y0: -9, y1: 6.6, w: 512, h: 500 } as const;
+export const BEACH = { x0: -14, x1: 14, y0: -9, y1: 6.6, w: 896, h: 500 } as const;
 
 /** Carve depth that maps to the ends of the 8-bit texture range (m). */
 export const CARVE_RANGE = 0.02;
@@ -26,7 +39,7 @@ export interface BrushParams {
   ridge: number;
 }
 
-export const DEFAULT_BRUSH: BrushParams = { radius: 0.0135, depth: 0.0105, ridge: 0.0017 };
+export const DEFAULT_BRUSH: BrushParams = { radius: 0.016, depth: 0.011, ridge: 0.0018 };
 
 const ZONE_DX = (ZONE.x1 - ZONE.x0) / ZONE.w;
 const ZONE_DY = (ZONE.y1 - ZONE.y0) / ZONE.h;
@@ -42,6 +55,9 @@ function smoothstep(e0: number, e1: number, x: number): number {
  * Simulated on the CPU for this prototype: grooves are stamped into a
  * height grid, and waves relax and blur it back to flat. The shader reads
  * the packed bytes and derives normals and shading on the GPU.
+ *
+ * The grid covers the whole beach, so work is limited to rows that hold
+ * marks (`rowHasMarks`) and repacking to rows that changed.
  */
 export class SandField implements WriterSink {
   readonly carve = new Float32Array(ZONE.w * ZONE.h);
@@ -51,7 +67,22 @@ export class SandField implements WriterSink {
   readonly waterBytes = new Uint8Array(BEACH.w * BEACH.h * 4);
   carveDirty = true;
   brush: BrushParams = { ...DEFAULT_BRUSH };
+  /** Rows that may hold non-zero carve. */
+  private readonly rowHasMarks = new Uint8Array(ZONE.h);
+  private dirtyFrom = 0;
+  private dirtyTo = ZONE.h - 1;
   private readonly fronts = new Float32Array(Math.max(ZONE.w, BEACH.w));
+
+  private markDirty(j0: number, j1: number): void {
+    if (!this.carveDirty) {
+      this.dirtyFrom = j0;
+      this.dirtyTo = j1;
+    } else {
+      this.dirtyFrom = Math.min(this.dirtyFrom, j0);
+      this.dirtyTo = Math.max(this.dirtyTo, j1);
+    }
+    this.carveDirty = true;
+  }
 
   stamp(x0: number, y0: number, p0: number, x1: number, y1: number, p1: number): void {
     const len = Math.hypot(x1 - x0, y1 - y0);
@@ -94,8 +125,9 @@ export class SandField implements WriterSink {
           if (c[k]! < bump) c[k] = Math.min(bump, c[k]! + bump * 0.22);
         }
       }
+      this.rowHasMarks[j] = 1;
     }
-    this.carveDirty = true;
+    this.markDirty(j0, j1);
   }
 
   /** Smooths part of a rectangle (left to right) back toward flat sand, like the flat of a stick. */
@@ -113,7 +145,7 @@ export class SandField implements WriterSink {
       const keep = 1 - 0.9 * Math.min(1, edge);
       for (let i = i0; i <= i1; i++) this.carve[j * ZONE.w + i]! *= keep;
     }
-    this.carveDirty = true;
+    if (j0 <= j1) this.markDirty(j0, j1);
   }
 
   /** Waves relax and blur the grooves they cover; foamy water near the front works fastest. */
@@ -122,11 +154,14 @@ export class SandField implements WriterSink {
     const strength = tide.erosion;
     const c = this.carve;
     for (let i = 0; i < ZONE.w; i++) this.fronts[i] = tide.frontAt(ZONE.x0 + (i + 0.5) * ZONE_DX);
-    let touched = false;
+    let jMin = ZONE.h;
+    let jMax = -1;
     for (let j = 1; j < ZONE.h - 1; j++) {
+      if (!this.rowHasMarks[j]) continue;
       const u = WATERLINE_Y - (ZONE.y0 + (j + 0.5) * ZONE_DY);
       if (u > maxFront) continue;
       const row = j * ZONE.w;
+      let touched = false;
       for (let i = 1; i < ZONE.w - 1; i++) {
         const f = this.fronts[i]!;
         if (u >= f) continue;
@@ -142,8 +177,14 @@ export class SandField implements WriterSink {
         c[k] = next;
         touched = true;
       }
+      if (touched) {
+        // Blurring spreads marks one row each way.
+        if (j - 1 < jMin) jMin = j - 1;
+        if (j + 1 > jMax) jMax = j + 1;
+        this.rowHasMarks[j - 1] = this.rowHasMarks[j + 1] = 1;
+      }
     }
-    if (touched) this.carveDirty = true;
+    if (jMax >= 0) this.markDirty(Math.max(0, jMin), Math.min(ZONE.h - 1, jMax));
   }
 
   /** Updates wetness, foam and water depth for the whole beach and packs them for the GPU. */
@@ -179,14 +220,20 @@ export class SandField implements WriterSink {
     }
   }
 
+  /** Packs the rows that changed into bytes for the GPU. Returns false if nothing changed. */
   packCarve(): boolean {
     if (!this.carveDirty) return false;
     const c = this.carve;
     const b = this.carveBytes;
     const scale = 127 / CARVE_RANGE;
-    for (let k = 0; k < c.length; k++) {
-      const v = 128 + c[k]! * scale;
-      b[k] = v < 0 ? 0 : v > 255 ? 255 : v;
+    for (let j = this.dirtyFrom; j <= this.dirtyTo; j++) {
+      let any = false;
+      for (let k = j * ZONE.w, end = k + ZONE.w; k < end; k++) {
+        const v = 128 + c[k]! * scale;
+        b[k] = v < 0 ? 0 : v > 255 ? 255 : v;
+        if (c[k] !== 0) any = true;
+      }
+      this.rowHasMarks[j] = any ? 1 : 0;
     }
     this.carveDirty = false;
     return true;
@@ -220,23 +267,19 @@ export class SandField implements WriterSink {
   maxCarve(): number {
     let m = 0;
     const c = this.carve;
-    for (let k = 0; k < c.length; k++) {
-      const v = c[k]! < 0 ? -c[k]! : c[k]!;
-      if (v > m) m = v;
+    for (let j = 0; j < ZONE.h; j++) {
+      if (!this.rowHasMarks[j]) continue;
+      for (let k = j * ZONE.w, end = k + ZONE.w; k < end; k++) {
+        const v = c[k]! < 0 ? -c[k]! : c[k]!;
+        if (v > m) m = v;
+      }
     }
     return m;
   }
 
-  /** Lets faint leftover marks settle into flat sand. */
-  settle(dt: number): void {
-    const f = Math.exp(-dt * 0.6);
-    const c = this.carve;
-    for (let k = 0; k < c.length; k++) if (c[k] !== 0) c[k] = Math.abs(c[k]!) < 1e-5 ? 0 : c[k]! * f;
-    this.carveDirty = true;
-  }
-
   clear(): void {
     this.carve.fill(0);
-    this.carveDirty = true;
+    this.rowHasMarks.fill(0);
+    this.markDirty(0, ZONE.h - 1);
   }
 }

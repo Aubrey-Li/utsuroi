@@ -26,6 +26,7 @@ body {
 }
 
 #scene {
+  cursor: crosshair;
   position: fixed;
   inset: 0;
   width: 100%;
@@ -128,33 +129,9 @@ button:disabled {
   min-height: 1.5em;
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
 
-.mode {
-  display: inline-flex;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--glass);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  padding: 2px;
-}
 
-.mode button {
-  border: none;
-  background: transparent;
-  backdrop-filter: none;
-  padding: 5px 14px;
-}
 
-.mode button[aria-pressed='true'] {
-  background: rgba(251, 239, 226, 0.16);
-}
 
 
 .message {
@@ -198,20 +175,6 @@ button:disabled {
   }
 }
 
-/* The text field that receives typing. Kept on screen (for IME popups) but invisible. */
-.sink {
-  position: absolute;
-  left: 50%;
-  bottom: 30%;
-  width: 2px;
-  height: 2px;
-  opacity: 0;
-  resize: none;
-  border: 0;
-  padding: 0;
-  pointer-events: none;
-  caret-color: transparent;
-}
 
 .veil {
   position: fixed;
