@@ -1,10 +1,15 @@
 import * as THREE from 'three/webgpu';
 import {
   abs,
-  clamp,
   color,
+  floor,
+  fract,
+  hash,
+  max,
+  min,
+  sin,
+  time,
   float,
-  length,
   mix,
   mx_noise_float,
   positionLocal,
@@ -19,6 +24,7 @@ import {
 import { createRng } from '../strokes/random';
 import { HAND_STACK } from '../text/font';
 import { wrapText } from '../text/wrap';
+import { flameShine, lightAt, makeCandle, makePen } from './props';
 import { BURN_SIZE, CHAR_WIDTH, frontSpeed, isBurntOut, makeBurnMap, packBurnMap, sampleFront, type UV } from './burn';
 
 /** A dark room, a desk, a candle. Painted rather than photoreal. */
@@ -45,11 +51,6 @@ const IGNITION: UV = { u: 0.02, v: 0.98 };
 
 const vec3Uniform = (v: THREE.Vector3) => uniform(v);
 
-/** A palette color as a vec3 node (linear), for arithmetic with lighting. */
-function rgb(hex: string) {
-  const c = new THREE.Color(hex);
-  return vec3(c.r, c.g, c.b);
-}
 const floatUniform = (v = 0) => uniform(v);
 
 function canvasTexture(w: number, h: number, draw: (ctx: CanvasRenderingContext2D) => void): THREE.CanvasTexture {
@@ -77,6 +78,28 @@ function flameTexture(): THREE.CanvasTexture {
     ctx.bezierCurveTo(100, 246, 28, 246, 18, 196);
     ctx.bezierCurveTo(10, 150, 28, 90, 64, 8);
     ctx.fill();
+  });
+}
+
+/** An irregular flake of ash with a faint glowing edge. */
+function flakeTexture(): THREE.CanvasTexture {
+  return canvasTexture(64, 64, (ctx) => {
+    const rng = createRng(3);
+    ctx.beginPath();
+    for (let i = 0; i < 9; i++) {
+      const a = (i / 9) * Math.PI * 2;
+      const r = 18 + rng() * 12;
+      const x = 32 + Math.cos(a) * r;
+      const y = 32 + Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(200,190,182,1)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,170,90,0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
   });
 }
 
@@ -128,21 +151,6 @@ class Pool {
   }
 }
 
-/** Lighting shared by every surface: the candle, the burning page, and the dark. */
-function lightAt(
-  candle: ReturnType<typeof vec3Uniform>,
-  flicker: ReturnType<typeof floatUniform>,
-  firePos: ReturnType<typeof vec3Uniform>,
-  fire: ReturnType<typeof floatUniform>,
-) {
-  const dc = length(positionWorld.sub(candle));
-  const df = length(positionWorld.sub(firePos));
-  // Candlelight falls off quickly: the room beyond the desk stays dark.
-  const fromCandle = rgb(PALETTE.candleLight).mul(flicker.mul(1.55).div(dc.mul(dc).mul(1.5).add(1)));
-  const fromFire = rgb(PALETTE.fireLight).mul(fire.mul(flicker).mul(1.15).div(df.mul(df).mul(1.1).add(1)));
-  return rgb(PALETTE.ambient).add(fromCandle).add(fromFire);
-}
-
 export class FireWorld {
   readonly renderer: THREE.WebGPURenderer;
   readonly scene = new THREE.Scene();
@@ -163,6 +171,7 @@ export class FireWorld {
   private readonly flames: Pool;
   private readonly embers: Pool;
   private readonly smoke: Pool;
+  private readonly flakes: Pool;
   private readonly carrier: THREE.Sprite;
   private readonly candleFlame: THREE.Group;
   private clock = 0;
@@ -181,15 +190,33 @@ export class FireWorld {
 
     const light = lightAt(this.candlePos, this.flicker, this.firePos, this.fireLight);
 
-    // The desk: dark wood grain that only shows where light reaches it, and ash where the page was.
+    // The desk: varnished planks, dark beyond the candle's reach. A soft shadow under the page,
+    // and ash where the page was.
     const desk = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicNodeMaterial());
     desk.rotation.x = -Math.PI / 2;
-    const grain = mx_noise_float(vec3(positionWorld.x.mul(0.8), positionWorld.z.mul(9), 1.0)).mul(0.5).add(0.5);
-    const wood = mix(color(PALETTE.woodDark), color(PALETTE.woodLight), smoothstep(0.25, 0.8, grain));
+    const plankW = 0.62;
+    const row = positionWorld.z.div(plankW).add(40);
+    const plank = floor(row);
+    const across = fract(row);
+    const tint = hash(plank).mul(0.25).add(0.88);
+    const warp = mx_noise_float(vec3(positionWorld.x.mul(0.35), plank.mul(3.1), 0.5)).mul(1.6);
+    const grain = mx_noise_float(vec3(positionWorld.x.mul(0.9).add(plank.mul(17)), across.mul(7).add(warp), 1.0)).mul(0.5).add(0.5);
+    const rings = sin(across.mul(40).add(warp.mul(6)).add(positionWorld.x.mul(0.8))).mul(0.5).add(0.5);
+    let wood = mix(color(PALETTE.woodDark), color(PALETTE.woodLight), smoothstep(0.25, 0.85, grain).mul(0.7).add(rings.mul(0.3))).mul(tint);
+    const seam = float(1).sub(smoothstep(0.0, 0.025, min(across, float(1).sub(across))));
+    wood = mix(wood, color('#0a0605'), seam.mul(0.8));
+    // Shadow under the page, cast away from the candle (toward the lower right).
+    const px = abs(positionWorld.x.sub(PAPER.x + 0.05)).sub(PAPER.w / 2);
+    const pz = abs(positionWorld.z.sub(PAPER.z + 0.06)).sub(PAPER.h / 2);
+    const under = float(1).sub(smoothstep(-0.03, 0.1, max(px, pz))).mul(this.paperOpacity).mul(float(1).sub(this.ash));
     const inPaper = step(abs(positionWorld.x.sub(PAPER.x)), PAPER.w / 2).mul(step(abs(positionWorld.z.sub(PAPER.z)), PAPER.h / 2));
     const speck = smoothstep(0.55, 0.75, mx_noise_float(vec3(positionWorld.x.mul(14), positionWorld.z.mul(14), 3)));
     const deskCol = mix(wood, color(PALETTE.ash), inPaper.mul(this.ash).mul(speck.mul(0.7).add(0.15)));
-    (desk.material as THREE.MeshBasicNodeMaterial).colorNode = deskCol.mul(light);
+    const varnish = flameShine(this.candlePos, this.flicker, 60, 3).mul(grain.mul(0.5).add(0.6)).mul(float(1).sub(seam));
+    (desk.material as THREE.MeshBasicNodeMaterial).colorNode = deskCol
+      .mul(light)
+      .mul(float(1).sub(under.mul(0.55)))
+      .add(color('#ffcf8f').mul(varnish.mul(0.55)));
     this.scene.add(desk);
 
     // The paper and its ink, drawn on a canvas.
@@ -213,43 +240,63 @@ export class FireWorld {
     // Paper curls up as the charred edge passes.
     const curlNoise = mx_noise_float(vec3(uv().x.mul(6), uv().y.mul(6), 2)).mul(0.5).add(0.6);
     const lift = smoothstep(0.0, -CHAR_WIDTH, d).mul(0.09).mul(curlNoise).add(smoothstep(0.03, -0.01, d).mul(0.015)).mul(active);
-    pm.positionNode = positionLocal.add(vec3(0, lift.add(0.004), 0));
+    // The sheet doesn't lie perfectly flat: a gentle warp and slightly lifted edges.
+    const ux = uv().x;
+    const uy = uv().y;
+    const warpPaper = sin(ux.mul(3.1).add(0.4)).mul(sin(uy.mul(2.3).add(1.1))).mul(0.012);
+    const edgeLift = smoothstep(0.06, 0.0, min(min(ux, float(1).sub(ux)), min(uy, float(1).sub(uy)))).mul(0.008);
+    pm.positionNode = positionLocal.add(vec3(0, lift.add(0.006).add(warpPaper.add(0.012)).add(edgeLift), 0));
     let col = texture(this.paperTex, uv()).rgb;
     col = mix(col, color(PALETTE.scorch), smoothstep(0.1, 0.0, d).mul(0.6).mul(active));
     col = mix(col, color(PALETTE.char), smoothstep(0.004, -0.02, d).mul(active));
     const edge = float(1).sub(smoothstep(0.0, 0.016, abs(d.add(0.007)))).mul(active);
     const core = float(1).sub(smoothstep(0.0, 0.006, abs(d.add(0.004)))).mul(active);
     const glow = color(PALETTE.ember).mul(edge.mul(this.flicker.mul(0.5).add(1.2))).add(color(PALETTE.emberCore).mul(core));
-    pm.colorNode = col.mul(light).add(glow);
+    // Sparks glinting in the fresh char just behind the flame.
+    const charBand = smoothstep(0.0, -0.006, d).mul(float(1).sub(smoothstep(-0.03, -0.048, d))).mul(active);
+    const sparks = step(0.8, mx_noise_float(vec3(ux.mul(95), uy.mul(95), time.mul(0.9)))).mul(charBand);
+    pm.colorNode = col
+      .mul(light)
+      .add(glow)
+      .add(color(PALETTE.ember).mul(sparks.mul(this.flicker.mul(0.6).add(0.6))));
     pm.opacityNode = step(float(-CHAR_WIDTH), mix(float(1), d, active)).mul(this.paperOpacity);
     this.paper = new THREE.Mesh(paperGeo, pm);
     this.paper.position.set(PAPER.x, 0, PAPER.z);
     this.paper.rotation.y = PAPER.turn;
     this.scene.add(this.paper);
 
-    // The candle.
-    const wax = new THREE.MeshBasicNodeMaterial();
-    const up = clamp(positionLocal.y.div(0.6).add(0.5), 0, 1);
-    wax.colorNode = color(PALETTE.wax).mul(up.mul(0.6).add(0.25)).mul(this.flicker.mul(0.25).add(0.85));
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.14, 0.6, 24), wax);
-    body.position.set(CANDLE_AT.x, 0.3, CANDLE_AT.z);
-    const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.03, 32), new THREE.MeshBasicNodeMaterial());
-    (dish.material as THREE.MeshBasicNodeMaterial).colorNode = rgb('#8d6a4a').mul(light);
-    dish.position.set(CANDLE_AT.x, 0.015, CANDLE_AT.z);
-    const wick = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.06, 6), new THREE.MeshBasicMaterial({ color: '#1a1210' }));
-    wick.position.set(CANDLE_AT.x, 0.63, CANDLE_AT.z);
-    this.scene.add(body, dish, wick);
+    // The candle in its brass holder, and a pen left beside the page.
+    this.scene.add(makeCandle(CANDLE_AT, light, this.candlePos, this.flicker));
+    this.scene.add(makePen(light, this.candlePos, this.flicker));
 
     const flameTex = flameTexture();
     const halo = new THREE.Sprite(
       new THREE.SpriteMaterial({ map: softDot('255,170,90'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.07 }),
     );
     halo.scale.setScalar(2.6);
-    const flameBody = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
-    flameBody.scale.set(0.12, 0.26, 1);
-    flameBody.position.y = 0.08;
+    // The flame in layers: an orange body, a bright core, a blue base, and the glowing wick tip.
+    const flameBody = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: flameTex, color: '#ffb26a', transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.9 }),
+    );
+    flameBody.scale.set(0.13, 0.3, 1);
+    flameBody.position.y = 0.09;
+    const flameCore = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: flameTex, color: '#fff6dc', transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }),
+    );
+    flameCore.scale.set(0.06, 0.15, 1);
+    flameCore.position.y = 0.05;
+    const flameBase = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: softDot('110,150,255'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.55 }),
+    );
+    flameBase.scale.set(0.05, 0.04, 1);
+    flameBase.position.y = -0.005;
+    const wickTip = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: softDot('255,120,40'), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }),
+    );
+    wickTip.scale.setScalar(0.025);
+    wickTip.position.y = -0.02;
     this.candleFlame = new THREE.Group();
-    this.candleFlame.add(halo, flameBody);
+    this.candleFlame.add(halo, flameBody, flameCore, flameBase, wickTip);
     this.candleFlame.position.set(CANDLE_AT.x, FLAME_HEIGHT, CANDLE_AT.z);
     this.scene.add(this.candleFlame);
 
@@ -268,6 +315,8 @@ export class FireWorld {
     );
     const smokeTex = softDot('70,62,60');
     this.smoke = new Pool(this.scene, 40, () => new THREE.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0 }));
+    const flakeTex = flakeTexture();
+    this.flakes = new Pool(this.scene, 60, () => new THREE.SpriteMaterial({ map: flakeTex, color: '#55504d', transparent: true, depthWrite: false }));
 
     this.drawPaper([], 48);
   }
@@ -331,8 +380,12 @@ export class FireWorld {
     const t = this.clock;
     this.flicker.value = 1 + 0.07 * Math.sin(t * 13.1) + 0.05 * Math.sin(t * 7.3 + 1) + 0.04 * Math.sin(t * 23.7 + 2);
     const sway = Math.sin(t * 3.1) * 0.012 + Math.sin(t * 7.7) * 0.006;
-    this.candleFlame.children[1]!.position.x = sway;
-    this.candleFlame.children[1]!.scale.set(0.12, 0.26 * (0.94 + 0.08 * Math.sin(t * 11)), 1);
+    const stretch = 0.94 + 0.08 * Math.sin(t * 11) + 0.04 * Math.sin(t * 17.3);
+    const [, body, core] = this.candleFlame.children;
+    body!.position.x = sway;
+    body!.scale.set(0.13 * (2 - stretch) * 0.5 + 0.065, 0.3 * stretch, 1);
+    core!.position.x = sway * 0.6;
+    core!.scale.set(0.06, 0.15 * stretch, 1);
 
     let finished = false;
     if (this.stage === 'carrying') {
@@ -387,7 +440,7 @@ export class FireWorld {
     this.ash.value = 0;
     this.paperOpacity.value = 1;
     this.carrier.visible = false;
-    for (const pool of [this.flames, this.embers, this.smoke]) {
+    for (const pool of [this.flames, this.embers, this.smoke, this.flakes]) {
       for (const p of pool.items) {
         p.alive = false;
         p.sprite.visible = false;
@@ -429,6 +482,19 @@ export class FireWorld {
       if (this.rng() < 0.45) {
         this.embers.spawn(at, new THREE.Vector3((this.rng() - 0.5) * 0.3, 0.5 + this.rng() * 0.7, (this.rng() - 0.5) * 0.3), 1.2 + this.rng() * 1.8, 0.018 + this.rng() * 0.02);
       }
+      if (this.rng() < 0.06) {
+        // Flakes of ash lift off the charred paper behind the flame.
+        const behind = sampleFront(this.burnMap, f - 0.035, this.rng, 10, 0.01);
+        if (behind) {
+          const fl = this.flakes.spawn(
+            this.paperPoint(behind, 0.06),
+            new THREE.Vector3((this.rng() - 0.5) * 0.15, 0.18 + this.rng() * 0.25, (this.rng() - 0.5) * 0.15),
+            2 + this.rng() * 2,
+            0.03 + this.rng() * 0.04,
+          );
+          if (fl) (fl.sprite.material as THREE.SpriteMaterial).rotation = this.rng() * Math.PI * 2;
+        }
+      }
       if (this.rng() < 0.08) {
         this.smoke.spawn(at, new THREE.Vector3((this.rng() - 0.5) * 0.08, 0.25 + this.rng() * 0.2, (this.rng() - 0.5) * 0.08), 2.5 + this.rng() * 1.5, 0.25);
       }
@@ -466,6 +532,24 @@ export class FireWorld {
       p.sprite.position.addScaledVector(p.vel, dt);
       p.sprite.scale.setScalar(p.size * (1 - k * 0.5));
       (p.sprite.material as THREE.SpriteMaterial).opacity = (1 - k) * (0.6 + 0.4 * Math.sin(t * 15 + p.size * 300));
+    }
+    for (const p of this.flakes.items) {
+      if (!p.alive) continue;
+      p.age += dt;
+      const k = p.age / p.life;
+      if (k >= 1) {
+        p.alive = false;
+        p.sprite.visible = false;
+        continue;
+      }
+      p.vel.x += Math.sin(t * 1.7 + p.size * 900) * dt * 0.25;
+      p.vel.multiplyScalar(Math.exp(-dt * 0.5));
+      p.sprite.position.addScaledVector(p.vel, dt);
+      const m = p.sprite.material as THREE.SpriteMaterial;
+      m.rotation += dt * (1.5 + p.size * 40) * (p.size > 0.05 ? -1 : 1);
+      // Tumbling: the flake narrows and widens as it turns.
+      p.sprite.scale.set(p.size * (0.4 + 0.6 * Math.abs(Math.sin(t * 3 + p.size * 300))), p.size, 1);
+      m.opacity = Math.min(1, (1 - k) * 2) * 0.85;
     }
     for (const p of this.smoke.items) {
       if (!p.alive) continue;

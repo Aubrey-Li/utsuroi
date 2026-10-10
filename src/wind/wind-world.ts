@@ -1,22 +1,12 @@
 import * as THREE from 'three/webgpu';
-import {
-  attribute,
-  color,
-  cos,
-  mix,
-  mx_noise_float,
-  positionLocal,
-  positionWorld,
-  sin,
-  smoothstep,
-  time,
-  uniform,
-  vec3,
-} from 'three/tsl';
+import { uniform } from 'three/tsl';
 import { createRng } from '../strokes/random';
 import { HAND_STACK } from '../text/font';
 import { wrapText } from '../text/wrap';
 import { allGone, liftDelays, makeFlier, stepFliers, type Flier } from './flight';
+import { makeFlowers, makeGrass, makeGround } from './meadow';
+import { cloudTexture, hillTexture, SKY_COLORS, skyTexture, wispTexture } from './sky';
+import { makeTree } from './tree';
 
 /** A sunny afternoon under a tree. Painted, like the ocean scene. */
 const PALETTE = {
@@ -41,27 +31,7 @@ const PALETTE = {
 const SUN_AT = new THREE.Vector3(9.5, 13, -20);
 
 const floatUniform = () => uniform(0);
-type FloatUniform = ReturnType<typeof floatUniform>;
 const TEXT_CENTER = new THREE.Vector3(0, 2.25, 0);
-
-function skyTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  canvas.width = 4;
-  canvas.height = 512;
-  const ctx = canvas.getContext('2d')!;
-  const g = ctx.createLinearGradient(0, 0, 0, 512);
-  g.addColorStop(0, PALETTE.skyTop);
-  g.addColorStop(0.3, PALETTE.skyMid);
-  g.addColorStop(0.44, PALETTE.skyLow);
-  g.addColorStop(0.5, PALETTE.horizon);
-  g.addColorStop(1, PALETTE.hillNear);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 4, 512);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.mapping = THREE.EquirectangularReflectionMapping;
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
 
 function canvasTexture(w: number, h: number, draw: (ctx: CanvasRenderingContext2D) => void): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -73,51 +43,6 @@ function canvasTexture(w: number, h: number, draw: (ctx: CanvasRenderingContext2
   return tex;
 }
 
-/** A soft, flat-bottomed cumulus with a lilac-blue underside. */
-function cloudTexture(seed: number): THREE.CanvasTexture {
-  const rng = createRng(seed);
-  return canvasTexture(512, 256, (ctx) => {
-    const puffs = Array.from({ length: 9 }, (_, i) => ({
-      x: 90 + i * 40 + rng() * 30,
-      y: 150 - Math.sin((i / 8) * Math.PI) * (50 + rng() * 40),
-      r: 40 + rng() * 45,
-    }));
-    ctx.fillStyle = 'rgba(205,222,245,0.95)';
-    for (const p of puffs) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y + 10, p.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.fillStyle = 'rgba(255,255,255,1)';
-    for (const p of puffs) {
-      ctx.beginPath();
-      ctx.arc(p.x - 4, p.y, p.r * 0.92, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // Flat base.
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillRect(0, 186, 512, 70);
-  });
-}
-
-function hillTexture(fill: string, seed: number, height: number): THREE.CanvasTexture {
-  const rng = createRng(seed);
-  return canvasTexture(1024, 256, (ctx) => {
-    ctx.fillStyle = fill;
-    ctx.beginPath();
-    ctx.moveTo(0, 256);
-    const bumps = Array.from({ length: 5 }, () => ({ a: 0.4 + rng() * 0.6, p: rng() * 6 }));
-    for (let x = 0; x <= 1024; x += 8) {
-      let y = 0;
-      bumps.forEach((b, i) => (y += Math.sin((x / 1024) * Math.PI * (i + 1) + b.p) * b.a));
-      ctx.lineTo(x, 256 - height - y * 26);
-    }
-    ctx.lineTo(1024, 256);
-    ctx.closePath();
-    ctx.fill();
-  });
-}
-
 function glowTexture(stops: [number, string][]): THREE.CanvasTexture {
   return canvasTexture(256, 256, (ctx) => {
     const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
@@ -127,144 +52,6 @@ function glowTexture(stops: [number, string][]): THREE.CanvasTexture {
   });
 }
 
-/** Builds the meadow: one geometry holding thousands of blades that sway at their tips. */
-function makeGrass(gust: FloatUniform): THREE.Mesh {
-  const rng = createRng(21);
-  const count = 9000;
-  const pos = new Float32Array(count * 9);
-  const tip = new Float32Array(count * 3);
-  const phase = new Float32Array(count * 3);
-  const shade = new Float32Array(count * 9);
-  const cols = [PALETTE.grassDark, PALETTE.grassMid, PALETTE.grassLight].map((c) => new THREE.Color(c));
-  for (let i = 0; i < count; i++) {
-    // From right in front of you (tall screens see further down) out to the hills.
-    const z = 4.4 - Math.pow(rng(), 1.5) * 15;
-    const x = (rng() - 0.5) * (14 + (2.4 - z) * 1.6);
-    const h = (0.18 + rng() * 0.32) * (1 + Math.max(0, z) * 0.1);
-    const w = 0.025 + rng() * 0.03;
-    const lean = (rng() - 0.5) * 0.12;
-    const o = i * 9;
-    pos.set([x - w, 0, z, x + w, 0, z, x + lean, h, z + (rng() - 0.5) * 0.04], o);
-    tip.set([0, 0, h], i * 3);
-    const ph = rng() * Math.PI * 2;
-    phase.set([ph, ph, ph], i * 3);
-    const base = cols[0]!.clone().lerp(cols[1]!, rng() * 0.7);
-    const top = cols[1]!.clone().lerp(cols[2]!, 0.3 + rng() * 0.7);
-    shade.set([base.r, base.g, base.b, base.r, base.g, base.b, top.r, top.g, top.b], o);
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('tip', new THREE.BufferAttribute(tip, 1));
-  geo.setAttribute('phase', new THREE.BufferAttribute(phase, 1));
-  geo.setAttribute('shade', new THREE.BufferAttribute(shade, 3));
-
-  const m = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide });
-  const t = attribute('tip', 'float');
-  const ph = attribute('phase', 'float');
-  const breeze = sin(time.mul(1.7).add(ph)).mul(0.05);
-  const push = gust.mul(0.28).add(gust.mul(sin(time.mul(7).add(ph))).mul(0.06));
-  m.positionNode = positionLocal.add(vec3(breeze.add(push), push.mul(-0.25), cos(time.mul(1.3).add(ph)).mul(0.02)).mul(t.mul(2.2)));
-  const dapple = smoothstep(0.35, 0.6, mx_noise_float(vec3(positionWorld.x.mul(0.9), positionWorld.z.mul(0.9), time.mul(0.15))));
-  m.colorNode = mix(attribute('shade', 'vec3'), color(PALETTE.dapple), dapple.mul(0.35));
-  return new THREE.Mesh(geo, m);
-}
-
-/** Leaf clusters along the branches: diamonds in three greens, the ones toward the sun lit through. */
-function makeCanopy(gust: FloatUniform): THREE.Mesh {
-  const rng = createRng(5);
-  const clusters: THREE.Vector3[] = [];
-  // Along a few branch curves sweeping in from the trunk at the left.
-  for (let b = 0; b < 5; b++) {
-    const y0 = 3.2 + b * 0.32;
-    for (let k = 0; k < 9; k++) {
-      const t = k / 8;
-      clusters.push(new THREE.Vector3(-3.8 + t * (7.5 - b * 0.4), y0 + Math.sin(t * Math.PI) * 0.6 + rng() * 0.3, 0.6 + rng() * 1.6));
-    }
-  }
-  const perCluster = 70;
-  const leaves = clusters.length * perCluster;
-  const pos = new Float32Array(leaves * 6 * 3);
-  const phase = new Float32Array(leaves * 6);
-  const sway = new Float32Array(leaves * 6);
-  const shade = new Float32Array(leaves * 6 * 3);
-  const dark = new THREE.Color(PALETTE.leafDark);
-  const mid = new THREE.Color(PALETTE.leafMid);
-  const lit = new THREE.Color(PALETTE.leafLit);
-  const sunDir = SUN_AT.clone().normalize();
-  let v = 0;
-  for (const c of clusters) {
-    for (let i = 0; i < perCluster; i++) {
-      const r = 0.55 * Math.cbrt(rng());
-      const a = rng() * Math.PI * 2;
-      const e = (rng() - 0.5) * Math.PI;
-      const center = new THREE.Vector3(c.x + Math.cos(a) * Math.cos(e) * r * 1.4, c.y + Math.sin(e) * r * 0.8, c.z + Math.sin(a) * r);
-      const size = 0.09 + rng() * 0.09;
-      const rot = rng() * Math.PI;
-      const ux = Math.cos(rot) * size;
-      const uy = Math.sin(rot) * size;
-      const vx = -uy * 0.45;
-      const vy = ux * 0.45;
-      const tipA = [center.x + ux, center.y + uy, center.z];
-      const tipB = [center.x - ux, center.y - uy, center.z];
-      const sideA = [center.x + vx, center.y + vy, center.z + 0.01];
-      const sideB = [center.x - vx, center.y - vy, center.z - 0.01];
-      // Brighter toward the sun and on the cluster's sunny side.
-      const facing = center.clone().sub(c).normalize().dot(sunDir);
-      const toward = THREE.MathUtils.clamp((center.x + 4) / 9, 0, 1);
-      const col = dark.clone().lerp(mid, 0.3 + rng() * 0.5);
-      if (facing > 0.1 && rng() < 0.35 + toward * 0.45) col.lerp(lit, 0.6 + rng() * 0.4);
-      const ph = rng() * Math.PI * 2 + c.x;
-      const amp = 0.4 + rng() * 0.6;
-      for (const p of [tipA, sideA, tipB, tipA, tipB, sideB]) {
-        pos.set(p, v * 3);
-        shade.set([col.r, col.g, col.b], v * 3);
-        phase[v] = ph;
-        sway[v] = amp;
-        v++;
-      }
-    }
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('phase', new THREE.BufferAttribute(phase, 1));
-  geo.setAttribute('sway', new THREE.BufferAttribute(sway, 1));
-  geo.setAttribute('shade', new THREE.BufferAttribute(shade, 3));
-  const m = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide });
-  const ph = attribute('phase', 'float');
-  const amp = attribute('sway', 'float').mul(gust.mul(0.09).add(0.022));
-  m.positionNode = positionLocal.add(
-    vec3(sin(time.mul(1.4).add(ph)).mul(amp).add(gust.mul(0.08)), cos(time.mul(1.9).add(ph)).mul(amp).mul(0.6), 0),
-  );
-  // Leaves twinkle between shade and light as they move.
-  const flick = smoothstep(0.55, 0.9, sin(time.mul(2.3).add(ph.mul(3))).mul(0.5).add(0.5)).mul(0.18);
-  m.colorNode = mix(attribute('shade', 'vec3'), color(PALETTE.leafLit), flick);
-  return new THREE.Mesh(geo, m);
-}
-
-function makeTree(): THREE.Group {
-  const group = new THREE.Group();
-  const bark = new THREE.MeshBasicNodeMaterial();
-  // Lit from the sun's side (right), in two tones.
-  bark.colorNode = mix(color(PALETTE.barkDark), color(PALETTE.bark), smoothstep(-0.1, 0.25, positionLocal.x));
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.4, 6, 12), bark);
-  trunk.position.set(-4.1, 2.6, 1.2);
-  trunk.rotation.z = -0.06;
-  group.add(trunk);
-  const branches: [number, number, number, number, number][] = [
-    [-3.9, 3.3, 1.0, 3.6, 0.07],
-    [-3.9, 3.8, 1.4, 4.0, 0.055],
-    [-4.0, 4.3, 0.8, 3.4, 0.05],
-  ];
-  for (const [x, y, z, len, r] of branches) {
-    const b = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.4, r, len, 8), bark);
-    b.position.set(x + len / 2, y + 0.3, z);
-    b.rotation.z = -Math.PI / 2 + 0.18;
-    group.add(b);
-  }
-  return group;
-}
-
-/** Light shafts falling from the sun through the leaves. */
 function makeShafts(): THREE.Group {
   const group = new THREE.Group();
   const tex = canvasTexture(64, 512, (ctx) => {
@@ -330,7 +117,7 @@ export class WindWorld {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.NoToneMapping;
     this.scene.background = skyTexture();
-    this.scene.fog = new THREE.Fog(PALETTE.horizon, 18, 90);
+    this.scene.fog = new THREE.Fog(SKY_COLORS.horizon, 24, 120);
     this.camera.position.set(0, 1.2, 6);
     this.camera.lookAt(0, 2.2, 0);
 
@@ -354,44 +141,57 @@ export class WindWorld {
     sun.scale.setScalar(16);
     this.scene.add(sun);
 
-    for (let i = 0; i < 5; i++) {
-      const tex = cloudTexture(100 + i * 17);
+    // Clouds at a few depths drift at different speeds; high wisps above them.
+    const cloudSpots = [
+      { x: -26, y: 11, z: -50, s: 1.2 },
+      { x: -6, y: 19, z: -62, s: 1.5 },
+      { x: 9, y: 7.2, z: -42, s: 0.75 },
+      { x: 24, y: 15, z: -55, s: 1.15 },
+      { x: 38, y: 8.5, z: -46, s: 0.85 },
+      { x: -40, y: 22, z: -70, s: 1.3 },
+    ];
+    cloudSpots.forEach((c, i) => {
       const cloud = new THREE.Mesh(
-        new THREE.PlaneGeometry(14, 7),
-        new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, fog: false }),
+        new THREE.PlaneGeometry(18, 9),
+        new THREE.MeshBasicMaterial({ map: cloudTexture(100 + i * 17), transparent: true, depthWrite: false, fog: false }),
       );
-      cloud.position.set(-26 + i * 13, 8 + (i % 3) * 3.2, -40 - (i % 2) * 8);
-      cloud.scale.setScalar(0.8 + (i % 3) * 0.25);
+      cloud.position.set(c.x, c.y, c.z);
+      cloud.scale.setScalar(c.s);
+      cloud.userData.speed = 0.18 + (60 + c.z) * 0.008;
       this.clouds.push(cloud);
       this.scene.add(cloud);
+    });
+    for (let i = 0; i < 2; i++) {
+      const wisp = new THREE.Mesh(
+        new THREE.PlaneGeometry(60, 15),
+        new THREE.MeshBasicMaterial({ map: wispTexture(300 + i), transparent: true, depthWrite: false, fog: false, opacity: 0.8 }),
+      );
+      wisp.position.set(-20 + i * 45, 22 + i * 4, -80);
+      wisp.userData.speed = 0.12;
+      this.clouds.push(wisp);
+      this.scene.add(wisp);
     }
 
-    const far = new THREE.Mesh(
-      new THREE.PlaneGeometry(140, 35),
-      new THREE.MeshBasicMaterial({ map: hillTexture(PALETTE.hillFar, 3, 70), transparent: true, depthWrite: false }),
-    );
-    far.position.set(0, 4, -45);
-    const near = new THREE.Mesh(
-      new THREE.PlaneGeometry(90, 22),
-      new THREE.MeshBasicMaterial({ map: hillTexture(PALETTE.hillNear, 8, 40), transparent: true, depthWrite: false }),
-    );
-    near.position.set(6, 1.6, -26);
-    this.scene.add(far, near);
+    // Layers of land into the distance: a pale mountain, hills with lines of trees.
+    const layers = [
+      { fill: SKY_COLORS.mountain, trees: null, seed: 1, h: 150, w: 260, ht: 60, x: 0, y: 9, z: -90 },
+      { fill: SKY_COLORS.hillFar, trees: SKY_COLORS.treeFar, seed: 3, h: 90, w: 150, ht: 36, x: -10, y: 4.5, z: -48 },
+      { fill: SKY_COLORS.hillMid, trees: SKY_COLORS.treeNear, seed: 5, h: 70, w: 110, ht: 26, x: 12, y: 2.6, z: -34 },
+      { fill: SKY_COLORS.hillNear, trees: null, seed: 8, h: 40, w: 90, ht: 22, x: 6, y: 1.4, z: -24 },
+    ];
+    for (const l of layers) {
+      const hill = new THREE.Mesh(
+        new THREE.PlaneGeometry(l.w, l.ht),
+        new THREE.MeshBasicMaterial({ map: hillTexture(l.fill, l.seed, l.h, l.trees), transparent: true, depthWrite: false }),
+      );
+      hill.position.set(l.x, l.y, l.z);
+      this.scene.add(hill);
+    }
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 60), new THREE.MeshBasicNodeMaterial());
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.z = -20;
-    const dapple = smoothstep(0.3, 0.6, mx_noise_float(vec3(positionWorld.x.mul(0.6), positionWorld.z.mul(0.6), time.mul(0.12))));
-    (ground.material as THREE.MeshBasicNodeMaterial).colorNode = mix(
-      mix(color(PALETTE.grassDark), color(PALETTE.grassMid), smoothstep(-2, -14, positionWorld.z)),
-      color(PALETTE.dapple),
-      dapple.mul(0.22),
-    );
-    this.scene.add(ground);
-
+    this.scene.add(makeGround());
     this.scene.add(makeGrass(this.gust));
-    this.scene.add(makeTree());
-    this.scene.add(makeCanopy(this.gust));
+    this.scene.add(makeFlowers(this.gust));
+    this.scene.add(makeTree(this.gust, SUN_AT, this.camera.position).group);
     this.shafts = makeShafts();
     this.scene.add(this.shafts);
 
@@ -470,12 +270,15 @@ export class WindWorld {
         if (ch.trim() !== '') {
           const tex = this.glyphTexture(ch);
           const reuse = old[index];
-          const material = reuse?.material ?? new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, fog: false });
+          // Words float in front of everything, leaves included.
+          const material =
+            reuse?.material ?? new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, fog: false });
           if (material.map !== tex) {
             material.map = tex;
             material.needsUpdate = true;
           }
           const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size * 1.5, size * 1.5), material);
+          mesh.renderOrder = 10;
           const home = new THREE.Vector3(x + adv / 2, top - li * lineHeight, TEXT_CENTER.z);
           mesh.position.copy(home);
           this.textGroup.add(mesh);
@@ -512,8 +315,8 @@ export class WindWorld {
     this.gust.value = g + (this.gustTarget - g) * (1 - Math.exp(-dt * (this.gustTarget > g ? 2.5 : 0.8)));
 
     for (const c of this.clouds) {
-      c.position.x += dt * (0.25 + this.gust.value * 0.8);
-      if (c.position.x > 40) c.position.x = -40;
+      c.position.x += dt * (c.userData.speed + this.gust.value * 0.8);
+      if (c.position.x > 48) c.position.x = -48;
     }
     for (const s of this.shafts.children as THREE.Mesh[]) {
       const m = s.material as THREE.MeshBasicMaterial;
