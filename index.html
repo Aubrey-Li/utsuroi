@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#1f2a52" />
+    <meta name="description" content="A journal for the words you don't need to keep." />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Utsuroi</title>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="A beach at dusk. The sand is smooth and the tide is low."></canvas>
+
+    <div class="hud">
+      <header class="brand">
+        <span class="brand-name">utsuroi</span>
+        <span class="brand-jp" lang="ja">移ろい</span>
+      </header>
+
+      <button class="leave" id="leave" type="button">Leave</button>
+
+      <div class="dock" id="dock">
+        <p class="hint" id="hint" aria-live="polite">Type, and the stick writes it in the sand.</p>
+        <div class="controls">
+          <div class="mode" role="group" aria-label="How to write">
+            <button type="button" id="mode-type" aria-pressed="true">Type</button>
+            <button type="button" id="mode-draw" aria-pressed="false">Draw</button>
+          </div>
+          <button type="button" class="release" id="release" disabled>Turn to the sea</button>
+        </div>
+      </div>
+
+      <div class="message" id="message" hidden>
+        <p id="message-text">The sea has it.</p>
+        <button type="button" id="again" hidden>Write again</button>
+      </div>
+
+      <textarea
+        id="sink"
+        class="sink"
+        aria-label="Write in the sand"
+        autocapitalize="off"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        rows="1"
+      ></textarea>
+      <div class="veil" id="veil"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

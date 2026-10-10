@@ -1,0 +1,249 @@
+:root {
+  color-scheme: dark;
+  --ink: #fbefe2;
+  --ink-soft: rgba(251, 239, 226, 0.72);
+  --glass: rgba(31, 30, 52, 0.32);
+  --glass-strong: rgba(31, 30, 52, 0.5);
+  --line: rgba(251, 239, 226, 0.22);
+  --accent: #f6c991;
+  --font-ui: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-jp: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1f2a52;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(env(safe-area-inset-bottom, 0px) + 22px);
+}
+
+.hud button,
+.hud .message {
+  pointer-events: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  opacity: 0.85;
+  text-shadow: 0 1px 12px rgba(20, 20, 40, 0.35);
+}
+
+.brand-name {
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+}
+
+.brand-jp {
+  font-family: var(--font-jp);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    opacity 0.3s;
+}
+
+button:hover:not(:disabled) {
+  background: var(--glass-strong);
+  border-color: rgba(251, 239, 226, 0.4);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.leave {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  right: 20px;
+  font-size: 0.9rem;
+  padding: 5px 14px;
+}
+
+.dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-inline: 16px;
+  transition: opacity 0.8s;
+}
+
+.dock.gone {
+  opacity: 0;
+}
+
+.dock.gone button {
+  pointer-events: none;
+}
+
+.hint {
+  margin: 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 1px 10px rgba(20, 20, 40, 0.45);
+  min-height: 1.5em;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mode {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 2px;
+}
+
+.mode button {
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  padding: 5px 14px;
+}
+
+.mode button[aria-pressed='true'] {
+  background: rgba(251, 239, 226, 0.16);
+}
+
+.release:not(:disabled) {
+  border-color: rgba(246, 201, 145, 0.6);
+}
+
+.message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34%;
+  padding-inline: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  animation: rise 2.4s ease both;
+}
+
+.message[hidden] {
+  display: none;
+}
+
+.message p {
+  margin: 0;
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  font-style: italic;
+  text-shadow: 0 2px 18px rgba(30, 25, 50, 0.5);
+}
+
+.message button {
+  animation: rise 1.6s ease both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The text field that receives typing. Kept on screen (for IME popups) but invisible. */
+.sink {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  width: 2px;
+  height: 2px;
+  opacity: 0;
+  resize: none;
+  border: 0;
+  padding: 0;
+  pointer-events: none;
+  caret-color: transparent;
+}
+
+.veil {
+  position: fixed;
+  inset: 0;
+  background: #14162b;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.veil.shown {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message,
+  .message button {
+    animation: none;
+  }
+  .veil,
+  .dock {
+    transition: none;
+  }
+}

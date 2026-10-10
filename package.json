@@ -1,0 +1,28 @@
+{
+  "name": "utsuroi",
+  "private": true,
+  "version": "0.0.1",
+  "description": "A journal for the words you don't need to keep.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "fonts": "node scripts/build-stroke-font.mjs"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "lil-gui": "^0.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
+  }
+}

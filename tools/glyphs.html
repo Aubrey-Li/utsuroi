@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Utsuroi · glyph sheet</title>
+    <style>
+      body { margin: 0; background: #f4efe7; color: #2a2420; font: 14px/1.4 Georgia, serif; }
+      main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+      canvas { background: #fffaf2; border: 1px solid #ddd2c2; max-width: 100%; }
+      label { display: flex; gap: 8px; align-items: center; }
+      input { font: inherit; padding: 4px 8px; width: 28em; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 style="margin:0;font-weight:400">Glyph sheet</h1>
+      <p style="margin:0">Dev tool. Each glyph shows its pen order: immediate strokes from blue to green, deferred strokes (dots, crossbars) in red, dots at stroke starts. Below, a line written by the real writer.</p>
+      <canvas id="sheet" width="1400" height="900"></canvas>
+      <label>Sample <input id="sample" value="I miss you more than I ever said out loud" /></label>
+      <canvas id="line" width="1400" height="420"></canvas>
+    </main>
+    <script type="module" src="./glyphs.ts"></script>
+  </body>
+</html>

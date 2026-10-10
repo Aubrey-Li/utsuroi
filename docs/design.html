@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utsuroi Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500&amp;text=%E7%A7%BB%E3%82%8D%E3%81%84%E3%81%86%E3%81%A4%E5%BF%83%E3%81%AE%E8%99%9A%E6%B3%A2%E9%A2%A8%E7%81%AB%E7%9F%B3&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one calm reading column at dusk; the four rituals and the calendar are the only set-off objects. */
+:root {
+  --bg: #f2f0f5;
+  --surface: #fbfafc;
+  --fg: #24212d;
+  --muted: #696476;
+  --line: #dcd7e3;
+  --accent: #8a5b1d;      /* dune gold, for text */
+  --accent-soft: #e9d9bd;
+  --sea: #2f6a82;
+  --sage: #5b7a5a;
+  --ember: #b04d26;
+  --stone: #6e6a64;
+  --code-bg: #ebe8f0;
+  --icon-sky-1: #f4e3c8; --icon-sky-2: #c9b6d6; --icon-ink: #2b2533;
+  --icon-sea: #7fa6b8; --icon-foam: #eef1ee; --icon-sand: #d8c19c; --icon-groove: #8a6d45;
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-jp: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.75rem;
+  --step-3: 2.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15131b; --surface: #1d1a25; --fg: #e9e5ef; --muted: #a29cae; --line: #312d3b;
+    --accent: #e2b86f; --accent-soft: #3a2f22; --sea: #84bdd3; --sage: #9cbf98; --ember: #ec8a5f; --stone: #b8b2a8;
+    --code-bg: #221f2b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15131b; --surface: #1d1a25; --fg: #e9e5ef; --muted: #a29cae; --line: #312d3b;
+  --accent: #e2b86f; --accent-soft: #3a2f22; --sea: #84bdd3; --sage: #9cbf98; --ember: #ec8a5f; --stone: #b8b2a8;
+  --code-bg: #221f2b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  padding-inline: 20px;
+  padding-block: 0 96px;
+}
+.wrap { max-width: 760px; margin-inline: auto; display: flex; flex-direction: column; gap: 64px; }
+p, li { max-width: 66ch; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: var(--step-3); }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: 0.875em; background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; }
+.label {
+  font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted);
+}
+section { display: flex; flex-direction: column; gap: 20px; }
+section > .label { margin-bottom: -12px; }
+ul, ol { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+
+/* Header */
+header { padding-top: 72px; display: flex; flex-direction: column; gap: 18px; }
+header .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.lede { font-size: var(--step-1); line-height: 1.5; color: var(--fg); max-width: 34em; }
+.lede em { font-family: var(--font-display); font-style: italic; font-size: 1.12em; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--step--1); padding-top: 8px; border-top: 1px solid var(--line); }
+nav.toc a { color: var(--muted); text-decoration: none; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); }
+
+/* Principles */
+.principles { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px 28px; }
+.principles li { display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--line); padding-top: 12px; }
+.principles strong { font-weight: 600; }
+.principles span { color: var(--muted); font-size: 0.95rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+th { font-family: var(--font-mono); font-weight: 500; font-size: var(--step--1); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+td:first-child { font-weight: 600; white-space: nowrap; padding-right: 20px; }
+
+/* Permanence spectrum */
+.spectrum { display: flex; flex-direction: column; gap: 10px; }
+.spectrum-bar {
+  position: relative; height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--line), var(--accent));
+  margin: 28px 12px 0;
+}
+.spectrum-stop { position: absolute; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+.spectrum-stop svg { width: 26px; height: 26px; background: var(--bg); border-radius: 50%; padding: 2px; }
+.spectrum-legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; text-align: center; }
+.spectrum-legend div { display: flex; flex-direction: column; font-size: var(--step--1); }
+.spectrum-legend b { font-weight: 600; font-size: 0.9rem; }
+.spectrum-legend span { color: var(--muted); }
+
+/* Ritual cards */
+.rituals { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.ritual {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0;
+}
+.ritual-head { display: flex; align-items: center; gap: 12px; }
+.ritual-head svg { width: 30px; height: 30px; flex: none; }
+.ritual-head .label { margin-left: auto; }
+.ritual dl { margin: 0; display: grid; grid-template-columns: 9.5em 1fr; gap: 8px 16px; font-size: 0.95rem; }
+.ritual dt { color: var(--muted); }
+.ritual dd { margin: 0; min-width: 0; }
+@media (max-width: 560px) {
+  .ritual dl { grid-template-columns: 1fr; gap: 2px; }
+  .ritual dd { margin-bottom: 10px; }
+}
+
+.ic { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.c-ocean { color: var(--sea); }
+.c-wind { color: var(--sage); }
+.c-fire { color: var(--ember); }
+.c-stone { color: var(--stone); }
+
+/* Calendar */
+.cal-box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; }
+@media (max-width: 640px) { .cal-box { grid-template-columns: 1fr; } }
+.cal-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+.cal-top h3 { font-size: var(--step-1); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-dow { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); text-align: center; padding-bottom: 4px; }
+.cal-day {
+  aspect-ratio: 1 / 1.05; max-width: 100%; border-radius: 6px; border: 1px solid transparent;
+  background: transparent; color: var(--fg); font: inherit; padding: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  font-variant-numeric: tabular-nums; font-size: 0.75rem;
+}
+.cal-day .num { align-self: flex-start; color: var(--muted); line-height: 1; }
+.cal-day.future .num { opacity: 0.45; }
+.cal-day.today { border-color: var(--line); }
+.cal-day.today .num { color: var(--accent); font-weight: 600; }
+.cal-day .marks { display: flex; gap: 1px; flex-wrap: wrap; justify-content: center; }
+.cal-day .marks svg { width: 15px; height: 15px; }
+.cal-day.kept { cursor: pointer; background: var(--accent-soft); }
+.cal-day.kept:hover { border-color: var(--accent); }
+.cal-day.kept[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cal-day:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cal-day:disabled { cursor: default; }
+.cal-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.cal-panel .stone-card { border-left: 2px solid var(--stone); padding: 4px 0 4px 14px; display: flex; flex-direction: column; gap: 8px; }
+.cal-panel blockquote { margin: 0; font-family: var(--font-display); font-size: 1.35rem; line-height: 1.3; }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step--1); color: var(--muted); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.cal-legend svg { width: 16px; height: 16px; }
+.example-tag { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+
+/* Flow */
+.flow { list-style: none; padding: 0; display: grid; gap: 0; counter-reset: step; }
+.flow li { counter-increment: step; display: grid; grid-template-columns: 2.2em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); max-width: none; }
+.flow li::before { content: counter(step); font-family: var(--font-display); font-size: 1.5rem; line-height: 1; color: var(--accent); }
+.flow b { font-weight: 600; }
+.flow span { color: var(--muted); }
+
+/* Privacy columns */
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.two-col > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.two-col h3 { font-size: 1.2rem; }
+
+pre {
+  margin: 0; background: var(--code-bg); border-radius: 8px; padding: 16px 18px;
+  overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55;
+}
+pre .cm { color: var(--muted); }
+
+/* Pipeline */
+.pipeline { display: grid; gap: 10px; }
+.pipe-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.pipe-node { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; background: var(--surface); min-width: 0; }
+.pipe-node b { display: block; font-weight: 600; margin-bottom: 2px; }
+.pipe-node span { color: var(--muted); }
+.pipe-arrow { text-align: center; color: var(--muted); font-family: var(--font-mono); font-size: 0.85rem; }
+.pipe-node.core { border-color: var(--accent); }
+
+/* Milestones */
+.milestones { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.milestones li { display: grid; grid-template-columns: 3.2em 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); max-width: none; }
+.milestones .m { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); padding-top: 2px; }
+.milestones b { font-weight: 600; }
+.milestones span { color: var(--muted); display: block; }
+
+.questions { display: flex; flex-direction: column; gap: 14px; }
+.jp { font-family: var(--font-jp); font-weight: 500; }
+h1 .jp { font-size: 0.6em; color: var(--muted); margin-left: 0.25em; }
+.name-meaning { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; }
+.name-glyph { font-family: var(--font-jp); font-size: 4.5rem; line-height: 1; writing-mode: vertical-rl; color: var(--fg); }
+@media (max-width: 480px) { .name-meaning { grid-template-columns: 1fr; } .name-glyph { writing-mode: horizontal-tb; font-size: 3.5rem; } }
+.icons { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+.icon-concept { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.icon-tile { width: 112px; height: 112px; max-width: 100%; border-radius: 26px; display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(160deg, var(--icon-sky-1), var(--icon-sky-2)); color: var(--icon-ink); position: relative; }
+.icon-tile .k { font-family: var(--font-jp); font-size: 64px; line-height: 1; }
+.icon-tile.fade .k { -webkit-mask-image: linear-gradient(100deg, #000 45%, transparent 85%); mask-image: linear-gradient(100deg, #000 45%, transparent 85%); }
+.icon-tile.fade .dust { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--icon-ink) 1px, transparent 1.6px); background-size: 9px 11px; -webkit-mask-image: linear-gradient(100deg, transparent 55%, #000 75%, transparent 95%); mask-image: linear-gradient(100deg, transparent 55%, #000 75%, transparent 95%); opacity: 0.55; }
+.icon-tile.vert .k { font-size: 26px; writing-mode: vertical-rl; letter-spacing: 0.08em; }
+.icon-tile.sand { background: linear-gradient(180deg, var(--icon-sea) 0 34%, var(--icon-foam) 34% 40%, var(--icon-sand) 40%); }
+.icon-tile.sand .k { font-size: 54px; margin-top: 30px; color: var(--icon-groove); }
+.icon-tile svg { width: 74px; height: 74px; }
+.icon-concept b { font-weight: 600; }
+.icon-concept span { color: var(--muted); font-size: 0.9rem; }
+.changes { border-left: 2px solid var(--accent); padding-left: 18px; gap: 12px; }
+.changes b { font-weight: 600; }
+.questions li b { font-weight: 600; }
+
+footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .cal-day.kept { transition: border-color 0.2s, box-shadow 0.2s; }
+}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-ocean" viewBox="0 0 24 24"><path class="ic" d="M2 10c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path class="ic" d="M2 16c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path class="ic" d="M3 8h10a3 3 0 1 0-3-3"/><path class="ic" d="M3 13h15a3 3 0 1 1-3 3"/><path class="ic" d="M3 18h6"/></symbol>
+    <symbol id="i-fire" viewBox="0 0 24 24"><path class="ic" d="M12 3c.6 3 5 5.2 5 10.2A5 5 0 0 1 7 13.5c0-2.4 1.4-3.6 2-5.3 1.3.9 2 2.2 2 3.4 1.2-1.9 1.4-5.2 1-8.6z"/></symbol>
+    <symbol id="i-stone" viewBox="0 0 24 24"><path class="ic" d="M4.5 15.5C3.6 11 7 6.5 12.2 6.5c4.9 0 8 3.3 7.2 8-.6 3.4-3.8 4.5-7.4 4.5-3.3 0-6.8-.8-7.5-3.5z"/><path class="ic" d="M9 12.5h6M10 15h3.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+<header>
+  <div class="meta">
+    <span class="label">Design doc · Draft 0.5</span>
+    <span class="label">Updated Oct 10, 2026</span>
+    <span class="label">移ろい · utsuroi</span>
+  </div>
+  <h1>Utsuroi <span class="jp" lang="ja">移ろい</span></h1>
+  <p class="lede">A journal where most entries are not meant to be kept. You write the things you need to let out, then hand them to <em>the tide, the wind, a flame</em>, or carve them into <em>stone</em> so they stay.</p>
+  <nav class="toc" aria-label="Contents">
+    <a href="#changes">What changed</a><a href="#name">Name</a><a href="#idea">Idea</a><a href="#decisions">Decisions</a><a href="#rituals">The four rituals</a><a href="#handwriting">Handwriting from typing</a><a href="#cairn">The cairn</a><a href="#calendar">Ritual calendar</a><a href="#flow">App flow</a><a href="#privacy">Privacy model</a><a href="#tech">Technical approach</a><a href="#milestones">Milestones</a><a href="#questions">Open questions</a>
+  </nav>
+</header>
+
+<section id="changes" class="changes">
+  <span class="label">What changed in 0.5</span>
+  <ul>
+    <li>The app has a name: <b>Utsuroi</b> (<span class="jp" lang="ja">移ろい</span>). See <a href="#name">Name</a> for the meaning and icon concepts.</li>
+    <li>Japanese typed text gets real stroke order from KanjiVG, so the stick can write <span class="jp" lang="ja">移ろい</span> in the sand the way a person would.</li>
+  </ul>
+  <p style="color:var(--muted);font-size:0.9rem">0.4 added encrypted backup files, the "your own hand" alphabet, no minimum length, and stones that settle on the cairn by themselves. 0.3 added the stick that writes typed text into sand, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
+</section>
+
+<section id="name">
+  <span class="label">Name</span>
+  <h2>Utsuroi</h2>
+  <div class="name-meaning">
+    <div class="name-glyph" lang="ja" aria-hidden="true">移ろい</div>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <p><b><span class="jp" lang="ja">移ろい</span></b> (<span class="jp" lang="ja">うつろい</span>, <i>oo-tsoo-ro-ee</i>) is the noun form of <span class="jp" lang="ja">移ろう</span>, "to shift, to fade, to pass." In classical poetry it describes the changing of the seasons and the fading color of flowers. It's close to the idea of <i>mono no aware</i>, a gentle awareness that things pass.</p>
+      <p>It fits the app: words in sand, wind, and fire are utsuroi. The stones are what you choose to keep through it.</p>
+    </div>
+  </div>
+  <ul>
+    <li><b>Nuance to know:</b> <span class="jp" lang="ja">心の移ろい</span> (a shifting heart) can suggest fickle feelings in love poetry. In this app's context it reads as change, not fickleness.</li>
+    <li><b>Similar-sounding word:</b> <span class="jp" lang="ja">虚ろ</span> (<i>utsuro</i>, without the final <i>i</i>) means hollow or vacant. Always keep the <i>i</i> in romanization.</li>
+    <li><b>Conflicts:</b> no app or brand found using the name. There's an academic lab (Utsuroi Lab at Tokyo Denki University), a small three.js animation plugin on GitHub, and an unrelated horror app called "Utsuro's diary." <code>Aubrey-Li/utsuroi</code> is free on GitHub.</li>
+  </ul>
+
+  <h3>Using Japanese in the app</h3>
+  <ul>
+    <li><b>First launch:</b> the stick writes <span class="jp" lang="ja">移ろい</span> in the sand with correct stroke order, the tide washes it away, and the scene picker appears. The name teaches the idea before any explanation.</li>
+    <li><b>Wordmark:</b> lowercase "utsuroi" in the display face with <span class="jp" lang="ja">移ろい</span> set small beside or beneath it.</li>
+    <li><b>Scene names</b> could carry a single character each: <span class="jp" lang="ja">波</span> (wave), <span class="jp" lang="ja">風</span> (wind), <span class="jp" lang="ja">火</span> (fire), <span class="jp" lang="ja">石</span> (stone). Shown small, as a seal, not replacing the English.</li>
+  </ul>
+
+  <h3>Icon concepts</h3>
+  <div class="icons">
+    <div class="icon-concept">
+      <div class="icon-tile fade" aria-hidden="true"><span class="k jp">移</span><span class="dust"></span></div>
+      <b>Fading character</b>
+      <span>A brushed <span class="jp" lang="ja">移</span> whose right side breaks into sand grains. The most direct statement of the idea.</span>
+    </div>
+    <div class="icon-concept">
+      <div class="icon-tile sand" aria-hidden="true"><span class="k jp">移</span></div>
+      <b>Written in sand</b>
+      <span><span class="jp" lang="ja">移</span> drawn into wet sand at the waterline, with foam about to reach it.</span>
+    </div>
+    <div class="icon-concept">
+      <div class="icon-tile vert" aria-hidden="true"><span class="k jp">移ろい</span></div>
+      <b>Vertical name</b>
+      <span>The full name set vertically, like a scroll or a hanging sign. Quiet and typographic.</span>
+    </div>
+    <div class="icon-concept">
+      <div class="icon-tile" aria-hidden="true">
+        <svg viewBox="0 0 74 74"><ellipse cx="37" cy="60" rx="24" ry="8" fill="var(--icon-ink)" opacity="0.85"/><ellipse cx="36" cy="45" rx="18" ry="7" fill="var(--icon-ink)" opacity="0.7"/><ellipse cx="38" cy="32" rx="12" ry="5.5" fill="var(--icon-ink)" opacity="0.55"/><ellipse cx="37" cy="21" rx="7" ry="3.6" fill="var(--icon-ink)" opacity="0.4"/></svg>
+      </div>
+      <b>Cairn</b>
+      <span>A small stack of stones, getting lighter toward the top. Speaks to what's kept rather than what passes.</span>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:0.9rem">These are rough sketches to compare directions. The real icon would be drawn or rendered from the actual scenes.</p>
+</section>
+
+<section id="idea">
+  <span class="label">The idea</span>
+  <h2>Writing to let go, not to remember</h2>
+  <p>A lot of writing is not about preserving a memory. It is a way to get out anger, regret, or the words you never said to a parent, a friend, or someone you lost. People already do this in nature: they write in the sand and let the waves take it, burn a letter, or carve a name into stone so it lasts. The app gives each of those acts a place. You choose the place, write, and the place handles your words.</p>
+  <ul class="principles">
+    <li><strong>Release is a gesture</strong><span>You strike the match, blow the words away, turn toward the sea. No "Delete" button.</span></li>
+    <li><strong>Released means gone</strong><span>Released words are never saved to disk, sent to a server, or logged. Only the date and the ritual remain.</span></li>
+    <li><strong>The medium shapes the words</strong><span>Sand fits a sentence. A letter fits pages. Stone fits a few words, because carving is slow.</span></li>
+    <li><strong>Dreamy, not photoreal</strong><span>Stylized realism in the spirit of Journey and The Witness: soft light, big skies, strong silhouettes.</span></li>
+    <li><strong>It always feels handwritten</strong><span>Even typed words arrive as strokes: traced in sand, carved by a chisel.</span></li>
+    <li><strong>Never judged</strong><span>The app never reads, scores, or reacts to what you write. Support is always there, but quiet.</span></li>
+  </ul>
+</section>
+
+<section id="decisions">
+  <span class="label">Decisions so far</span>
+  <h2>What we've settled</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Topic</th><th>Decision</th></tr></thead>
+      <tbody>
+        <tr><td>Input</td><td>Handwriting by default on touch devices, typing by default on desktop. Either can be switched manually on any device.</td></tr>
+        <tr><td>Typed text</td><td>Keeps a handwritten feel. In the ocean and stone scenes, typed text is written stroke by stroke. In fire and wind it appears in a hand-lettered font.</td></tr>
+        <tr><td>Handwriting style</td><td>One carefully tuned cursive by default, or your own handwriting after a one-time alphabet setup.</td></tr>
+        <tr><td>Entry length</td><td>No minimum. A single word can be released.</td></tr>
+        <tr><td>Scene choice</td><td>Chosen before writing. You can leave at any time, and leaving discards the words without a mark.</td></tr>
+        <tr><td>Addressing</td><td>No "To" field. Who the words are for is part of the writing.</td></tr>
+        <tr><td>Released entries</td><td>No record of the words. The calendar keeps only the date and an icon for the ritual.</td></tr>
+        <tr><td>Kept entries</td><td>Only stone entries keep their words. Stones can't be removed. They settle on top of a cairn by themselves.</td></tr>
+        <tr><td>Backup</td><td>Stones and calendar marks can be saved to an encrypted backup file and restored on another device.</td></tr>
+        <tr><td>Kept places</td><td>A calendar view instead of a walkable garden. Only days with stone entries can be opened.</td></tr>
+        <tr><td>Visual direction</td><td>Stylized realism with a dreamy atmosphere (Journey, The Witness). Fixed, designed mood per scene.</td></tr>
+        <tr><td>Care</td><td>Support resources are always reachable and never triggered by content. Writing is never judged.</td></tr>
+        <tr><td>MVP scenes</td><td>Ocean, Wind, Fire, Stone.</td></tr>
+        <tr><td>Platform</td><td>Web first as an installable PWA, then wrapped for iOS and Android.</td></tr>
+        <tr><td>Name</td><td>Utsuroi (移ろい). Japanese writing is used in the app and the icon.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="rituals">
+  <span class="label">The four rituals</span>
+  <h2>From a breath to forever</h2>
+  <p>Each ritual sits at a different point on the permanence spectrum. Together the four cover the whole range, from words gone in a breath to words that stay.</p>
+
+  <div class="spectrum" role="img" aria-label="Permanence spectrum: wind lasts a breath, fire about a minute, ocean a few waves, stone forever.">
+    <div class="spectrum-bar">
+      <div class="spectrum-stop c-wind" style="left:0%"><svg><use href="#i-wind"/></svg></div>
+      <div class="spectrum-stop c-fire" style="left:33.3%"><svg><use href="#i-fire"/></svg></div>
+      <div class="spectrum-stop c-ocean" style="left:66.6%"><svg><use href="#i-ocean"/></svg></div>
+      <div class="spectrum-stop c-stone" style="left:100%"><svg><use href="#i-stone"/></svg></div>
+    </div>
+    <div class="spectrum-legend">
+      <div><b>Wind</b><span>a breath</span></div>
+      <div><b>Fire</b><span>about a minute</span></div>
+      <div><b>Ocean</b><span>a few waves</span></div>
+      <div><b>Stone</b><span>forever</span></div>
+    </div>
+  </div>
+
+  <div class="rituals">
+    <article class="ritual">
+      <div class="ritual-head c-ocean"><svg><use href="#i-ocean"/></svg><h3>Ocean</h3><span class="label">Released</span></div>
+      <dl>
+        <dt>Where you write</dt><dd>Wet sand at the waterline, at dusk.</dd>
+        <dt>How you write</dt><dd>Hand-drawing: your finger draws grooves in the sand. Typing: a driftwood stick writes each letter into the sand as you type, a few letters behind you, with real pen lifts and uneven pressure.</dd>
+        <dt>How much fits</dt><dd>One to three short lines. The strip of sand runs out.</dd>
+        <dt>Release gesture</dt><dd>Turn toward the sea (drag the view up to the horizon). The tide starts coming in.</dd>
+        <dt>What happens</dt><dd>Each wave reaches a little higher and softens part of the words. Foam lingers in the grooves. After four to six waves the sand is smooth.</dd>
+        <dt>Technique</dt><dd>Strokes, drawn or synthesized from typing, are stamped into a sand height buffer: the groove sinks and the sand piles into a low ridge on each side. A wave-coverage buffer builds up frame by frame (ping-pong render targets) and relaxes the height back to flat. Wet-sand darkening and a foam line in the shader.</dd>
+        <dt>Sound</dt><dd>Surf getting closer, distant gulls.</dd>
+      </dl>
+    </article>
+
+    <article class="ritual">
+      <div class="ritual-head c-wind"><svg><use href="#i-wind"/></svg><h3>Wind</h3><span class="label">Released</span></div>
+      <dl>
+        <dt>Where you write</dt><dd>A grassy hilltop in the late afternoon. Your words appear as if made of dandelion seed and pollen.</dd>
+        <dt>How you write</dt><dd>Hand-drawing: traced in the air above the grass, leaving a trail of seed. Typing: letters gather out of drifting seed in a hand-lettered shape.</dd>
+        <dt>How much fits</dt><dd>A sentence or two.</dd>
+        <dt>Release gesture</dt><dd>Blow into the microphone. Fallback: press and drag across the screen to make a gust.</dd>
+        <dt>What happens</dt><dd>Letters loosen from their edges, lift, and scatter over the hills in the gust's direction. The last specks catch the light.</dd>
+        <dt>Technique</dt><dd>Sample points from the text mask into a GPU particle system (position and velocity textures), moved by curl noise plus the gust vector. The grass shader bends with the same gust. Breath detection uses a Web Audio analyser on low-frequency energy.</dd>
+        <dt>Sound</dt><dd>Wind that swells with your breath, rustling grass.</dd>
+      </dl>
+    </article>
+
+    <article class="ritual">
+      <div class="ritual-head c-fire"><svg><use href="#i-fire"/></svg><h3>Fire</h3><span class="label">Released</span></div>
+      <dl>
+        <dt>Where you write</dt><dd>A sheet of paper beside a small fire by a lake at night.</dd>
+        <dt>How you write</dt><dd>Hand-drawing: ink on the paper. Typing: a hand-lettered font, set as if written in ink.</dd>
+        <dt>How much fits</dt><dd>A full letter. The page scrolls.</dd>
+        <dt>Release gesture</dt><dd>Drag a match along the box to strike it, then hold the flame to a corner of the page.</dd>
+        <dt>What happens</dt><dd>A burn front spreads from where you lit it. The paper browns, curls, and turns to ash, and glowing embers drift up into the dark.</dd>
+        <dt>Technique</dt><dd>Paper is a subdivided plane. Burn amount = distance from the ignition point + noise, compared against time: a brown char band, an emissive ember edge, transparency behind it. Vertices curl near the front. Ember particles and bloom.</dd>
+        <dt>Sound</dt><dd>Match strike, procedural crackle, then quiet.</dd>
+      </dl>
+    </article>
+
+    <article class="ritual">
+      <div class="ritual-head c-stone"><svg><use href="#i-stone"/></svg><h3>Stone</h3><span class="label">Kept</span></div>
+      <dl>
+        <dt>Where you write</dt><dd>A quiet pebble shore in soft morning light. You pick up a flat, smooth stone and carve its top face.</dd>
+        <dt>How you write</dt><dd>Hand-drawing: trace each stroke and the chisel follows, slowly. Typing: the chisel follows the same synthesized strokes as the ocean stick, at a deliberate pace, with a tap and a puff of dust on each cut.</dd>
+        <dt>How much fits</dt><dd>A few words to one short line. The effort is the point.</dd>
+        <dt>Release gesture</dt><dd>Carry the stone to your cairn and set it on top. It settles with a soft click.</dd>
+        <dt>What happens</dt><dd>The stone stays, and the cairn grows by one. It can't be removed. You can reopen it from the calendar.</dd>
+        <dt>Technique</dt><dd>Strokes become a signed distance field, then a V-groove depth and normal map revealed by a carving-progress mask. Dust particles. Triplanar rock material on a flattened, noise-shaped pebble so it stacks. Saved as data (strokes plus a rock seed and its place in the cairn), not as an image.</dd>
+        <dt>Sound</dt><dd>Chisel taps, small waves on pebbles.</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section id="handwriting">
+  <span class="label">Handwriting from typing</span>
+  <h2>A stick that writes what you type</h2>
+  <p>In the ocean scene, typed words shouldn't just appear in the sand. A driftwood stick writes them, letter by letter, the way a person would: it moves faster on straight lines, slows in tight curves, lifts between strokes, and digs a little deeper when it changes direction. The same stroke engine drives the chisel in the stone scene, so typed stones look carved by hand too.</p>
+
+  <h3>How it works</h3>
+  <div class="pipeline">
+    <div class="pipe-row">
+      <div class="pipe-node"><b>Typed characters</b><span>Queued as you type, a few letters ahead of the stick</span></div>
+      <div class="pipe-node"><b>Single-line font</b><span>Each glyph stored as centerline strokes, not outlines</span></div>
+      <div class="pipe-node"><b>Natural variation</b><span>Slant, size, baseline drift and per-point wobble, so no two letters match</span></div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="pipe-row">
+      <div class="pipe-node core"><b>Timed stroke stream</b><span>The same format a finger produces on touch: points with position, pressure and time</span></div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="pipe-row">
+      <div class="pipe-node"><b>Stick or chisel</b><span>Visible tool that follows the stream, tilts into its motion, casts a shadow</span></div>
+      <div class="pipe-node"><b>Sand or stone</b><span>Groove stamped into the height buffer as the tool passes</span></div>
+    </div>
+  </div>
+
+  <h3>Details that make it feel human</h3>
+  <ul>
+    <li><b>Speed follows curvature.</b> Human hand speed drops in tight curves (the "two-thirds power law" from motor-control research). Timing every point from local curvature makes it look written, not plotted.</li>
+    <li><b>Pen lifts.</b> Between strokes the stick rises, travels through the air, and sets down again, leaving a small dent where it lands.</li>
+    <li><b>Pressure.</b> Deeper at the start of a stroke and at sharp turns, lighter as it trails off.</li>
+    <li><b>Cursive joins.</b> Lowercase letters connect where the font allows, so words flow instead of being stamped one glyph at a time.</li>
+    <li><b>Keeping up with typing.</b> The stick writes at a natural three to five letters per second and speeds up a little if you type faster. A sentence finishes a moment after you stop.</li>
+    <li><b>Backspace.</b> A letter not yet written just leaves the queue. A letter already written is smoothed away by a sweep of the stick's flat side.</li>
+  </ul>
+
+  <h3>Where the strokes come from</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Option</th><th>How</th><th>Trade-off</th></tr></thead>
+      <tbody>
+        <tr><td>Single-line fonts</td><td>Plotter and engraving fonts already store centerline strokes (the Hershey fonts, and cursive single-line faces like EMS Allure). Convert once to stroke JSON.</td><td>Simple and deterministic. Needs the variation layer to avoid looking mechanical. Check each font's license.</td></tr>
+        <tr><td>Skeletonized fonts</td><td>Rasterize any handwriting font and extract its centerline (thinning, then path tracing), with stroke order guessed.</td><td>Works for any font, including non-Latin scripts. Stroke order can look wrong.</td></tr>
+        <tr><td>On-device synthesis</td><td>A small handwriting-synthesis model (Graves-style recurrent network) generates pen strokes from text, running locally.</td><td>Most natural and never repeats. Bigger download and a research spike. Not planned.</td></tr>
+        <tr><td>Your own hand</td><td>Draw the alphabet once with a finger or stylus, and the stick writes in your handwriting.</td><td>Very personal. Needs a short setup step. <b>Chosen</b> as the alternative to the default cursive.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><b>Decision:</b> one carefully tuned cursive single-line font plus the variation layer is the default. You can replace it with your own handwriting (below). Japanese gets real stroke-order data from KanjiVG (kanji and kana, CC BY-SA 3.0, so the converted data files carry that license and need attribution). Chinese can use Make Me a Hanzi. For anything else neither covers, fall back to skeletonizing a regular font.</p>
+
+  <h3 id="own-hand">Your own hand</h3>
+  <p>A one-time setup where you write the alphabet, after which the stick and the chisel write in your handwriting. It's available from settings and offered once after your first typed ocean entry.</p>
+  <ul>
+    <li><b>Setup.</b> Write each letter on a guideline: lowercase a–z first (enough to start), then optionally capitals, digits, and common punctuation. Around three minutes for lowercase. Uncaptured characters fall back to the default cursive.</li>
+    <li><b>Capture.</b> Each letter is saved as timed strokes with pressure, normalized to a shared baseline and x-height. Writing a letter two or three times gives natural variety, and the engine picks one at random each time.</li>
+    <li><b>Joining.</b> Your letters are written separately, so the engine adds short connecting strokes between lowercase letters when their end and start points are close, the way cursive joins form.</li>
+    <li><b>Timing.</b> Your own recorded speed is used instead of the curvature-based timing, so the stick moves the way your hand moved.</li>
+    <li><b>Redo anytime.</b> Rewrite any single letter you don't like.</li>
+    <li><b>Privacy.</b> Your handwriting is personal and identifying. It's stored encrypted on the device like stones and included in backups.</li>
+  </ul>
+</section>
+
+<section id="cairn">
+  <span class="label">The cairn</span>
+  <h2>Stones that stack instead of disappearing</h2>
+  <p>Stones can't be removed. Each one is placed on a cairn on the stone scene's shore, like the stacks people leave on beaches. The cairn is a slow record of what you chose to keep.</p>
+  <ul>
+    <li><b>Placing.</b> After carving, the stone is lifted onto the cairn and settles on top by itself, with a little wobble. Choosing a spot by hand could come later as an option.</li>
+    <li><b>Growing.</b> When a cairn gets tall (around eight to ten stones), the next stone starts a new cairn beside it. Over years the shore fills with them.</li>
+    <li><b>Revisiting.</b> Opening a stone day in the calendar takes you to the shore, with the camera on that stone so you can read it.</li>
+    <li><b>Stone shape.</b> Stones are generated flat and smooth so they stack believably. Each is regenerated from a seed, so nothing heavier than a number is saved.</li>
+    <li><b>Physics.</b> For the MVP, the resting spot is computed once (sample candidate positions on the top stone, pick the flattest contact) and animated as a settle. Real rigid-body physics (for example the Rapier engine compiled to WebAssembly) is a later option. The placement is saved, so the cairn never changes on reload.</li>
+  </ul>
+</section>
+
+<section id="calendar">
+  <span class="label">Ritual calendar</span>
+  <h2>The only trace is the ritual itself</h2>
+  <p>The calendar replaces a "kept places" world. Every ritual leaves a small icon on the day it happened. Released rituals keep nothing else, so their days can't be opened. Only days with a stone entry can be opened, and they show the carved words.</p>
+  <ul>
+    <li>Each ritual adds one icon. A day shows up to three, then a count.</li>
+    <li>Days with a stone are tinted and can be opened. Opening one takes you to that stone on its cairn.</li>
+    <li>No time of day or length is recorded for released rituals.</li>
+    <li>Leaving a scene before the release leaves no mark at all.</li>
+  </ul>
+
+  <div class="cal-box">
+    <div>
+      <div class="cal-top">
+        <h3>October 2026</h3>
+        <span class="example-tag">Example data</span>
+      </div>
+      <div class="cal-grid" id="cal" aria-label="October 2026"></div>
+      <div class="cal-legend" style="margin-top:12px">
+        <span class="c-ocean"><svg><use href="#i-ocean"/></svg>Ocean</span>
+        <span class="c-wind"><svg><use href="#i-wind"/></svg>Wind</span>
+        <span class="c-fire"><svg><use href="#i-fire"/></svg>Fire</span>
+        <span class="c-stone"><svg><use href="#i-stone"/></svg>Stone</span>
+      </div>
+    </div>
+    <div class="cal-panel" id="cal-panel" aria-live="polite">
+      <span class="label">Select a tinted day</span>
+      <p style="color:var(--muted)">Stone days open to show what was carved. Every other mark is only a reminder that something was let go.</p>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <span class="label">App flow</span>
+  <h2>One ritual, start to finish</h2>
+  <ol class="flow">
+    <li><div><b>Arrive.</b> <span>A short, quiet threshold: the last scene's ambience, one slow breath. Skippable.</span></div></li>
+    <li><div><b>Choose a ritual.</b> <span>Ocean, wind, fire, or stone, before you write anything. The scene sets the mood for the writing.</span></div></li>
+    <li><div><b>Write.</b> <span>Inside the scene. Hand-drawing or typing, with a quiet switch in the corner. Nothing is autosaved.</span></div></li>
+    <li><div><b>Release.</b> <span>The ritual's gesture: turn to the sea, blow, strike the match, set the stone on the cairn.</span></div></li>
+    <li><div><b>Stay a moment.</b> <span>The scene keeps playing after the words are gone. You leave when you're ready.</span></div></li>
+    <li><div><b>Calendar.</b> <span>Today's icon appears. Stone days can be reopened.</span></div></li>
+  </ol>
+  <p><b>Leaving early.</b> A small "Leave" control is always visible while writing. Leaving discards the words, records nothing, and returns you to the scene picker. No "Are you sure?" prompt: nothing has been kept, so nothing is lost that you meant to keep.</p>
+  <p><b>Support.</b> The menu always has a "Need to talk to someone?" entry with crisis lines for your region. It's never triggered by what you write, because the app never reads it.</p>
+</section>
+
+<section id="privacy">
+  <span class="label">Privacy model</span>
+  <h2>What is stored, and what never is</h2>
+  <div class="two-col">
+    <div>
+      <h3>Stored on the device</h3>
+      <ul>
+        <li>One mark per ritual: date and ritual type.</li>
+        <li>Stone entries: the strokes (drawn or synthesized), the source text if typed, the rock seed, and its place in the cairn, encrypted at rest.</li>
+        <li>Your handwriting alphabet, if you made one, encrypted at rest.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Never stored, anywhere</h3>
+      <ul>
+        <li>Released words or strokes.</li>
+        <li>Drafts, or anything from a scene you left early.</li>
+        <li>Any analytics event containing content or length.</li>
+        <li>Any analysis of content, including for support features.</li>
+      </ul>
+    </div>
+  </div>
+  <p>Released text exists only in memory and GPU textures while the scene runs. Once the ritual ends, the canvas is cleared and the buffers are released. There is no server in the MVP.</p>
+<pre><span class="cm">// Stored for every ritual. No words, no time of day.</span>
+type RitualMark = {
+  date: string;                 <span class="cm">// local date, "2026-10-10"</span>
+  ritual: "ocean" | "wind" | "fire" | "stone";
+  keptId?: string;              <span class="cm">// set only for stone</span>
+};
+
+<span class="cm">// Stored only for stone. Encrypted with WebCrypto (AES-GCM).</span>
+type KeptEntry = {
+  id: string;
+  createdAt: string;
+  strokes: Stroke[];            <span class="cm">// what the chisel carved</span>
+  text?: string;                <span class="cm">// source text, if typed</span>
+  stoneSeed: number;            <span class="cm">// regenerates the same rock</span>
+  cairn: { index: number; level: number; pose: number[] }; <span class="cm">// fixed resting spot</span>
+};
+
+type Stroke = { points: [x: number, y: number, pressure: number, t: number][] };
+
+<span class="cm">// Optional. Your handwriting, several samples per character.</span>
+type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
+  <h3>Backup file</h3>
+  <ul>
+    <li><b>Contents:</b> calendar marks, stones, and your handwriting alphabet. Released words are never in it, because they were never stored.</li>
+    <li><b>Encryption:</b> a passphrase you choose, stretched into a key (PBKDF2 with a high iteration count, or Argon2 via WebAssembly), then AES-GCM. Without the passphrase the file is unreadable, and we can't recover it.</li>
+    <li><b>Restore:</b> open the file on any device and enter the passphrase. Stones merge into existing cairns in date order.</li>
+    <li><b>Reminders:</b> one gentle suggestion after your first stone, and an optional reminder after every few new stones. No nagging.</li>
+    <li><b>Mobile:</b> the Capacitor build saves through the system share sheet, so the file can go to iCloud Drive, Google Drive, or Files.</li>
+  </ul>
+</section>
+
+<section id="tech">
+  <span class="label">Technical approach</span>
+  <h2>How it gets built</h2>
+
+  <h3>Platform</h3>
+  <ul>
+    <li><b>Web first:</b> TypeScript + Vite, shipped as a PWA (installable, works offline, no account).</li>
+    <li><b>Mobile later:</b> wrap the same build with Capacitor for native microphone access, haptics (match strike, chisel taps), and store distribution.</li>
+    <li><b>UI shell:</b> a thin layer for menus and the calendar. Plain TS or a small framework, decided at repo setup.</li>
+  </ul>
+
+  <h3>Rendering</h3>
+  <ul>
+    <li>three.js <code>WebGPURenderer</code> with automatic WebGL2 fallback. Shaders written in TSL so one source runs on both.</li>
+    <li>The look: gradient skies, height fog, simple geometry with soft painterly textures, AgX tone mapping, bloom, light grain, and a vignette.</li>
+  </ul>
+
+  <h3>Text as material</h3>
+  <p>The shared core. Strokes are the common format: hand-drawing produces them directly, and typing produces them through the stroke engine (ocean, stone) or a hand-lettered font (fire, wind). Everything ends up as the same mask texture and distance field, and each scene's shader or simulation reads from it. Build this once, then every ritual is a different consumer.</p>
+  <div class="pipeline">
+    <div class="pipe-row">
+      <div class="pipe-node"><b>Hand-drawing</b><span>Pointer Events with pressure and coalesced points, smoothed into strokes. Works with mouse, finger, or stylus.</span></div>
+      <div class="pipe-node"><b>Typing</b><span>Hidden textarea for IME and accessibility, turned into strokes or hand-lettered glyphs</span></div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="pipe-row">
+      <div class="pipe-node core"><b>Strokes → mask + SDF</b><span>Offscreen canvas raster, distance field via jump flooding on the GPU</span></div>
+    </div>
+    <div class="pipe-arrow">↓</div>
+    <div class="pipe-row">
+      <div class="pipe-node"><b class="c-ocean">Ocean</b><span>Strokes stamped into a height field, eroded by a wave-coverage buffer</span></div>
+      <div class="pipe-node"><b class="c-wind">Wind</b><span>Points sampled into GPU particles, curl noise + gust</span></div>
+      <div class="pipe-node"><b class="c-fire">Fire</b><span>Ink on paper, consumed by the noisy burn front</span></div>
+      <div class="pipe-node"><b class="c-stone">Stone</b><span>SDF → groove depth + normals, revealed by chisel progress</span></div>
+    </div>
+  </div>
+
+  <h3>Audio</h3>
+  <ul>
+    <li>Web Audio graph per scene: layered ambient loops plus procedural crackle and gusts so nothing sounds looped.</li>
+    <li>Breath detection: an <code>AnalyserNode</code> on the mic, triggering on a sustained rise in low-frequency energy.</li>
+    <li>Audio starts on the first tap (browser autoplay rules), which can be the threshold moment.</li>
+  </ul>
+
+  <h3>Storage</h3>
+  <ul>
+    <li>IndexedDB for ritual marks and stone entries. Stone entries encrypted with a device-held key. A passphrase option comes later.</li>
+    <li>Call <code>navigator.storage.persist()</code> so the browser doesn't evict stones. Safari can clear storage for sites that aren't installed and haven't been visited for a week, so encourage installing the PWA.</li>
+    <li>Manual encrypted backup files in the MVP (see Privacy model). Automatic end-to-end encrypted sync is a later decision.</li>
+  </ul>
+
+  <h3>Performance on phones</h3>
+  <ul>
+    <li>Cap device pixel ratio at 2, or 1.5 on lower tiers. Simulation buffers at 512² or below.</li>
+    <li>Adaptive quality tiers chosen from measured frame time during the first seconds of a scene.</li>
+    <li>One scene loaded at a time, assets streamed per scene.</li>
+  </ul>
+</section>
+
+<section id="milestones">
+  <span class="label">Milestones</span>
+  <h2>Order of work</h2>
+  <ol class="milestones">
+    <li><span class="m">M0</span><div><b>Sand-writing spike</b><span>A stick writing typed text into a patch of sand, using one single-line cursive and curvature-based timing. Tests whether the core effect feels handwritten before anything else exists.</span></div></li>
+    <li><span class="m">M1</span><div><b>Stroke pipeline</b><span>Hand-drawing input, the input switch, and the typed-to-strokes engine (single-line font, variation, curvature timing). Shared mask + SDF module.</span></div></li>
+    <li><span class="m">M2</span><div><b>Ocean</b><span>Driftwood stick, sand height field with ridges, wave erosion buffer, dusk lighting.</span></div></li>
+    <li><span class="m">M3</span><div><b>Wind and Stone</b><span>GPU particles with mic input. Chisel reveal, stackable pebbles, and the cairn.</span></div></li>
+    <li><span class="m">M4</span><div><b>Fire and calendar</b><span>Burning letter. Ritual marks, encrypted stone entries, backup file, offline PWA.</span></div></li>
+    <li><span class="m">M5</span><div><b>Your own hand</b><span>Alphabet setup, multi-sample glyphs, synthesized joins.</span></div></li>
+    <li><span class="m">M6</span><div><b>Atmosphere pass</b><span>Sound design, threshold screen, scene transitions, quality tiers.</span></div></li>
+    <li><span class="m">M7</span><div><b>Mobile wrap</b><span>Capacitor build, haptics, native mic, share-sheet backups.</span></div></li>
+  </ol>
+</section>
+
+<section id="questions">
+  <span class="label">Open questions</span>
+  <h2>Left to decide</h2>
+  <ol class="questions">
+    <li><b>Icon.</b> Which of the concepts in <a href="#name">Name</a> to develop.</li>
+    <li><b>UI shell.</b> Plain TypeScript or a small framework for menus, calendar, and settings. Decided at repo setup.</li>
+    <li><b>The default cursive.</b> Which single-line font to start from, based on how it looks after tuning and on its license.</li>
+  </ol>
+  <h3>Resolved</h3>
+  <ul>
+    <li>Name: Utsuroi (移ろい).</li>
+    <li>Scene choice: before writing, and you can leave at any time.</li>
+    <li>Stones: can't be removed. They settle on top of a cairn by themselves.</li>
+    <li>Backup: encrypted backup file.</li>
+    <li>Handwriting: one tuned cursive, or your own hand.</li>
+    <li>Fire letters: typed text in a hand-lettered font.</li>
+    <li>Entry length: no minimum.</li>
+    <li>Recipient line: none.</li>
+    <li>Input: manual switch between hand-drawing and typing on any device.</li>
+    <li>Scenes: fixed, designed moods.</li>
+    <li>Care: always reachable, never triggered by content, never judging.</li>
+  </ul>
+</section>
+
+<footer>Draft 0.5 · Will move into the project repository once it exists.</footer>
+
+</div>
+
+<script>
+(function () {
+  var marks = {
+    1: ["stone"], 3: ["ocean"], 5: ["fire"], 7: ["wind", "wind"],
+    8: ["fire", "ocean", "wind", "fire"], 9: ["stone", "ocean"], 10: ["fire"]
+  };
+  var kept = {
+    1: { cairn: 1, level: 4, text: "Moved to the city today. Remember how brave this felt." },
+    9: { cairn: 1, level: 5, text: "Grandpa, I still hear you humming in the garden." }
+  };
+  var today = 10;
+  var cal = document.getElementById("cal");
+  var panel = document.getElementById("cal-panel");
+  var dows = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  dows.forEach(function (d) {
+    var el = document.createElement("div");
+    el.className = "cal-dow"; el.textContent = d; cal.appendChild(el);
+  });
+  // Oct 1, 2026 is a Thursday: three blank cells in a Monday-first week.
+  for (var b = 0; b < 3; b++) cal.appendChild(document.createElement("div"));
+
+  function icon(r) {
+    return '<svg class="c-' + r + '" aria-hidden="true"><use href="#i-' + r + '"/></svg>';
+  }
+
+  for (var d = 1; d <= 31; d++) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = "cal-day-" + d;
+    btn.className = "cal-day" + (d > today ? " future" : "") + (d === today ? " today" : "");
+    var m = marks[d] || [];
+    var shown = m.slice(0, 3).map(icon).join("");
+    var extra = m.length > 3 ? '<span style="font-size:0.65rem;color:var(--muted)">+' + (m.length - 3) + "</span>" : "";
+    btn.innerHTML = '<span class="num">' + d + '</span><span class="marks">' + shown + extra + "</span>";
+    var label = "October " + d + (m.length ? ", " + m.join(", ") : ", no rituals");
+    btn.setAttribute("aria-label", label);
+    if (kept[d]) {
+      btn.classList.add("kept");
+      btn.setAttribute("aria-pressed", "false");
+      (function (day, el) {
+        el.addEventListener("click", function () { openDay(day, el); });
+      })(d, btn);
+    } else {
+      btn.disabled = true;
+    }
+    cal.appendChild(btn);
+  }
+
+  function openDay(day, el) {
+    cal.querySelectorAll(".cal-day.kept").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+    el.setAttribute("aria-pressed", "true");
+    var k = kept[day];
+    var released = (marks[day] || []).filter(function (r) { return r !== "stone"; }).length;
+    panel.innerHTML =
+      '<span class="label">October ' + day + ' · Stone</span>' +
+      '<div class="stone-card"><span class="label">Cairn ' + k.cairn + ' · stone ' + k.level + '</span><blockquote></blockquote></div>' +
+      (released ? '<p style="color:var(--muted);font-size:0.9rem">Also let go this day: ' + released + ' ' + (released === 1 ? "entry" : "entries") + '. Nothing else was kept.</p>' : "") +
+      '<span class="example-tag">Example entry</span>';
+    panel.querySelector("blockquote").textContent = k.text;
+  }
+})();
+</script>
+
+</body>
+</html>
