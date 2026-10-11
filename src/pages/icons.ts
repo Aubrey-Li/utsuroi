@@ -17,6 +17,20 @@ export const RITUAL_INFO: Record<Ritual, { name: string; seal: string; line: str
   stone: { name: 'Stone', seal: '石', line: 'Carve what you want to keep.', ready: true },
 };
 
+/** An open book, for journal entries. */
+export function journalIcon(className = 'icon'): SVGSVGElement {
+  const svg = document.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('class', `${className} icon-journal`);
+  svg.setAttribute('aria-hidden', 'true');
+  for (const d of ['M3.5 6.5c2.9-1.1 5.7-1 8.5.9 2.8-1.9 5.6-2 8.5-.9v11c-2.9-1.1-5.7-1-8.5.9-2.8-1.9-5.6-2-8.5-.9z', 'M12 7.4v11']) {
+    const path = document.createElementNS(SVG, 'path');
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+  }
+  return svg;
+}
+
 export function ritualIcon(ritual: Ritual, className = 'icon'): SVGSVGElement {
   const svg = document.createElementNS(SVG, 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');

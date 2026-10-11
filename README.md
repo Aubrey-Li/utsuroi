@@ -16,10 +16,14 @@ changing or the color going out of a flower.
 **Landing page, calendar, and four rituals: ocean, wind, fire and stone.**
 Painted and stylized (Journey, The Witness) rather than photoreal.
 
-- **Landing** (`#/`): choose where to write: ocean, wind, fire or stone. A quiet "Need to talk to someone?" link is always there.
+- **Landing** (`#/`): choose where to write: ocean, wind, fire or stone, or
+  just open the journal.
+- **Journal** (`#/journal`): a plain journal for writing you want to keep and
+  reread. Saves as you type; entries can be edited and deleted; empty ones
+  aren't kept. Stored on the device, encrypted like stones. A quiet "Need to talk to someone?" link is always there.
 - **Your days** (`#/calendar`): each completed ritual leaves its icon on the
-  day it happened. Only the date and the ritual are stored, on the device
-  (IndexedDB). No words.
+  day it happened. Released rituals store only the date and the ritual, no
+  words. Stone and journal days can be opened.
 - **Ocean** (`#/ocean`):
 
 - Write anywhere on the sand by hand, with a mouse, trackpad, finger or
@@ -122,7 +126,7 @@ strokes rather than drawing a font:
 ```
 src/
   main.ts              routes between the pages
-  pages/               landing page, calendar, icons
+  pages/               landing page, calendar, journal, icons
   journal/             on-device database: ritual marks, encrypted kept words, month math
   stone/               the stone ritual: pebble shore, carving, cairns, revisiting
   ocean/               the ocean ritual: drawing, looking around, the frame loop

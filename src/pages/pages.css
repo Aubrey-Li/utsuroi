@@ -603,3 +603,404 @@
     transition: none;
   }
 }
+
+/* ---- Calendar: kept writing opens ---- */
+
+.cal-opens {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+
+.cal-open {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 6px;
+  padding: 1px;
+  color: inherit;
+}
+
+.cal-open:hover,
+.cal-open:focus-visible {
+  background: rgba(156, 95, 108, 0.22);
+  outline: none;
+}
+
+.cal-open .icon {
+  width: 17px;
+  height: 17px;
+}
+
+.icon-journal {
+  color: #6b5b8f;
+}
+
+/* ---- Landing: the journal ---- */
+
+.journal-card {
+  margin-top: 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  text-align: left;
+  padding: 14px 22px;
+  color: var(--page-ink);
+  background: rgba(255, 246, 234, 0.5);
+  border: 1px solid var(--card-line);
+  border-radius: 26px 32px 28px 34px / 30px 26px 34px 28px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.journal-card:hover,
+.journal-card:focus-visible {
+  transform: translateY(-3px);
+  background: var(--card-strong);
+}
+
+.journal-card:focus-visible {
+  outline: 2px solid var(--groove);
+  outline-offset: 3px;
+}
+
+.journal-card .ritual-seal {
+  font-size: 2rem;
+}
+
+.journal-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.journal-card .ritual-name {
+  margin-top: 0;
+}
+
+/* ---- Journal ---- */
+
+.journal {
+  overflow-y: auto;
+  color: #3b2f2c;
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(255, 236, 214, 0.9), rgba(255, 236, 214, 0) 60%),
+    linear-gradient(180deg, #efe4d6 0%, #e6d8c7 100%);
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  animation: page-in 0.5s ease both;
+}
+
+.jr-brand,
+.jr-brand .back {
+  color: #5a4743;
+  text-shadow: none;
+}
+
+.jr-brand .brand-jp {
+  color: rgba(90, 71, 67, 0.7);
+}
+
+.jr-book {
+  max-width: 1080px;
+  margin: 3vh auto 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 22px;
+  min-height: calc(100vh - 120px);
+}
+
+.jr-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.jr-title {
+  margin: 0;
+  font-weight: 400;
+  font-size: 2rem;
+}
+
+.jr-title:focus {
+  outline: none;
+}
+
+.jr-new,
+.jr-start {
+  align-self: flex-start;
+  color: #fffaf3;
+  background: #7a5a62;
+  border-color: #7a5a62;
+  backdrop-filter: none;
+}
+
+.jr-new:hover:not(:disabled),
+.jr-start:hover:not(:disabled) {
+  background: #6a4b53;
+  border-color: #6a4b53;
+}
+
+.jr-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.jr-entries ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jr-month {
+  margin: 10px 0 4px;
+  font-weight: 400;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(59, 47, 44, 0.6);
+}
+
+.jr-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 8px 12px;
+  backdrop-filter: none;
+}
+
+.jr-item:hover:not(:disabled) {
+  background: rgba(255, 250, 242, 0.6);
+  border-color: transparent;
+}
+
+.jr-item.current {
+  background: #fbf6ee;
+  border-color: rgba(122, 90, 98, 0.25);
+}
+
+.jr-item-date {
+  font-size: 0.8rem;
+  color: rgba(59, 47, 44, 0.6);
+}
+
+.jr-item-text {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jr-none,
+.jr-note {
+  margin: 0;
+  color: rgba(59, 47, 44, 0.65);
+  font-style: italic;
+}
+
+.jr-page {
+  position: relative;
+  min-width: 0;
+  background: #fbf6ee;
+  border-radius: 6px 14px 14px 6px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 18px 40px rgba(90, 60, 50, 0.16),
+    -6px 0 0 #e9dccb;
+  padding: 34px 44px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.jr-empty {
+  margin: auto;
+  max-width: 26em;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(59, 47, 44, 0.75);
+  line-height: 1.5;
+}
+
+.jr-empty-title {
+  font-family: 'Caveat', var(--font-ui);
+  font-size: 2rem;
+  color: #3b2f2c;
+  margin: 0;
+}
+
+.jr-empty p {
+  margin: 0;
+}
+
+.jr-start {
+  align-self: center;
+  margin-top: 8px;
+}
+
+.jr-editor {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.jr-editor[hidden],
+.jr-empty[hidden] {
+  display: none;
+}
+
+.jr-editor-top {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.jr-back {
+  display: none;
+  white-space: nowrap;
+  padding: 4px 0;
+  color: #7a5a62;
+  background: none;
+  border: 0;
+}
+
+.jr-back:hover:not(:disabled) {
+  background: none;
+}
+
+.jr-date {
+  margin: 0 0 10px;
+  font-family: 'Caveat', var(--font-ui);
+  font-weight: 400;
+  font-size: 2rem;
+  color: #6b4d55;
+}
+
+/* Lined paper. */
+.jr-text {
+  flex: 1;
+  min-height: 55vh;
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: none;
+  padding: 0;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 2rem;
+  color: #3b2f2c;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(2rem - 1px), rgba(122, 90, 98, 0.16) calc(2rem - 1px), rgba(122, 90, 98, 0.16) 2rem);
+  background-attachment: local;
+  caret-color: #7a5a62;
+}
+
+.jr-text::placeholder {
+  color: rgba(59, 47, 44, 0.4);
+  font-style: italic;
+}
+
+.jr-foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 10px;
+  font-size: 0.85rem;
+  color: rgba(59, 47, 44, 0.6);
+}
+
+.jr-status {
+  flex: 1;
+}
+
+.jr-delete {
+  color: #8a4b4b;
+}
+
+.jr-confirm {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(138, 75, 75, 0.08);
+  font-size: 0.95rem;
+}
+
+.jr-confirm[hidden] {
+  display: none;
+}
+
+.jr-confirm span {
+  flex: 1;
+}
+
+.jr-confirm-yes {
+  color: #fffaf3;
+  background: #8a4b4b;
+  border-color: #8a4b4b;
+  backdrop-filter: none;
+}
+
+.jr-confirm-no {
+  color: #3b2f2c;
+  background: transparent;
+  border-color: rgba(59, 47, 44, 0.3);
+  backdrop-filter: none;
+}
+
+.journal button:focus-visible,
+.journal a:focus-visible {
+  outline: 2px solid #7a5a62;
+  outline-offset: 2px;
+}
+
+/* Phones: the list, or one page at a time. */
+@media (max-width: 760px) {
+  .jr-book {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .journal.editing .jr-side {
+    display: none;
+  }
+
+  .journal:not(.editing) .jr-page {
+    display: none;
+  }
+
+  .jr-back {
+    display: inline;
+  }
+
+  .jr-editor-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .jr-page {
+    padding: 22px 20px 16px;
+    min-height: calc(100vh - 110px);
+  }
+}

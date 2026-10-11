@@ -1,11 +1,11 @@
 import { RITUALS, type Ritual } from '../journal/marks';
-import { el, ritualIcon, RITUAL_INFO } from './icons';
+import { el, journalIcon, ritualIcon, RITUAL_INFO } from './icons';
 
 /**
  * The landing page: choose where to write today.
  * Only the ocean is ready; the other rituals are shown as coming.
  */
-export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void): void {
+export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, openJournal: () => void): void {
   const list = el('ul', { class: 'rituals' });
   for (const r of RITUALS) {
     const info = RITUAL_INFO[r];
@@ -21,6 +21,20 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void):
     else card.setAttribute('aria-disabled', 'true');
     list.append(el('li', {}, card));
   }
+
+  // Not a ritual: a plain journal for writing you want to keep and reread.
+  const journal = el(
+    'button',
+    { type: 'button', class: 'journal-card' },
+    el('span', { class: 'ritual-seal', lang: 'ja', 'aria-hidden': 'true' }, '記'),
+    el(
+      'span',
+      { class: 'journal-card-text' },
+      el('span', { class: 'ritual-name' }, journalIcon('ritual-icon'), 'Journal'),
+      el('span', { class: 'ritual-line' }, 'Or just write, and keep it. Entries stay on this device, private.'),
+    ),
+  );
+  journal.addEventListener('click', openJournal);
 
   const dialog = supportDialog();
   const supportBtn = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
@@ -40,6 +54,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void):
       el('h1', { class: 'home-title', tabindex: '-1' }, 'Where will you write today?'),
       el('p', { class: 'home-sub' }, 'Write what you need to let go of, and let a place take it. Or carve it in stone to keep.'),
       list,
+      journal,
     ),
     el('nav', { class: 'home-links', 'aria-label': 'More' }, el('a', { href: '#/calendar' }, 'Your days'), supportBtn),
     dialog,

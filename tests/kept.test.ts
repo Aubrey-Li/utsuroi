@@ -59,6 +59,16 @@ describe('kept entries', () => {
     await expect(new MemoryKeptStore().put({ ...stone('x'), seed: NaN })).rejects.toThrow();
   });
 
+  it('lists the days in a month that have entries, without reading any words', async () => {
+    const store = await IdbKeptStore.open();
+    const j = (date: string) => ({ id: newId(), kind: 'journal' as const, date, createdAt: 'x', updatedAt: 'x', text: 'hi' });
+    await store.put(j('2026-09-30'));
+    await store.put(j('2026-10-02'));
+    await store.put(j('2026-10-02'));
+    await store.put(j('2026-10-20'));
+    expect((await store.datesInMonth('journal', 2026, 9)).sort()).toEqual(['2026-10-02', '2026-10-20']);
+  });
+
   it('shares the database with ritual marks', async () => {
     const marks = await IdbMarkStore.open();
     await marks.add({ date: '2026-10-11', ritual: 'stone', keptId: 'abc' });

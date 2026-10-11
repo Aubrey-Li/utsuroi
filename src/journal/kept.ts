@@ -49,6 +49,8 @@ export interface KeptStore {
   get(id: string): Promise<KeptEntry | null>;
   all<K extends KeptKind>(kind: K): Promise<Extract<KeptEntry, { kind: K }>[]>;
   onDate(date: string): Promise<KeptEntry[]>;
+  /** Dates in a month (0-based) that have entries of a kind. Reads no words. */
+  datesInMonth(kind: KeptKind, year: number, month: number): Promise<string[]>;
   /** Journal entries can be deleted. Stones can't be removed. */
   remove(id: string): Promise<void>;
 }
@@ -93,6 +95,10 @@ export class MemoryKeptStore implements KeptStore {
   }
   async onDate(date: string): Promise<KeptEntry[]> {
     return [...this.entries.values()].filter((e) => e.date === date);
+  }
+  async datesInMonth(kind: KeptKind, year: number, month: number): Promise<string[]> {
+    const prefix = `${year}-${String(month + 1).padStart(2, '0')}-`;
+    return [...new Set([...this.entries.values()].filter((e) => e.kind === kind && e.date.startsWith(prefix)).map((e) => e.date))];
   }
   async remove(id: string): Promise<void> {
     const e = this.entries.get(id);
@@ -150,6 +156,13 @@ export class IdbKeptStore implements KeptStore {
   async onDate(date: string): Promise<KeptEntry[]> {
     const rows: StoredRecord[] = await request(this.db.transaction('kept', 'readonly').objectStore('kept').index('date').getAll(date));
     return (await Promise.all(rows.map((r) => this.open(r)))).filter((e): e is KeptEntry => e !== null);
+  }
+
+  async datesInMonth(kind: KeptKind, year: number, month: number): Promise<string[]> {
+    const prefix = `${year}-${String(month + 1).padStart(2, '0')}-`;
+    const range = IDBKeyRange.bound(`${prefix}01`, `${prefix}31`);
+    const rows: StoredRecord[] = await request(this.db.transaction('kept', 'readonly').objectStore('kept').index('date').getAll(range));
+    return [...new Set(rows.filter((r) => r.kind === kind).map((r) => r.date))];
   }
 
   async remove(id: string): Promise<void> {
