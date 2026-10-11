@@ -30,6 +30,7 @@ import { createRng } from '../strokes/random';
 import { HAND_STACK } from '../text/font';
 import { wrapText } from '../text/wrap';
 import { stoneShape, type StoneShape } from './cairn';
+import { warmUp } from '../scene/warm-up';
 
 /** A quiet pebble shore in soft morning light. */
 const PALETTE = {
@@ -394,6 +395,8 @@ export class StoneWorld {
 
   async init(): Promise<void> {
     await this.renderer.init();
+    // Shaders compile now, behind the veil, so the first visit shows the whole scene.
+    await warmUp(this.renderer, this.scene, this.camera);
   }
 
   get usingWebGPU(): boolean {

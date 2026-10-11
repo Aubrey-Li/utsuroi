@@ -7,6 +7,7 @@ import { allGone, liftDelays, makeFlier, stepFliers, type Flier } from './flight
 import { makeFlowers, makeGrass, makeGround } from './meadow';
 import { hillTexture, SKY_COLORS, skyTexture } from './sky';
 import { makeTree } from './tree';
+import { warmUp } from '../scene/warm-up';
 
 /** A sunny afternoon under a tree. Painted, like the ocean scene. */
 const PALETTE = {
@@ -185,6 +186,8 @@ export class WindWorld {
 
   async init(): Promise<void> {
     await this.renderer.init();
+    // Shaders compile now, behind the veil, so the first visit shows the whole scene.
+    await warmUp(this.renderer, this.scene, this.camera);
   }
 
   get usingWebGPU(): boolean {

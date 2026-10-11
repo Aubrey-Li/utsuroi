@@ -26,6 +26,7 @@ import { HAND_STACK } from '../text/font';
 import { wrapText } from '../text/wrap';
 import { flameShine, lightAt, makeCandle, makePen } from './props';
 import { BURN_SIZE, CHAR_WIDTH, frontSpeed, isBurntOut, makeBurnMap, packBurnMap, sampleFront, type UV } from './burn';
+import { warmUp } from '../scene/warm-up';
 
 /** A dark room, a desk, a candle. Painted rather than photoreal. */
 const PALETTE = {
@@ -323,6 +324,8 @@ export class FireWorld {
 
   async init(): Promise<void> {
     await this.renderer.init();
+    // Shaders compile now, behind the veil, so the first visit shows the whole scene.
+    await warmUp(this.renderer, this.scene, this.camera);
   }
 
   get usingWebGPU(): boolean {

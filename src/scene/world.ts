@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu';
 import { color, dot, mix, normalLocal, normalWorld, positionLocal, smoothstep, vec3 } from 'three/tsl';
 import { BEACH, WATERLINE_Y, ZONE, type SandField } from '../sand/field';
 import { createSandMaterial, createSeaMaterial, KEY_LIGHT, SUN_DIR, type SandMaterial, type SeaMaterial } from './sand-material';
+import { warmUp } from './warm-up';
 
 // Painted dusk sky. Equirectangular rows: 0 is straight up, 0.5 the horizon.
 const SKY = [
@@ -187,6 +188,8 @@ export class World {
 
   async init(): Promise<void> {
     await this.renderer.init();
+    // Shaders compile now, behind the veil, so the first visit shows the whole scene.
+    await warmUp(this.renderer, this.scene, this.camera);
   }
 
   get usingWebGPU(): boolean {
