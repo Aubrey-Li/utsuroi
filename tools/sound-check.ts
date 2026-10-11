@@ -7,27 +7,27 @@ import { Tide } from '../src/sand/tide';
 const RATE = 44100;
 const STEP = 1 / 30;
 
-type Script = { name: string; seconds: number; make(ctx: BaseAudioContext, out: AudioNode): (t: number, dt: number) => void };
+type Script = { name: string; seconds: number; make(ctx: BaseAudioContext, out: AudioNode): Promise<(t: number, dt: number) => void> };
 
 const scripts: Script[] = [
   {
-    name: 'ocean: waves, then drawing in the sand from 6 s to 9 s',
-    seconds: 16,
-    make(ctx, out) {
-      const s = new OceanSound(ctx, out);
+    name: 'ocean: waves washing in, drawing in the sand from 6 s to 9 s',
+    seconds: 20,
+    async make(ctx, out) {
+      const s = await OceanSound.create(ctx, out);
       const tide = new Tide(3, { gapMin: 0.3, gapMax: 1, bigChanceCalm: 0.5, bigChanceSwell: 0.5, bigReachMin: 3, bigReachMax: 5, swellPeriod: 40, writingLull: 1 });
       s.start();
       return (t, dt) => {
         tide.update(dt);
-        s.update(dt, tide.level, tide.rushing, t > 6 && t < 9 ? 1 + Math.sin(t * 6) * 0.6 : 0);
+        s.update(tide.waves, tide.reach, t > 6 && t < 9 ? 1 + Math.sin(t * 6) * 0.6 : 0);
       };
     },
   },
   {
-    name: 'wind: calm with birds, the wind takes the words at 7 s',
-    seconds: 16,
-    make(ctx, out) {
-      const s = new WindSound(ctx, out);
+    name: 'wind: a calm meadow, the wind takes the words at 7 s',
+    seconds: 18,
+    async make(ctx, out) {
+      const s = await WindSound.create(ctx, out);
       s.start();
       let gust = 0;
       let blown = false;
@@ -38,19 +38,19 @@ const scripts: Script[] = [
         }
         const target = t > 7 && t < 11 ? 1 : 0;
         gust += (target - gust) * (1 - Math.exp(-dt * (target > gust ? 2.5 : 0.8)));
-        s.update(dt, gust);
+        s.update(gust);
       };
     },
   },
   {
     name: 'fire: writing 1-3 s, lit at 4 s, burning 5-15 s',
     seconds: 18,
-    make(ctx, out) {
-      const s = new FireSound(ctx, out);
+    async make(ctx, out) {
+      const s = await FireSound.create(ctx, out);
       s.start();
       let next = 1;
       let lit = false;
-      return (t, dt) => {
+      return (t) => {
         if (t > 1 && t < 3 && t > next) {
           s.penStroke();
           next = t + 0.12 + Math.random() * 0.1;
@@ -59,8 +59,7 @@ const scripts: Script[] = [
           lit = true;
           s.ignite();
         }
-        const burning = t < 4.5 ? 0 : t < 6 ? (t - 4.5) / 1.5 : t < 14 ? 1 : Math.max(0, 1 - (t - 14) / 1.5);
-        s.update(dt, burning, 1 + 0.06 * Math.sin(t * 13));
+        s.update(t < 4.5 ? 0 : t < 6 ? (t - 4.5) / 1.5 : t < 14 ? 1 : Math.max(0, 1 - (t - 14) / 1.5));
       };
     },
   },
@@ -70,7 +69,7 @@ async function render(script: Script): Promise<AudioBuffer> {
   const ctx = new OfflineAudioContext(2, Math.floor(RATE * script.seconds), RATE);
   const out = ctx.createGain();
   out.connect(ctx.destination);
-  const step = script.make(ctx, out);
+  const step = await script.make(ctx, out);
   // Pause rendering every frame to steer the soundscape, as the scene would.
   for (let t = STEP; t < script.seconds; t += STEP) {
     const at = t;

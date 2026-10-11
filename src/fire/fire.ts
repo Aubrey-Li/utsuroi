@@ -18,6 +18,7 @@ const COPY = {
 export class FireScene {
   private world: FireWorld | null = null;
   private sound: FireSound | null = null;
+  private soundReady: Promise<FireSound | null> | null = null;
   private readonly shell: SceneShell;
   private readonly input: TypedInput;
   private active = false;
@@ -94,8 +95,11 @@ export class FireScene {
     const engine = AudioEngine.shared();
     const ctx = engine.context();
     if (!ctx || !engine.master) return;
-    this.sound ??= new FireSound(ctx, engine.master);
-    this.sound.start();
+    this.soundReady ??= FireSound.create(ctx, engine.master).catch(() => null);
+    void this.soundReady.then((s) => {
+      this.sound = s;
+      if (this.active) s?.start();
+    });
   }
 
   private resize(): void {
@@ -126,7 +130,7 @@ export class FireScene {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     const burntOut = world.update(dt);
-    this.sound?.update(dt, world.intensity, world.flickerLevel);
+    this.sound?.update(world.intensity);
     if (burntOut) {
       this.events.released();
     }

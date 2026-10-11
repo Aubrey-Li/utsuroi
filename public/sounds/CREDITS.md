@@ -1,0 +1,18 @@
+# Sound credits
+
+All recordings are from [Freesound](https://freesound.org) and dedicated to the
+public domain under **CC0 1.0**. They were trimmed, loudness-matched, looped and
+converted to AAC for this app. Credit isn't required, but they deserve it.
+
+| File | Recording | Recordist |
+| --- | --- | --- |
+| `ocean-bed.m4a` | [Gentle Waves – Quiet Beach](https://freesound.org/s/376795/) | amholma |
+| `ocean-waves.m4a` | [Waves of Hawaii](https://freesound.org/s/450755/) | florianreichelt |
+| `sand-drag.m4a` | [Sand on Paper, Dragged – Short](https://freesound.org/s/146407/) | crashoverride6 |
+| `meadow.m4a` | [Summer afternoon Meadow ATM birds and crickets](https://freesound.org/s/414907/) | DanGasior |
+| `trees.m4a` | [wind_forest_08_strong_l_01](https://freesound.org/s/403051/) | teadrinker |
+| `gust.m4a` | [Wind Gust](https://freesound.org/s/146932/) | crashoverride6 |
+| `pen.m4a` | [Writing On Paper](https://freesound.org/s/234016/) | rivernile7 |
+| `catch.m4a` | [Match Ignite (No Strike)](https://freesound.org/s/398448/) | brachern |
+| `crackle.m4a` | [fire crackles](https://freesound.org/s/563766/) | florianreichelt |
+| `blaze.m4a` | [Fireplace Crackles](https://freesound.org/s/512685/) | WavJunction.com |

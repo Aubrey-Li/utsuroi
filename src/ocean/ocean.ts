@@ -36,6 +36,7 @@ export interface OceanEvents {
 export class OceanScene {
   private world: World | null = null;
   private sound: OceanSound | null = null;
+  private soundReady: Promise<OceanSound | null> | null = null;
   /** How fast the stick is moving through the sand (m/s), for its sound. */
   private drawSpeed = 0;
   private lastDrawAt = 0;
@@ -118,8 +119,12 @@ export class OceanScene {
     const engine = AudioEngine.shared();
     const ctx = engine.context();
     if (ctx && engine.master) {
-      this.sound ??= new OceanSound(ctx, engine.master);
-      this.sound.start();
+      const master = engine.master;
+      this.soundReady ??= OceanSound.create(ctx, master).catch(() => null);
+      void this.soundReady.then((s) => {
+        this.sound = s;
+        if (this.active) s?.start();
+      });
     }
     requestAnimationFrame(() => this.veil.classList.remove('shown'));
     window.clearTimeout(this.glideTimer);
@@ -188,7 +193,7 @@ export class OceanScene {
     if (this.marks && this.hint.textContent) this.hint.textContent = '';
 
     this.drawSpeed *= Math.exp(-dt * 10);
-    this.sound?.update(dt, this.tide.level, this.tide.rushing, this.drawing || this.demoWriter?.busy ? this.drawSpeed : 0);
+    this.sound?.update(this.tide.waves, this.tide.reach, this.drawing || this.demoWriter?.busy ? this.drawSpeed : 0);
     const tool = this.demoWriter?.busy ? this.demoWriter.tool : this.hand;
     world.placeStick(tool.x, tool.y, tool.lift, dt);
     world.update(dt, this.field.packCarve());

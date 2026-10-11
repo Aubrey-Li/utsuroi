@@ -18,6 +18,7 @@ const COPY = {
 export class WindScene {
   private world: WindWorld | null = null;
   private sound: WindSound | null = null;
+  private soundReady: Promise<WindSound | null> | null = null;
   private readonly shell: SceneShell;
   private readonly input: TypedInput;
   private active = false;
@@ -84,8 +85,11 @@ export class WindScene {
     const engine = AudioEngine.shared();
     const ctx = engine.context();
     if (!ctx || !engine.master) return;
-    this.sound ??= new WindSound(ctx, engine.master);
-    this.sound.start();
+    this.soundReady ??= WindSound.create(ctx, engine.master).catch(() => null);
+    void this.soundReady.then((s) => {
+      this.sound = s;
+      if (this.active) s?.start();
+    });
   }
 
   private resize(): void {
@@ -116,7 +120,7 @@ export class WindScene {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     const finished = this.world!.update(dt);
-    this.sound?.update(dt, this.world!.gustLevel);
+    this.sound?.update(this.world!.gustLevel);
     if (finished && this.releasing) {
       this.releasing = false;
       this.events.released();

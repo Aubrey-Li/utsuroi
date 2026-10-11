@@ -83,6 +83,11 @@ export class Tide {
     return this.baseFront() * 1.35 + 0.35;
   }
 
+  /** How far up the beach (m) the current wave will run at its peak. */
+  get reach(): number {
+    return this.wave.reach;
+  }
+
   /** How far up the beach (m) the current wave's front is, before shaping along the shore. */
   get level(): number {
     return this.baseFront();
