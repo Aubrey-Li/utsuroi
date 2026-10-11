@@ -26,6 +26,8 @@ export class LenticularText {
   phase = 0.6;
   private readonly canvas = document.createElement('canvas');
   private readonly source = document.createElement('canvas');
+  /** The soft glow behind the letters, kept whole: cutting it into strips leaves dark ghost lines. */
+  private readonly glow = document.createElement('canvas');
   private readonly ctx = this.canvas.getContext('2d');
   private vertical = false;
   private margin = 0;
@@ -64,34 +66,46 @@ export class LenticularText {
     this.margin = Math.ceil(size * (this.options.shift ?? 0.12) + 24);
     const w = rect.width + this.margin * 2;
     const h = rect.height + 24;
-    for (const c of [this.canvas, this.source]) {
+    for (const c of [this.canvas, this.source, this.glow]) {
       c.width = Math.round(w * this.dpr);
       c.height = Math.round(h * this.dpr);
     }
     Object.assign(this.canvas.style, { width: `${w}px`, height: `${h}px`, left: `${-this.margin}px`, top: '-12px' });
 
-    const src = this.source.getContext('2d')!;
-    src.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    src.clearRect(0, 0, w, h);
-    src.font = `${style.fontWeight} ${size}px ${style.fontFamily}`;
-    src.fillStyle = this.ink;
-    src.textAlign = 'center';
-    src.textBaseline = 'middle';
-    const shadow = style.getPropertyValue('--glyph-shadow').trim();
-    if (shadow) {
-      src.shadowColor = shadow;
-      src.shadowBlur = size * 0.28;
-      src.shadowOffsetY = 2;
-    }
     const chars = Array.from(text);
-    if (this.vertical) {
-      // One em per character, plus the letter spacing, top to bottom.
-      const spacing = parseFloat(style.letterSpacing) || 0;
-      const step = size + spacing;
-      chars.forEach((ch, i) => src.fillText(ch, this.margin + rect.width / 2, 12 + step * i + size / 2));
-    } else {
-      src.fillText(text, this.margin + rect.width / 2, 12 + rect.height / 2);
+    const spacing = parseFloat(style.letterSpacing) || 0;
+    const letters = (c: CanvasRenderingContext2D, clear = true) => {
+      c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      if (clear) c.clearRect(0, 0, w, h);
+      c.font = `${style.fontWeight} ${size}px ${style.fontFamily}`;
+      c.fillStyle = this.ink;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      // Vertical: one em per character, plus the letter spacing, top to bottom.
+      if (this.vertical) chars.forEach((ch, i) => c.fillText(ch, this.margin + rect.width / 2, 12 + (size + spacing) * i + size / 2));
+      else c.fillText(text, this.margin + rect.width / 2, 12 + rect.height / 2);
+    };
+    letters(this.source.getContext('2d')!);
+
+    // The glow alone: letters with their shadow, then the letters themselves cut back out.
+    const g = this.glow.getContext('2d')!;
+    const shadow = style.getPropertyValue('--glyph-shadow').trim();
+    g.save();
+    if (shadow) {
+      g.shadowColor = shadow;
+      g.shadowBlur = size * 0.28 * this.dpr;
+      g.shadowOffsetY = 2 * this.dpr;
     }
+    letters(g);
+    g.restore();
+    if (!shadow) {
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.clearRect(0, 0, this.glow.width, this.glow.height);
+    }
+    g.save();
+    g.globalCompositeOperation = 'destination-out';
+    letters(g, false);
+    g.restore();
     this.ready = true;
     this.host.classList.add('lenticular-on');
     this.draw();
@@ -114,6 +128,19 @@ export class LenticularText {
     const innerW = W - inner0 * 2;
     for (let b = 0; b < bands; b++) {
       const y = b * bandH;
+      // The glow fades as the letters come apart, so the strips sit on clean sky.
+      if (this.vertical) {
+        const fade = 1 - Math.min(1, this.options.strength((y + bandH / 2) / H) * this.amount * 1.6);
+        if (fade > 0.01) {
+          ctx.globalAlpha = fade;
+          ctx.drawImage(this.glow, 0, y, W, bandH, 0, y, W, bandH);
+          ctx.globalAlpha = 1;
+        }
+      } else if (this.amount < 0.99) {
+        ctx.globalAlpha = 1 - this.amount;
+        ctx.drawImage(this.glow, 0, 0);
+        ctx.globalAlpha = 1;
+      }
       for (let x = 0; x < W; x += period) {
         // Along the glyphs: down the column when vertical, across the line when not.
         const t = this.vertical ? (y + bandH / 2) / H : Math.min(1, Math.max(0, (x - inner0) / innerW));
