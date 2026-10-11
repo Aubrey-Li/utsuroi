@@ -36,8 +36,8 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
 - **Sound**: each scene plays natural recordings (CC0, from Freesound), steered
   by what happens on screen: a wave washes in with each wave you see, louder
   the further it runs, and sand under the stick while you draw; a summer meadow
-  with wind in the trees that rises with the gust; a quiet room, a pen stroke
-  per character, the paper catching, and crackling that grows with how much is
+  with wind in the trees that rises with the gust; a quiet room while you
+  write, the paper catching, and crackling that grows with how much is
   burning. A speaker button in each scene turns sound off and remembers it.
 - **Wind** (`#/wind`): a meadow under a tree on a sunny day, sunlight coming
   through the leaves. Type, and your words float in the air in a hand-lettered
@@ -139,5 +139,4 @@ docs/design.html       product design doc
 - Caveat by The Caveat Project Authors, for typed words in the wind and fire
   scenes. SIL Open Font License 1.1, see `public/fonts/Caveat-OFL.txt`.
 - Sounds: CC0 recordings from Freesound by amholma, florianreichelt,
-  crashoverride6, DanGasior, teadrinker, rivernile7, brachern and
-  WavJunction.com. See [`public/sounds/CREDITS.md`](public/sounds/CREDITS.md).
+  crashoverride6, DanGasior, teadrinker, brachern and WavJunction.com. See [`public/sounds/CREDITS.md`](public/sounds/CREDITS.md).

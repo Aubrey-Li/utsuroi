@@ -41,9 +41,6 @@ export class FireScene {
           this.flashHint(COPY.full);
           return;
         }
-        // A pen stroke for each new character (a few at most, for pasted text).
-        const added = Math.min(3, Array.from(text).length - Array.from(this.fitted).length);
-        for (let i = 0; i < added; i++) window.setTimeout(() => this.sound?.penStroke(), i * 40);
         this.fitted = text;
         this.shell.action.disabled = text.trim() === '';
       },

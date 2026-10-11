@@ -12,7 +12,6 @@ converted to AAC for this app. Credit isn't required, but they deserve it.
 | `meadow.m4a` | [Summer afternoon Meadow ATM birds and crickets](https://freesound.org/s/414907/) | DanGasior |
 | `trees.m4a` | [wind_forest_08_strong_l_01](https://freesound.org/s/403051/) | teadrinker |
 | `gust.m4a` | [Wind Gust](https://freesound.org/s/146932/) | crashoverride6 |
-| `pen.m4a` | [Writing On Paper](https://freesound.org/s/234016/) | rivernile7 |
 | `catch.m4a` | [Match Ignite (No Strike)](https://freesound.org/s/398448/) | brachern |
 | `crackle.m4a` | [fire crackles](https://freesound.org/s/563766/) | florianreichelt |
 | `blaze.m4a` | [Fireplace Crackles](https://freesound.org/s/512685/) | WavJunction.com |

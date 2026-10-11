@@ -43,18 +43,13 @@ const scripts: Script[] = [
     },
   },
   {
-    name: 'fire: writing 1-3 s, lit at 4 s, burning 5-15 s',
+    name: 'fire: quiet, lit at 4 s, burning 5-15 s',
     seconds: 18,
     async make(ctx, out) {
       const s = await FireSound.create(ctx, out);
       s.start();
-      let next = 1;
       let lit = false;
       return (t) => {
-        if (t > 1 && t < 3 && t > next) {
-          s.penStroke();
-          next = t + 0.12 + Math.random() * 0.1;
-        }
         if (t > 4 && !lit) {
           lit = true;
           s.ignite();
