@@ -58,7 +58,7 @@ export interface KeptStore {
 }
 
 const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
-const MAX_TEXT = 20000;
+export const MAX_TEXT = 20000;
 
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 

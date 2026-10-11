@@ -22,13 +22,16 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
   places sit below on the sand as ink characters (波 風 火 石, and 記 for the
   journal). At the bottom (the foot of the days panel, or the end of the page
   on phones): "Need to talk to someone?" and "What's kept", which explains
-  what stays on the device and what never does, and holds the backup.
-- **Backup**: "What's kept" → **Save a backup** writes one `.utsuroi` file
-  with your stones, journal entries and day marks, encrypted with a
-  passphrase (PBKDF2-SHA-256, 600,000 rounds → AES-256-GCM). **Restore from a
-  backup** adds what's missing and never removes anything; a stone whose spot
-  on the cairn is taken gets the next free one. A small dot on the link means
-  something new hasn't been backed up.
+  what stays on the device and what never does, and lets you download it all
+  or add from a file.
+- **Take it with you**: "What's kept" → **Download everything** saves one
+  readable Markdown file (`utsuroi-YYYY-MM-DD.md`): journal entries and
+  stones under their dates, then the days you wrote. A hidden comment beside
+  each entry holds its id, dates and cairn place, so **Add from a file**
+  brings it back exactly; any other `.md` or `.txt` file becomes a journal
+  entry. Adding never removes anything, keeps the newer copy of a journal
+  entry, and finds a free spot for a stone whose place is taken. A small dot
+  on the link means something new hasn't been downloaded.
 - **Journal** (`#/journal`): a plain journal for writing you want to keep and
   reread. Saves as you type; entries can be edited and deleted; empty ones
   aren't kept. Stored on the device, encrypted like stones.

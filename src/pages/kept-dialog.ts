@@ -1,25 +1,26 @@
 import {
-  BACKUP_EXTENSION,
-  BackupError,
-  backupFileName,
-  createBackup,
-  gatherBackup,
-  MAX_BACKUP_BYTES,
-  MIN_PASSPHRASE,
-  openBackup,
-  restoreBackup,
+  exportFileName,
+  fromMarkdown,
+  gatherKept,
+  ImportError,
+  isUtsuroiExport,
+  MAX_IMPORT_BYTES,
+  plainEntry,
+  restoreKept,
+  toMarkdown,
+  type KeptContents,
   type RestoreSummary,
-} from '../journal/backup';
+} from '../journal/export';
 import type { KeptStore } from '../journal/kept';
 import type { MarkStore } from '../journal/marks';
 import { el } from './icons';
 
-/** When this browser last saved a backup. A convenience only; nothing depends on it. */
-const LAST_BACKUP = 'utsuroi:lastBackup';
+/** When this browser last saved a copy. A convenience only; nothing depends on it. */
+const LAST_SAVED = 'utsuroi:lastBackup';
 
-function lastBackup(): Date | null {
+function lastSaved(): Date | null {
   try {
-    const v = localStorage.getItem(LAST_BACKUP);
+    const v = localStorage.getItem(LAST_SAVED);
     const d = v ? new Date(v) : null;
     return d && !Number.isNaN(d.getTime()) ? d : null;
   } catch {
@@ -27,9 +28,9 @@ function lastBackup(): Date | null {
   }
 }
 
-function rememberBackup(at: Date): void {
+function rememberSaved(at: Date): void {
   try {
-    localStorage.setItem(LAST_BACKUP, at.toISOString());
+    localStorage.setItem(LAST_SAVED, at.toISOString());
   } catch {
     // Private browsing: the reminder just won't remember.
   }
@@ -41,203 +42,144 @@ function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
 
-function describeRestore(s: RestoreSummary): string {
+function list(parts: string[]): string {
+  return parts.length < 2 ? parts.join('') : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
+}
+
+function describe(s: RestoreSummary, skipped: string[]): string {
   const parts: string[] = [];
-  if (s.stones) parts.push(plural(s.stones, 'stone', 'stones'));
   if (s.entries) parts.push(plural(s.entries, 'journal entry', 'journal entries'));
-  if (s.marks) parts.push(plural(s.marks, 'day mark', 'day marks'));
-  const added = parts.length ? `Restored ${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}.` : 'Everything in this backup was already here.';
-  const updated = s.updated ? ` ${plural(s.updated, 'journal entry was', 'journal entries were')} updated to the newer copy in the backup.` : '';
-  return added + updated + (parts.length && !s.updated ? ' Nothing already here was changed.' : '');
+  if (s.stones) parts.push(plural(s.stones, 'stone', 'stones'));
+  if (s.marks) parts.push(plural(s.marks, 'day', 'days'));
+  let msg = parts.length ? `Added ${list(parts)}.` : 'Everything in this file was already here.';
+  if (s.updated) msg += ` ${plural(s.updated, 'journal entry was', 'journal entries were')} updated to the newer copy.`;
+  if (skipped.length) msg += ` ${skipped.join(' ')}`;
+  return msg;
 }
 
 export interface KeptDialog {
   open(): void;
-  /** Rechecks whether anything new hasn't been backed up (for the reminder dot). */
+  /** Rechecks whether anything new hasn't been saved (for the reminder dot). */
   refresh(): Promise<void>;
 }
 
 /**
- * "What's kept": what stays on this device and what never does, and the
- * backup file that keeps a copy elsewhere. Opened from a small link at the
- * bottom of the home page.
+ * "What's kept": what stays on this device and what never does, and a way
+ * to take it with you as a readable file, or bring entries in from one.
+ * Opened from a small link at the bottom of the home page.
  */
-export function keptDialog(
-  marks: MarkStore,
-  kept: KeptStore,
-  links: HTMLElement[],
-  onRestored: () => void,
-): KeptDialog {
+export function keptDialog(marks: MarkStore, kept: KeptStore, links: HTMLElement[], onAdded: () => void): KeptDialog {
   const status = el('p', { class: 'kd-status', 'aria-live': 'polite' });
   const since = el('p', { class: 'kd-since' });
 
-  // Main view.
-  const saveBtn = el('button', { type: 'button', class: 'kd-primary' }, 'Save a backup');
-  const restoreBtn = el('button', { type: 'button', class: 'kd-secondary' }, 'Restore from a backup');
+  const saveBtn = el('button', { type: 'button', class: 'kd-primary' }, 'Download everything');
+  const addBtn = el('button', { type: 'button', class: 'kd-secondary' }, 'Add from a file');
   const closeBtn = el('button', { type: 'button', class: 'dialog-close' }, 'Close');
-  const mainView = el(
+  const file = el('input', { type: 'file', id: 'kd-file', class: 'visually-hidden', accept: '.md,.markdown,.txt,text/markdown,text/plain', multiple: '' });
+  const view = el(
     'div',
     { class: 'kd-view' },
     el('h2', { id: 'kd-title' }, 'What’s kept'),
     el('p', {}, el('b', {}, 'Kept, only on this device: '), 'stones and journal entries (encrypted), and a mark on each day you wrote, showing only which place.'),
     el('p', {}, el('b', {}, 'Never kept: '), 'anything you give to the sea, the wind or the fire. Those words exist only while the scene is open.'),
     el('p', {}, el('b', {}, 'Never sent: '), 'there’s no account and no server. Nothing you write leaves this device.'),
-    el('h3', {}, 'Backup'),
-    el('p', {}, 'What’s kept lives in this browser, so clearing its data erases it. A backup file keeps a copy, locked with a passphrase, that you can restore here or on another device.'),
+    el('h3', {}, 'Take it with you'),
+    el(
+      'p',
+      {},
+      'What’s kept lives in this browser, so clearing its data erases it. Download everything as a readable Markdown file to keep a copy; it isn’t locked, so keep it somewhere private. Add from a file brings one back, or turns any text file into a journal entry.',
+    ),
     since,
-    el('div', { class: 'kd-actions' }, saveBtn, restoreBtn),
+    status,
+    el('div', { class: 'kd-actions' }, saveBtn, addBtn),
+    file,
     closeBtn,
   );
-
-  // Save view.
-  const pass1 = el('input', { type: 'password', id: 'kd-pass', autocomplete: 'new-password', minlength: String(MIN_PASSPHRASE), required: '' });
-  const pass2 = el('input', { type: 'password', id: 'kd-pass2', autocomplete: 'new-password', required: '' });
-  const saveGo = el('button', { type: 'submit', class: 'kd-primary' }, 'Save backup file');
-  const saveBack = el('button', { type: 'button', class: 'kd-secondary' }, 'Back');
-  const saveForm = el(
-    'form',
-    { class: 'kd-view', hidden: '', novalidate: '' },
-    el('h2', {}, 'Save a backup'),
-    el('p', {}, 'Your stones, journal entries and day marks, in one file. Choose a passphrase to lock it.'),
-    el('label', { for: 'kd-pass' }, 'Passphrase'),
-    pass1,
-    el('label', { for: 'kd-pass2' }, 'Type it again'),
-    pass2,
-    el('p', { class: 'kd-warn' }, 'If you forget this passphrase, the backup can’t be opened. No one can recover it for you.'),
-    el('div', { class: 'kd-actions' }, saveGo, saveBack),
-  );
-
-  // Restore view.
-  const file = el('input', { type: 'file', id: 'kd-file', accept: `${BACKUP_EXTENSION},application/json`, required: '' });
-  const pass3 = el('input', { type: 'password', id: 'kd-pass3', autocomplete: 'current-password', required: '' });
-  const restoreGo = el('button', { type: 'submit', class: 'kd-primary' }, 'Restore');
-  const restoreBack = el('button', { type: 'button', class: 'kd-secondary' }, 'Back');
-  const restoreForm = el(
-    'form',
-    { class: 'kd-view', hidden: '', novalidate: '' },
-    el('h2', {}, 'Restore from a backup'),
-    el('p', {}, 'Adds what’s in the backup to what’s here. Nothing here is removed.'),
-    el('label', { for: 'kd-file' }, 'Backup file'),
-    file,
-    el('label', { for: 'kd-pass3' }, 'Passphrase'),
-    pass3,
-    el('div', { class: 'kd-actions' }, restoreGo, restoreBack),
-  );
-
-  const dialog = el('dialog', { class: 'support kept-dialog', 'aria-labelledby': 'kd-title' }, mainView, saveForm, restoreForm);
+  const dialog = el('dialog', { class: 'support kept-dialog', 'aria-labelledby': 'kd-title' }, view);
   document.body.append(dialog);
 
-  const show = (view: HTMLElement) => {
-    for (const v of [mainView, saveForm, restoreForm]) v.hidden = v !== view;
-    // Messages sit just above the buttons they answer.
-    view.insertBefore(status, view.querySelector('.kd-actions'));
-    status.textContent = '';
-    view.querySelector<HTMLElement>('input, button')?.focus();
-  };
-  const busy = (on: boolean, btn: HTMLButtonElement, label: string) => {
-    btn.disabled = on;
-    btn.textContent = label;
-  };
-
-  let unsaved = 0;
+  let total = 0;
   const refresh = async () => {
-    const at = lastBackup();
+    const at = lastSaved();
     const all = [...(await kept.all('stone')), ...(await kept.all('journal'))];
+    const days = (await marks.all()).length;
+    total = all.length + days;
     const newer = all.filter((e) => !at || new Date(e.kind === 'journal' ? e.updatedAt : e.createdAt) > at).length;
-    unsaved = newer;
     since.textContent = at
-      ? `Last backup: ${longDate(at)}.${newer ? ` ${plural(newer, 'stone or entry is', 'stones or entries are')} newer than it.` : ' Nothing new since.'}`
+      ? `Last downloaded ${longDate(at)}.${newer ? ` ${plural(newer, 'stone or entry is', 'stones or entries are')} newer than that.` : ' Nothing new since.'}`
       : all.length
-        ? 'No backup yet.'
-        : 'Nothing is kept yet, so there’s nothing to back up.';
-    saveBtn.disabled = all.length === 0 && (await marks.all()).length === 0;
-    for (const link of links) link.classList.toggle('has-unsaved', unsaved > 0 && all.length > 0);
+        ? 'Not downloaded yet.'
+        : 'Nothing is kept yet.';
+    saveBtn.disabled = total === 0;
+    for (const link of links) link.classList.toggle('has-unsaved', newer > 0 && all.length > 0);
   };
 
-  saveBtn.addEventListener('click', () => {
-    pass1.value = pass2.value = '';
-    show(saveForm);
-  });
-  restoreBtn.addEventListener('click', () => {
-    file.value = '';
-    pass3.value = '';
-    show(restoreForm);
-  });
-  saveBack.addEventListener('click', () => show(mainView));
-  restoreBack.addEventListener('click', () => show(mainView));
-  closeBtn.addEventListener('click', () => dialog.close());
-
-  saveForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (pass1.value.length < MIN_PASSPHRASE) {
-      status.textContent = `Choose a passphrase of at least ${MIN_PASSPHRASE} characters. A few words you’ll remember works well.`;
-      pass1.focus();
-      return;
-    }
-    if (pass1.value !== pass2.value) {
-      status.textContent = 'The two passphrases don’t match.';
-      pass2.focus();
-      return;
-    }
-    busy(true, saveGo, 'Locking…');
+  saveBtn.addEventListener('click', async () => {
+    saveBtn.disabled = true;
     try {
       const now = new Date();
-      const text = await createBackup(await gatherBackup(marks, kept), pass1.value, { now });
-      const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-      const a = el('a', { href: url, download: backupFileName(now) });
+      const text = toMarkdown(await gatherKept(marks, kept), now);
+      const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+      const a = el('a', { href: url, download: exportFileName(now) });
       document.body.append(a);
       a.click();
       a.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
-      rememberBackup(now);
-      pass1.value = pass2.value = '';
+      rememberSaved(now);
       await refresh();
-      show(mainView);
-      status.textContent = `Saved ${backupFileName(now)}. Keep it somewhere safe, like a cloud folder.`;
+      status.textContent = `Downloaded ${exportFileName(now)}.`;
     } catch {
-      status.textContent = 'The backup couldn’t be made. Your browser may be blocking storage.';
+      status.textContent = 'Couldn’t read what’s kept. Your browser may be blocking storage.';
     } finally {
-      busy(false, saveGo, 'Save backup file');
+      saveBtn.disabled = total === 0;
     }
   });
 
-  restoreForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = file.files?.[0];
-    if (!f) {
-      status.textContent = 'Choose a backup file first.';
-      file.focus();
-      return;
+  addBtn.addEventListener('click', () => {
+    file.value = '';
+    file.click();
+  });
+
+  file.addEventListener('change', async () => {
+    const files = [...(file.files ?? [])];
+    if (files.length === 0) return;
+    addBtn.disabled = true;
+    status.textContent = 'Adding…';
+    const contents: KeptContents = { marks: [], kept: [] };
+    const skipped: string[] = [];
+    for (const f of files) {
+      try {
+        if (f.size > MAX_IMPORT_BYTES) throw new ImportError('too-large', 'This file is too large.');
+        const text = await f.text();
+        if (isUtsuroiExport(text)) {
+          const got = fromMarkdown(text);
+          contents.kept.push(...got.kept);
+          contents.marks.push(...got.marks);
+        } else {
+          contents.kept.push(plainEntry(text, f.lastModified));
+        }
+      } catch (err) {
+        const why = err instanceof ImportError ? err.message : 'It couldn’t be read.';
+        skipped.push(`${f.name} wasn’t added: ${why.charAt(0).toLowerCase()}${why.slice(1)}`);
+      }
     }
-    if (f.size > MAX_BACKUP_BYTES) {
-      status.textContent = 'This file is too large to be a backup.';
-      return;
-    }
-    if (!pass3.value) {
-      status.textContent = 'Enter the passphrase the backup was saved with.';
-      pass3.focus();
-      return;
-    }
-    busy(true, restoreGo, 'Unlocking…');
     try {
-      const contents = await openBackup(await f.text(), pass3.value);
-      const summary = await restoreBackup(contents, marks, kept);
-      pass3.value = '';
-      onRestored();
+      const summary = await restoreKept(contents, marks, kept);
+      onAdded();
       await refresh();
-      show(mainView);
-      status.textContent = describeRestore(summary);
-    } catch (err) {
-      status.textContent = err instanceof BackupError ? err.message : 'The backup couldn’t be restored. Your browser may be blocking storage.';
-      if (err instanceof BackupError && err.reason === 'wrong-passphrase') pass3.select();
+      status.textContent = describe(summary, skipped);
+    } catch {
+      status.textContent = 'Couldn’t add these. Your browser may be blocking storage.';
     } finally {
-      busy(false, restoreGo, 'Restore');
+      addBtn.disabled = false;
     }
   });
+
+  closeBtn.addEventListener('click', () => dialog.close());
 
   return {
     open() {
-      show(mainView);
+      status.textContent = '';
       void refresh();
       dialog.showModal();
       closeBtn.focus();

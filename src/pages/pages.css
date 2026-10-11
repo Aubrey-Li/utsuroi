@@ -399,10 +399,6 @@ canvas.lenticular {
   gap: 10px;
 }
 
-.kept-dialog .kd-view[hidden] {
-  display: none;
-}
-
 .kept-dialog p {
   margin: 0;
 }
@@ -421,34 +417,9 @@ canvas.lenticular {
   font-weight: 600;
 }
 
-.kd-since,
-.kd-warn {
+.kd-since {
   font-size: 0.92rem;
   color: var(--page-ink-soft);
-}
-
-.kd-warn {
-  font-style: italic;
-}
-
-.kept-dialog label {
-  margin-top: 4px;
-  font-size: 0.9rem;
-}
-
-.kept-dialog input[type='password'],
-.kept-dialog input[type='file'] {
-  font: inherit;
-  color: var(--page-ink);
-  padding: 8px 12px;
-  border: 1px solid rgba(156, 95, 108, 0.35);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.kept-dialog input:focus-visible {
-  outline: 2px solid var(--groove);
-  outline-offset: 1px;
 }
 
 .kd-actions {

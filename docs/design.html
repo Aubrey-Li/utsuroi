@@ -375,6 +375,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <li><b>A new home page.</b> <span class="jp" lang="ja">移ろい</span> written top to bottom, what it means, and today's micro-season. The places are ink characters on the sand.</li>
     <li><b>Your days</b> moves into a frosted panel beside the home page: a quiet list of the months you wrote in. Marked days show what happened when you hover or tap them.</li>
     <li><b>Lettering in lines.</b> On the home page, <span class="jp" lang="ja">移ろい</span> comes apart into thin vertical strips toward its end, like a lenticular print caught mid-turn. Each place's character does the same while you point at it.</li>
+    <li><b>Take it with you:</b> download everything as one readable Markdown file, and add from one; any text file can become a journal entry.</li>
     <li><b>The icon is chosen:</b> ink on paper, in lines, with its reverse for dark mode. It's now the app's icon and browser tab icon.</li>
   </ul>
   <p style="color:var(--muted);font-size:0.9rem">0.9: wind and fire built. 0.8: landing page, calendar, the ocean's mark. 0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones.</p>
@@ -583,7 +584,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
         <tr><td>Addressing</td><td>No "To" field. Who the words are for is part of the writing.</td></tr>
         <tr><td>Released entries</td><td>No record of the words. The calendar keeps only the date and an icon for the ritual.</td></tr>
         <tr><td>Kept entries</td><td>Stones and journal entries keep their words, encrypted on the device. Stones can't be removed and settle on a cairn by themselves; journal entries can be edited and deleted.</td></tr>
-        <tr><td>Backup</td><td>Stones and calendar marks can be saved to an encrypted backup file and restored on another device.</td></tr>
+        <tr><td>Taking it with you</td><td>Everything kept downloads as one readable Markdown file, and comes back from it. Any other text file can be added as a journal entry. No passphrase.</td></tr>
         <tr><td>Your days</td><td>A list of the months you wrote in, beside the home page. Marked days show what happened on hover or tap; stone and journal days open.</td></tr>
         <tr><td>Visual direction</td><td>Painted and stylized, like an animated game (Journey, The Witness), not photoreal. Fixed, designed mood per scene.</td></tr>
         <tr><td>Ocean release</td><td>No gesture. The sea washes the words on its own, with varied wave timing and reach.</td></tr>
@@ -732,7 +733,7 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <li><b>Joining.</b> Your letters are written separately, so the engine adds short connecting strokes between lowercase letters when their end and start points are close, the way cursive joins form.</li>
     <li><b>Timing.</b> Your own recorded speed is used instead of the curvature-based timing, so the stick moves the way your hand moved.</li>
     <li><b>Redo anytime.</b> Rewrite any single letter you don't like.</li>
-    <li><b>Privacy.</b> Your handwriting is personal and identifying. It's stored encrypted on the device like stones and included in backups.</li>
+    <li><b>Privacy.</b> Your handwriting is personal and identifying. It's stored encrypted on the device like stones and included when you download everything.</li>
   </ul>
 </section>
 
@@ -833,12 +834,13 @@ type Stroke = { points: [x: number, y: number, pressure: number, t: number][] };
 
 <span class="cm">// Optional. Your handwriting, several samples per character.</span>
 type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
-  <h3>Backup file</h3>
+  <h3>Taking it with you</h3>
   <ul>
-    <li><b>Contents:</b> calendar marks, stones, and your handwriting alphabet. Released words are never in it, because they were never stored.</li>
-    <li><b>Encryption:</b> a passphrase you choose, stretched into a key (PBKDF2 with a high iteration count, or Argon2 via WebAssembly), then AES-GCM. Without the passphrase the file is unreadable, and we can't recover it.</li>
-    <li><b>Restore:</b> open the file on any device and enter the passphrase. Stones merge into existing cairns in date order.</li>
-    <li><b>Reminders:</b> one gentle suggestion after your first stone, and an optional reminder after every few new stones. No nagging.</li>
+    <li><b>Download everything:</b> one Markdown file with your journal entries and stones under their dates, then the days you wrote. Released words are never in it, because they were never stored.</li>
+    <li><b>Readable, not locked:</b> it opens in any text editor. The app says so, and suggests keeping it somewhere private.</li>
+    <li><b>Coming back exactly:</b> a hidden comment beside each entry holds its id, dates and a stone's place on its cairn. An entry's words run to a closing comment with the same id, so anything can be written in an entry.</li>
+    <li><b>Add from a file:</b> brings a downloaded file back, or turns any other text or Markdown file into a journal entry dated when the file was last changed. Nothing is removed; the newer copy of a journal entry wins; a stone whose place is taken goes to the next free spot.</li>
+    <li><b>Reminder:</b> a small dot on "What's kept" when something new hasn't been downloaded. No nagging.</li>
     <li><b>Mobile:</b> the Capacitor build saves through the system share sheet, so the file can go to iCloud Drive, Google Drive, or Files.</li>
   </ul>
 </section>
@@ -889,9 +891,9 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
 
   <h3>Storage</h3>
   <ul>
-    <li>IndexedDB for ritual marks and stone entries. Stone entries encrypted with a device-held key. A passphrase option comes later.</li>
+    <li>IndexedDB for ritual marks, stones and journal entries. Kept words are encrypted with a key the browser holds and never lets out (AES-GCM, non-extractable).</li>
     <li>Call <code>navigator.storage.persist()</code> so the browser doesn't evict stones. Safari can clear storage for sites that aren't installed and haven't been visited for a week, so encourage installing the PWA.</li>
-    <li>Manual encrypted backup files in the MVP (see Privacy model). Automatic end-to-end encrypted sync is a later decision.</li>
+    <li>A readable Markdown file to take everything with you (see Privacy model). Sync between devices is a later decision.</li>
   </ul>
 
   <h3>Performance on phones</h3>
@@ -910,7 +912,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
     <li><span class="m">M1</span><div><b>Stroke pipeline · done</b><span>Hand-drawing input and the typed-to-strokes engine. Typing later moved to a hand-lettered font outside the ocean.</span></div></li>
     <li><span class="m">M2</span><div><b>Ocean · done</b><span>Writing anywhere on the beach, waves that creep up the writing until it's gone, dusk lighting.</span></div></li>
     <li><span class="m">M3</span><div><b>Wind and Stone · done</b><span>Words blown off a sunlit meadow. Carved stones, cairns, and holding a stone up to read. Breath input is left for later.</span></div></li>
-    <li><span class="m">M4</span><div><b>Fire, Your days, Journal · done</b><span>Burning letter, ritual marks, encrypted kept entries, the plain journal. Still to do: the backup file and offline install.</span></div></li>
+    <li><span class="m">M4</span><div><b>Fire, Your days, Journal · done</b><span>Burning letter, ritual marks, encrypted kept entries, the plain journal. Download everything as a readable file, and add from one. Still to do: offline install.</span></div></li>
     <li><span class="m">M5</span><div><b>Icon · done · first launch next</b><span>The icon in light and dark, at every size. Next: the stick writing 移ろい in the sand on first launch.</span></div></li>
     <li><span class="m">M6</span><div><b>Your own hand</b><span>Alphabet setup, multi-sample glyphs, synthesized joins.</span></div></li>
     <li><span class="m">M7</span><div><b>Mobile wrap</b><span>Capacitor build, haptics, native mic, share-sheet backups.</span></div></li>
@@ -920,9 +922,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
 <section id="questions">
   <span class="label">Open questions</span>
   <h2>Left to decide</h2>
-  <ol class="questions">
-    <li><b>Backups.</b> When to add the encrypted backup file, now that stones and the journal both hold words.</li>
-  </ol>
+  <p style="color:var(--muted)">None open right now.</p>
   <h3>Resolved</h3>
   <ul>
     <li>Name: Utsuroi (移ろい).</li>
@@ -932,7 +932,7 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
     <li>Your days: a list of months beside the home page, details on hover or tap.</li>
     <li>Scene choice: before writing, and you can leave at any time.</li>
     <li>Stones: can't be removed. They settle on top of a cairn by themselves.</li>
-    <li>Backup: encrypted backup file.</li>
+    <li>Taking it with you: a readable Markdown file, no passphrase.</li>
     <li>Handwriting: one tuned cursive, or your own hand.</li>
     <li>Fire letters: typed text in a hand-lettered font.</li>
     <li>Entry length: no minimum.</li>
