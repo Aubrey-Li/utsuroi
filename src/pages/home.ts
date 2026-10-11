@@ -63,8 +63,12 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
   );
 
   const dialog = supportDialog();
-  const supportBtn = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
-  supportBtn.addEventListener('click', () => dialog.showModal());
+  // Support is always in reach: at the foot of the days panel, and at the end of the page on phones.
+  const supportLink = () => {
+    const btn = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
+    btn.addEventListener('click', () => dialog.showModal());
+    return btn;
+  };
 
   const brand = () => el('span', { class: 'brand-mark' }, el('span', { class: 'brand-name' }, 'utsuroi'), el('span', { class: 'brand-jp', lang: 'ja' }, '移ろい'));
   const menu = el(
@@ -79,6 +83,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
     { class: 'home-days', id: 'home-days', 'aria-labelledby': 'days-title' },
     el('div', { class: 'days-top' }, el('span', { class: 'page-brand days-brand' }, brand()), close),
     days,
+    el('div', { class: 'days-foot' }, supportLink()),
   );
   const scrim = el('div', { class: 'days-scrim', 'aria-hidden': 'true' });
   const content = el(
@@ -88,12 +93,13 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
     el(
       'main',
       { class: 'home-main' },
-      hero,
+      el('div', { class: 'home-sky' }, hero),
       el('p', { class: 'home-invite' }, 'Set it down. Let it change.'),
       list,
       caption,
     ),
-    el('nav', { class: 'home-links', 'aria-label': 'More' }, supportBtn),
+    privacyNote(),
+    el('nav', { class: 'home-links', 'aria-label': 'More' }, supportLink()),
   );
 
   root.replaceChildren(
@@ -152,6 +158,22 @@ function menuIcon(): SVGSVGElement {
     svg.appendChild(path);
   }
   return svg;
+}
+
+/** What stays and what doesn't, said plainly where everyone can see it. */
+function privacyNote(): HTMLElement {
+  return el(
+    'section',
+    { class: 'home-privacy', 'aria-label': 'What’s kept' },
+    el(
+      'p',
+      {},
+      el('b', {}, 'Kept, only on this device: '),
+      'stones and journal entries (encrypted), and a mark on each day you wrote, showing only which place.',
+    ),
+    el('p', {}, el('b', {}, 'Never kept: '), 'anything you give to the sea, the wind or the fire. Those words exist only while the scene is open.'),
+    el('p', { class: 'home-privacy-fine' }, 'Nothing is sent anywhere: no account, no server. Clearing this browser’s data erases what’s kept.'),
+  );
 }
 
 /** Always reachable, never triggered by anything written. */

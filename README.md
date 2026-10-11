@@ -20,7 +20,11 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
   (the quiet passing of things) and today's micro-season from the old
   calendar of seventy-two seasons, which changes every five days or so. The
   places sit below on the sand as ink characters (波 風 火 石, and 記 for the
-  journal). A quiet "Need to talk to someone?" link is always there.
+  journal). Below them, a plain note on what's kept (stones and journal
+  entries, encrypted, and a mark per day) and what never is (anything given
+  to the sea, wind or fire). A quiet "Need to talk to someone?" link is
+  always there, at the foot of the days panel (and the end of the page on
+  phones).
 - **Journal** (`#/journal`): a plain journal for writing you want to keep and
   reread. Saves as you type; entries can be edited and deleted; empty ones
   aren't kept. Stored on the device, encrypted like stones.
