@@ -197,6 +197,32 @@
   letter-spacing: 0.14em;
 }
 
+.hero-word {
+  --glyph-shadow: rgba(40, 30, 70, 0.35);
+  /* A little heavier, so strokes survive being cut into strips. */
+  font-weight: 600;
+}
+
+.ink-seal {
+  font-weight: 600;
+}
+
+/* Lettering drawn as strips on a canvas; the real text stays for screen readers. */
+.hero-word,
+.ink-seal {
+  position: relative;
+}
+
+.lenticular-on {
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+canvas.lenticular {
+  position: absolute;
+  pointer-events: none;
+}
+
 .hero-word:focus {
   outline: none;
 }

@@ -1,6 +1,7 @@
 import { RITUALS, type Ritual } from '../journal/marks';
 import { microSeason } from '../journal/seasons';
 import { el, RITUAL_INFO } from './icons';
+import { animateHeading, hoverLines } from './lenticular';
 
 /** The landing page's controls. */
 export interface Home {
@@ -22,11 +23,12 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
   // The places, as ink characters. A short line about each shows as you point at it.
   const caption = el('p', { class: 'ink-caption', 'aria-hidden': 'true' });
   const list = el('ul', { class: 'rituals', 'aria-label': 'Where to write' });
+  const seals: [HTMLElement, HTMLElement][] = [];
   const place = (seal: string, name: string, line: string, cls: string, onChoose: () => void) => {
     const btn = el(
       'button',
       { type: 'button', class: `ink ${cls}` },
-      el('span', { class: 'ink-seal', lang: 'ja', 'aria-hidden': 'true' }, seal),
+      el('span', { class: 'ink-seal', lang: 'ja', 'aria-hidden': 'true', 'data-text': seal }, seal),
       el('span', { class: 'ink-name' }, name),
       el('span', { class: 'visually-hidden' }, `. ${line}`),
     );
@@ -37,6 +39,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
     btn.addEventListener('blur', () => (caption.textContent = ''));
     btn.addEventListener('click', onChoose);
     list.append(el('li', {}, btn));
+    seals.push([btn.querySelector<HTMLElement>('.ink-seal')!, btn]);
   };
   for (const r of RITUALS) {
     const info = RITUAL_INFO[r];
@@ -49,7 +52,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
   const hero = el(
     'div',
     { class: 'hero' },
-    el('h1', { class: 'hero-word', lang: 'ja', tabindex: '-1', 'aria-label': 'Utsuroi, 移ろい' }, '移ろい'),
+    el('h1', { class: 'hero-word', lang: 'ja', tabindex: '-1', 'aria-label': 'Utsuroi, 移ろい', 'data-text': '移ろい' }, '移ろい'),
     el(
       'div',
       { class: 'hero-gloss' },
@@ -114,6 +117,10 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
     content,
     dialog,
   );
+
+  // 移ろい comes apart into lines toward its end; each place does while you point at it.
+  animateHeading(hero.querySelector<HTMLElement>('.hero-word')!);
+  for (const [seal, btn] of seals) hoverLines(seal, btn);
 
   const wide = window.matchMedia(SIDE_BY_SIDE);
   const showDays = (open: boolean) => {
