@@ -6,6 +6,8 @@ import { el, RITUAL_INFO } from './icons';
 export interface Home {
   /** Where the calendar of your days goes. */
   days: HTMLElement;
+  /** The "What's kept" links, which carry a dot when something new isn't backed up. */
+  keptLinks: HTMLElement[];
   /** Opens or closes the days panel (on small screens it's a drawer; on large ones it's always there). */
   showDays(open: boolean): void;
 }
@@ -16,7 +18,7 @@ const SIDE_BY_SIDE = '(min-width: 900px)';
 /**
  * The landing page: choose where to write today, with your days beside it.
  */
-export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, openJournal: () => void): Home {
+export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, openJournal: () => void, openKept: () => void): Home {
   // The places, as ink characters. A short line about each shows as you point at it.
   const caption = el('p', { class: 'ink-caption', 'aria-hidden': 'true' });
   const list = el('ul', { class: 'rituals', 'aria-label': 'Where to write' });
@@ -63,11 +65,15 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
   );
 
   const dialog = supportDialog();
-  // Support is always in reach: at the foot of the days panel, and at the end of the page on phones.
-  const supportLink = () => {
-    const btn = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
-    btn.addEventListener('click', () => dialog.showModal());
-    return btn;
+  // Support and what's kept are always in reach: at the foot of the days panel, and at the end of the page on phones.
+  const keptLinks: HTMLElement[] = [];
+  const footLinks = () => {
+    const support = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
+    support.addEventListener('click', () => dialog.showModal());
+    const keptBtn = el('button', { class: 'linklike kept-link', type: 'button' }, 'What’s kept');
+    keptBtn.addEventListener('click', openKept);
+    keptLinks.push(keptBtn);
+    return [support, keptBtn];
   };
 
   const brand = () => el('span', { class: 'brand-mark' }, el('span', { class: 'brand-name' }, 'utsuroi'), el('span', { class: 'brand-jp', lang: 'ja' }, '移ろい'));
@@ -83,7 +89,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
     { class: 'home-days', id: 'home-days', 'aria-labelledby': 'days-title' },
     el('div', { class: 'days-top' }, el('span', { class: 'page-brand days-brand' }, brand()), close),
     days,
-    el('div', { class: 'days-foot' }, supportLink()),
+    el('div', { class: 'days-foot' }, ...footLinks()),
   );
   const scrim = el('div', { class: 'days-scrim', 'aria-hidden': 'true' });
   const content = el(
@@ -98,8 +104,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
       list,
       caption,
     ),
-    privacyNote(),
-    el('nav', { class: 'home-links', 'aria-label': 'More' }, supportLink()),
+    el('nav', { class: 'home-links', 'aria-label': 'More' }, ...footLinks()),
   );
 
   root.replaceChildren(
@@ -143,7 +148,7 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
       menu.setAttribute('aria-expanded', 'false');
     }
   });
-  return { days, showDays };
+  return { days, keptLinks, showDays };
 }
 
 /** Three lines, for the days menu. */
@@ -158,22 +163,6 @@ function menuIcon(): SVGSVGElement {
     svg.appendChild(path);
   }
   return svg;
-}
-
-/** What stays and what doesn't, said plainly where everyone can see it. */
-function privacyNote(): HTMLElement {
-  return el(
-    'section',
-    { class: 'home-privacy', 'aria-label': 'What’s kept' },
-    el(
-      'p',
-      {},
-      el('b', {}, 'Kept, only on this device: '),
-      'stones and journal entries (encrypted), and a mark on each day you wrote, showing only which place.',
-    ),
-    el('p', {}, el('b', {}, 'Never kept: '), 'anything you give to the sea, the wind or the fire. Those words exist only while the scene is open.'),
-    el('p', { class: 'home-privacy-fine' }, 'Nothing is sent anywhere: no account, no server. Clearing this browser’s data erases what’s kept.'),
-  );
 }
 
 /** Always reachable, never triggered by anything written. */

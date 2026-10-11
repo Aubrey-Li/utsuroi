@@ -335,41 +335,6 @@
   text-align: center;
 }
 
-/* What's kept and what isn't, quietly, at the bottom. */
-.home-privacy {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 28px;
-  width: min(100%, 44rem);
-  margin: 22px auto 0;
-  padding-top: 16px;
-  border-top: 1px solid rgba(74, 43, 58, 0.14);
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: var(--page-ink-soft);
-}
-
-.home-privacy p {
-  margin: 0;
-}
-
-.home-privacy b {
-  font-weight: 600;
-  color: var(--page-ink);
-}
-
-.home-privacy .home-privacy-fine {
-  grid-column: 1 / -1;
-  margin-top: 4px;
-  font-style: italic;
-}
-
-@media (max-width: 600px) {
-  .home-privacy {
-    grid-template-columns: 1fr;
-  }
-}
-
 .home-links {
   display: flex;
   flex-wrap: wrap;
@@ -392,6 +357,115 @@
   text-decoration-color: rgba(74, 43, 58, 0.35);
   text-underline-offset: 4px;
   cursor: pointer;
+}
+
+/* A small dot when something new hasn't been backed up. */
+.kept-link.has-unsaved::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  vertical-align: 0.15em;
+  border-radius: 50%;
+  background: var(--groove);
+}
+
+/* ---- What's kept ---- */
+
+.kept-dialog .kd-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kept-dialog .kd-view[hidden] {
+  display: none;
+}
+
+.kept-dialog p {
+  margin: 0;
+}
+
+.kept-dialog h2 {
+  margin-bottom: 2px;
+}
+
+.kept-dialog h3 {
+  margin: 10px 0 0;
+  font-weight: 400;
+  font-size: 1.1rem;
+}
+
+.kept-dialog b {
+  font-weight: 600;
+}
+
+.kd-since,
+.kd-warn {
+  font-size: 0.92rem;
+  color: var(--page-ink-soft);
+}
+
+.kd-warn {
+  font-style: italic;
+}
+
+.kept-dialog label {
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
+.kept-dialog input[type='password'],
+.kept-dialog input[type='file'] {
+  font: inherit;
+  color: var(--page-ink);
+  padding: 8px 12px;
+  border: 1px solid rgba(156, 95, 108, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.kept-dialog input:focus-visible {
+  outline: 2px solid var(--groove);
+  outline-offset: 1px;
+}
+
+.kd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.kd-primary {
+  color: #fffaf4;
+  background: var(--groove);
+  border-color: var(--groove);
+}
+
+.kd-primary:hover:not(:disabled) {
+  background: #87505d;
+  border-color: #87505d;
+}
+
+.kd-secondary {
+  color: var(--page-ink);
+  background: rgba(156, 95, 108, 0.12);
+  border-color: rgba(156, 95, 108, 0.3);
+}
+
+.kd-secondary:hover:not(:disabled) {
+  background: rgba(156, 95, 108, 0.2);
+}
+
+.kd-status {
+  font-size: 0.92rem;
+  color: var(--page-ink);
+}
+
+.kd-status:empty {
+  display: none;
 }
 
 .home-links a:hover,
@@ -518,6 +592,9 @@
 }
 
 .days-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
   padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px);
   border-top: 1px solid rgba(74, 43, 58, 0.1);
   font-size: 0.9rem;

@@ -20,11 +20,15 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
   (the quiet passing of things) and today's micro-season from the old
   calendar of seventy-two seasons, which changes every five days or so. The
   places sit below on the sand as ink characters (波 風 火 石, and 記 for the
-  journal). Below them, a plain note on what's kept (stones and journal
-  entries, encrypted, and a mark per day) and what never is (anything given
-  to the sea, wind or fire). A quiet "Need to talk to someone?" link is
-  always there, at the foot of the days panel (and the end of the page on
-  phones).
+  journal). At the bottom (the foot of the days panel, or the end of the page
+  on phones): "Need to talk to someone?" and "What's kept", which explains
+  what stays on the device and what never does, and holds the backup.
+- **Backup**: "What's kept" → **Save a backup** writes one `.utsuroi` file
+  with your stones, journal entries and day marks, encrypted with a
+  passphrase (PBKDF2-SHA-256, 600,000 rounds → AES-256-GCM). **Restore from a
+  backup** adds what's missing and never removes anything; a stone whose spot
+  on the cairn is taken gets the next free one. A small dot on the link means
+  something new hasn't been backed up.
 - **Journal** (`#/journal`): a plain journal for writing you want to keep and
   reread. Saves as you type; entries can be edited and deleted; empty ones
   aren't kept. Stored on the device, encrypted like stones.

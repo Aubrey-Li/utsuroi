@@ -8,6 +8,7 @@ import { OceanScene } from './ocean/ocean';
 import { CalendarPage } from './pages/calendar';
 import { JournalPage } from './pages/journal';
 import { renderHome } from './pages/home';
+import { keptDialog, type KeptDialog } from './pages/kept-dialog';
 import { StoneScene } from './stone/stone';
 import { WindScene } from './wind/wind';
 
@@ -65,12 +66,15 @@ async function boot(): Promise<void> {
     journal: $('journal'),
   };
 
+  let kept: KeptDialog | null = null;
   const home = renderHome(
     sections.home,
     (ritual: Ritual) => go(`/${ritual}`),
     () => go('/journal'),
+    () => kept?.open(),
   );
   const calendar = new CalendarPage(home.days, store, keptStore);
+  kept = keptDialog(store, keptStore, home.keptLinks, () => void calendar.show());
   const journal = new JournalPage(sections.journal, keptStore);
   const ocean = new OceanScene(
     sections.ocean,
@@ -119,7 +123,10 @@ async function boot(): Promise<void> {
     if (page === 'wind') await wind.enter();
     if (page === 'fire') await fire.enter();
     if (page === 'stone') await stone.enter(visit);
-    if (page === 'home') await calendar.show();
+    if (page === 'home') {
+      await calendar.show();
+      void kept.refresh();
+    }
     if (page === 'journal') await journal.show(day);
     if (page === 'home' && days) home.showDays(true);
     else if (page === 'home') home.showDays(false);
