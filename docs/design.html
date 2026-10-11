@@ -1,12 +1,7 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Utsuroi Design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500&amp;text=%E7%A7%BB%E3%82%8D%E3%81%84%E3%81%86%E3%81%A4%E5%BF%83%E3%81%AE%E8%99%9A%E6%B3%A2%E9%A2%A8%E7%81%AB%E7%9F%B3&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;800&amp;text=%E3%81%84%E3%81%86%E3%81%A4%E3%81%AE%E3%82%8D%E4%B8%83%E4%BA%8C%E5%80%99%E5%8D%81%E5%BF%83%E6%9D%A5%E6%B3%A2%E7%81%AB%E7%9F%B3%E7%A7%BB%E8%99%9A%E8%A8%98%E9%9B%81%E9%A2%A8%E9%B4%BB&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: one calm reading column at dusk; the four rituals and the calendar are the only set-off objects. */
@@ -23,6 +18,7 @@
   --ember: #b04d26;
   --stone: #6e6a64;
   --code-bg: #ebe8f0;
+  --mark: #b06c78; --mark-ink: #fffaf4; --journal: #6b5b8f;
   --icon-sky-1: #f4e3c8; --icon-sky-2: #c9b6d6; --icon-ink: #2b2533;
   --icon-sea: #7fa6b8; --icon-foam: #eef1ee; --icon-sand: #d8c19c; --icon-groove: #8a6d45;
   --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
@@ -39,13 +35,13 @@
   :root:not([data-theme="light"]) {
     --bg: #15131b; --surface: #1d1a25; --fg: #e9e5ef; --muted: #a29cae; --line: #312d3b;
     --accent: #e2b86f; --accent-soft: #3a2f22; --sea: #84bdd3; --sage: #9cbf98; --ember: #ec8a5f; --stone: #b8b2a8;
-    --code-bg: #221f2b; color-scheme: dark;
+    --code-bg: #221f2b; --mark: #c98a94; --mark-ink: #1d1a25; --journal: #b3a6d6; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #15131b; --surface: #1d1a25; --fg: #e9e5ef; --muted: #a29cae; --line: #312d3b;
   --accent: #e2b86f; --accent-soft: #3a2f22; --sea: #84bdd3; --sage: #9cbf98; --ember: #ec8a5f; --stone: #b8b2a8;
-  --code-bg: #221f2b; color-scheme: dark;
+  --code-bg: #221f2b; --mark: #c98a94; --mark-ink: #1d1a25; --journal: #b3a6d6; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -223,19 +219,118 @@ h1 .jp { font-size: 0.6em; color: var(--muted); margin-left: 0.25em; }
 .changes b { font-weight: 600; }
 .questions li b { font-weight: 600; }
 
+.c-journal { color: var(--journal); }
+/* Icon studies */
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px 24px; }
+.icon-study { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.icon-sizes { display: flex; align-items: flex-end; gap: 14px; }
+.app-tile { display: block; flex: none; border-radius: 22.4%; overflow: hidden; box-shadow: 0 1px 2px rgba(20, 16, 30, 0.18), 0 6px 18px rgba(20, 16, 30, 0.12); }
+.app-tile.xl { width: 120px; height: 120px; }
+.app-tile.md { width: 58px; height: 58px; }
+.app-tile.sm { width: 28px; height: 28px; border-radius: 6px; box-shadow: none; }
+.app-tile.xs { width: 16px; height: 16px; border-radius: 3px; box-shadow: none; }
+.icon-study .size-note { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); display: flex; gap: 14px; }
+.icon-study b { font-weight: 600; }
+.icon-study p { color: var(--muted); font-size: 0.92rem; }
+.icon-study .verdict { color: var(--fg); font-size: 0.86rem; }
+.icon-study.pick { outline: 1.5px solid var(--accent); outline-offset: 10px; border-radius: 4px; }
+.pick-tag { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.homescreen { border-radius: 14px; padding: 22px 18px; background: linear-gradient(160deg, #2e2f6b, #6a4f95 55%, #d9849a); overflow-x: auto; }
+.homescreen-row { display: grid; grid-template-columns: repeat(8, 58px); gap: 18px 20px; justify-content: start; }
+.homescreen figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.homescreen figcaption { font-size: 0.7rem; color: #fff3e6; text-align: center; }
+.tabbar { display: flex; gap: 6px; overflow-x: auto; padding: 8px; border-radius: 10px; background: var(--code-bg); }
+.tab { display: flex; align-items: center; gap: 7px; flex: none; padding: 6px 12px 6px 8px; border-radius: 8px; background: var(--surface); font-size: 0.8rem; color: var(--fg); }
+/* Your days example */
+.days-demo { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+@media (max-width: 640px) { .days-demo { grid-template-columns: 1fr; } }
+.days-list { max-height: 360px; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
+.days-week, .days-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.days-week { position: sticky; top: 0; background: var(--surface); font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); text-align: center; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.days-month { font-family: var(--font-display); font-size: 1.2rem; margin: 14px 4px 6px; }
+.days-row > * { display: grid; place-items: center; }
+.dd { width: 32px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; background: none; font: inherit; font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--fg); padding: 0; }
+.dd.future { opacity: 0.4; }
+.dd.today { box-shadow: inset 0 0 0 1.5px var(--mark); }
+.dd.on { background: var(--mark); color: var(--mark-ink); cursor: pointer; }
+.dd.on[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--mark); }
+.dd:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.days-note { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.days-note ul { list-style: none; padding: 0; gap: 8px; }
+.days-note li { display: flex; align-items: center; gap: 8px; }
+.days-note li svg { width: 18px; height: 18px; flex: none; }
+.days-note .go { margin-left: auto; font-size: 0.85rem; color: var(--accent); }
+.days-note blockquote { margin: 0; font-family: var(--font-display); font-size: 1.3rem; line-height: 1.3; border-left: 2px solid var(--stone); padding-left: 14px; }
+.home-sketch { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: start; padding: 22px; border-radius: 10px; color: #fff3e6; background: linear-gradient(180deg, #2e2f6b, #6a4f95 50%, #d9849a 80%, #f6a98f); }
+.home-sketch .v { font-family: var(--font-jp); font-weight: 500; writing-mode: vertical-rl; font-size: 2.6rem; line-height: 1; letter-spacing: 0.12em; }
+.home-sketch i { font-family: var(--font-display); font-size: 1.25rem; }
+.home-sketch p { color: rgba(255, 243, 230, 0.88); font-size: 0.95rem; }
+.home-sketch .season { border-top: 1px solid rgba(255, 243, 230, 0.35); padding-top: 8px; margin-top: 8px; }
+.home-sketch .season .jp { margin-right: 8px; }
+
 footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid var(--line); padding-top: 16px; }
 
 @media (prefers-reduced-motion: no-preference) {
   .cal-day.kept { transition: border-color 0.2s, box-shadow 0.2s; }
 }
 </style>
-<style>body{margin:0}</style>
-</head>
-<body>
-
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e2f6b"/><stop offset=".38" stop-color="#5a4892"/><stop offset=".68" stop-color="#cf7f9b"/><stop offset=".88" stop-color="#f6a98f"/><stop offset="1" stop-color="#ffd8a4"/></linearGradient>
+    <linearGradient id="g-sky-tall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e2f6b"/><stop offset=".45" stop-color="#6a4f95"/><stop offset=".78" stop-color="#d9849a"/><stop offset="1" stop-color="#ffcf9e"/></linearGradient>
+    <linearGradient id="g-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d8fb0"/><stop offset="1" stop-color="#78d3c8"/></linearGradient>
+    <linearGradient id="g-sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9a78b"/><stop offset="1" stop-color="#f7c599"/></linearGradient>
+    <linearGradient id="g-sand-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e7b08f"/><stop offset="1" stop-color="#f6cda4"/></linearGradient>
+    <radialGradient id="g-sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3d6"/><stop offset=".55" stop-color="#ffe6bd" stop-opacity=".9"/><stop offset="1" stop-color="#ffd9a8" stop-opacity="0"/></radialGradient>
+    <linearGradient id="g-fade" x1="0" y1="0" x2="1" y2="0"><stop offset=".5" stop-color="#fff"/><stop offset=".8" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <mask id="m-fade" maskContentUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#g-fade)"/></mask>
+    <linearGradient id="g-wash" x1="0" y1="0" x2="0" y2="1"><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset=".52" stop-color="#fff"/></linearGradient>
+    <mask id="m-wash" maskContentUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#g-wash)"/></mask>
+
+    <symbol id="app-dusk" viewBox="0 0 100 100"><rect width="100" height="64" fill="url(#g-sky)"/><circle cx="27" cy="62" r="15" fill="url(#g-sun)"/><circle cx="27" cy="62" r="6.4" fill="#fff0cc"/>
+      <rect y="64" width="100" height="16" fill="url(#g-sea)"/>
+      <path d="M0 68q25-1.6 50 0t50 0" fill="none" stroke="#bff2e6" stroke-width="1" opacity=".6"/>
+      <path d="M0 73q25-2 50 0t50 0" fill="none" stroke="#bff2e6" stroke-width="1.4" opacity=".7"/>
+      <rect y="79" width="100" height="21" fill="url(#g-sand)"/>
+      <path d="M0 79.6q12.5-3 25 0t25 0t25 0t25 0v2.2H0z" fill="#fff6ea"/>
+      <text x="51" y="54" text-anchor="middle" font-size="46" fill="#fff3e6" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">移</text></symbol>
+    <symbol id="app-vertical" viewBox="0 0 100 100"><rect width="100" height="100" fill="url(#g-sky-tall)"/>
+      <rect y="86" width="100" height="14" fill="url(#g-sea)"/>
+      <path d="M0 86.6q12.5-1.6 25 0t25 0t25 0t25 0" fill="none" stroke="#fff6ea" stroke-width="1.2"/><text x="50" y="33" text-anchor="middle" font-size="22" fill="#fff3e6" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">移</text><text x="50" y="56" text-anchor="middle" font-size="22" fill="#fff3e6" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">ろ</text><text x="50" y="79" text-anchor="middle" font-size="22" fill="#fff3e6" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">い</text></symbol>
+    <symbol id="app-sand" viewBox="0 0 100 100"><rect width="100" height="100" fill="url(#g-sand-top)"/>
+      <path d="M0 0h100v24q-14 7-28 3t-26 4-24-1-22 5z" fill="url(#g-sea)"/>
+      <path d="M0 35q12-6 22-5t24 1 26-4 28-3" fill="none" stroke="#fff6ea" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M0 39q12-5 22-4t24 1 26-4 28-2" fill="none" stroke="#fff6ea" stroke-width="1.2" opacity=".55"/>
+      <g mask="url(#m-wash)">
+        <text x="51.2" y="86.2" text-anchor="middle" font-size="50" fill="#ffe4c6" opacity=".8" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">移</text>
+        <text x="50" y="85" text-anchor="middle" font-size="50" fill="#b9765a" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">移</text>
+      </g></symbol>
+    <symbol id="app-enso" viewBox="0 0 100 100"><rect width="100" height="62" fill="url(#g-sky)"/>
+      <rect y="62" width="100" height="38" fill="url(#g-sea)"/>
+      <circle cx="50" cy="50" r="21" fill="none" stroke="#fff3e6" stroke-width="6" stroke-linecap="round" stroke-dasharray="112 20" transform="rotate(-62 50 50)"/>
+      <rect y="62" width="100" height="38" fill="url(#g-sea)" opacity=".62"/>
+      <g stroke="#fff3e6" stroke-linecap="round" opacity=".7"><path d="M38 70h24" stroke-width="2"/><path d="M42 77h16" stroke-width="1.6"/><path d="M46 84h8" stroke-width="1.3"/></g></symbol>
+    <symbol id="app-cairn" viewBox="0 0 100 100"><rect width="100" height="62" fill="url(#g-sky)"/>
+      <circle cx="50" cy="61" r="24" fill="url(#g-sun)"/><circle cx="50" cy="61" r="10" fill="#fff0cc"/>
+      <rect y="62" width="100" height="16" fill="url(#g-sea)"/>
+      <rect y="78" width="100" height="22" fill="url(#g-sand)"/>
+      <path d="M0 78.6q12.5-3 25 0t25 0t25 0t25 0v2H0z" fill="#fff6ea"/>
+      <g fill="#4a2b3a"><ellipse cx="50" cy="88" rx="20" ry="6.5"/><ellipse cx="48.6" cy="77.6" rx="14" ry="5"/><ellipse cx="51" cy="68.8" rx="9.6" ry="4"/><ellipse cx="49.8" cy="62" rx="5.8" ry="2.9"/></g></symbol>
+    <symbol id="app-seal" viewBox="0 0 100 100"><rect width="100" height="100" fill="#f4dcc3"/>
+      <rect x="19" y="19" width="62" height="62" rx="9" fill="#a2586a"/>
+      <rect x="23.5" y="23.5" width="53" height="53" rx="5" fill="none" stroke="#fff3e6" stroke-width="1.4" opacity=".7"/>
+      <text x="50" y="66.5" text-anchor="middle" font-size="40" fill="#fff3e6" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">移</text></symbol>
+    <symbol id="app-fade" viewBox="0 0 100 100"><rect width="100" height="100" fill="url(#g-sand-top)"/>
+      <text x="47" y="68" text-anchor="middle" font-size="52" fill="#9c5f6c" mask="url(#m-fade)" font-family="'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif" font-weight="800">移</text>
+      <g fill="#9c5f6c"><circle cx="71.0" cy="26.6" r="1.55" opacity="0.67"/><circle cx="62.5" cy="51.1" r="1.18" opacity="0.89"/><circle cx="62.0" cy="49.7" r="0.75" opacity="0.90"/><circle cx="74.7" cy="20.8" r="0.82" opacity="0.58"/><circle cx="74.4" cy="63.3" r="0.86" opacity="0.59"/><circle cx="67.6" cy="54.5" r="1.93" opacity="0.76"/><circle cx="79.6" cy="37.3" r="1.97" opacity="0.46"/><circle cx="61.6" cy="69.5" r="1.08" opacity="0.91"/><circle cx="64.9" cy="26.9" r="1.10" opacity="0.83"/><circle cx="87.7" cy="22.4" r="1.46" opacity="0.26"/><circle cx="81.7" cy="35.3" r="1.41" opacity="0.41"/><circle cx="62.1" cy="24.6" r="0.97" opacity="0.90"/><circle cx="83.1" cy="37.8" r="1.11" opacity="0.37"/><circle cx="79.9" cy="40.4" r="1.09" opacity="0.45"/><circle cx="87.0" cy="51.7" r="1.02" opacity="0.27"/><circle cx="79.5" cy="44.6" r="1.84" opacity="0.46"/><circle cx="84.8" cy="29.4" r="1.97" opacity="0.33"/><circle cx="64.0" cy="44.0" r="1.68" opacity="0.85"/><circle cx="65.2" cy="47.6" r="0.75" opacity="0.82"/><circle cx="82.7" cy="56.9" r="1.44" opacity="0.38"/><circle cx="89.8" cy="29.2" r="1.60" opacity="0.21"/><circle cx="80.2" cy="47.4" r="1.29" opacity="0.44"/><circle cx="88.6" cy="64.9" r="1.32" opacity="0.24"/><circle cx="82.6" cy="17.5" r="1.61" opacity="0.39"/><circle cx="82.0" cy="69.9" r="1.77" opacity="0.40"/><circle cx="69.7" cy="40.2" r="1.57" opacity="0.71"/></g></symbol>
+    <symbol id="app-edge" viewBox="0 0 100 100"><rect width="100" height="100" fill="url(#g-sand-top)"/>
+      <path d="M0 0h100v30q-20 14-46 10T0 52z" fill="url(#g-sea)"/>
+      <path d="M0 52q28-9 54-12t46-10" fill="none" stroke="#fff6ea" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M0 57q28-8 54-11t46-9" fill="none" stroke="#fff6ea" stroke-width="1.2" opacity=".55"/>
+      <path d="M22 76c6-9 11-9 13-3s5 7 9 0 8-8 10-2 5 6 9-1 8-7 11-3" fill="none" stroke="#b9765a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22.8 77.3c6-9 11-9 13-3s5 7 9 0 8-8 10-2 5 6 9-1 8-7 11-3" fill="none" stroke="#ffe4c6" stroke-width="1.2" stroke-linecap="round" opacity=".6"/></symbol>
+    <symbol id="i-journal" viewBox="0 0 24 24"><path class="ic" d="M3.5 6.5c2.9-1.1 5.7-1 8.5.9 2.8-1.9 5.6-2 8.5-.9v11c-2.9-1.1-5.7-1-8.5.9-2.8-1.9-5.6-2-8.5-.9z"/><path class="ic" d="M12 7.4v11"/></symbol>
     <symbol id="i-ocean" viewBox="0 0 24 24"><path class="ic" d="M2 10c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path class="ic" d="M2 16c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/></symbol>
     <symbol id="i-wind" viewBox="0 0 24 24"><path class="ic" d="M3 8h10a3 3 0 1 0-3-3"/><path class="ic" d="M3 13h15a3 3 0 1 1-3 3"/><path class="ic" d="M3 18h6"/></symbol>
     <symbol id="i-fire" viewBox="0 0 24 24"><path class="ic" d="M12 3c.6 3 5 5.2 5 10.2A5 5 0 0 1 7 13.5c0-2.4 1.4-3.6 2-5.3 1.3.9 2 2.2 2 3.4 1.2-1.9 1.4-5.2 1-8.6z"/></symbol>
@@ -247,26 +342,28 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 
 <header>
   <div class="meta">
-    <span class="label">Design doc · Draft 0.9</span>
-    <span class="label">Updated Oct 10, 2026</span>
+    <span class="label">Design doc · Draft 1.0</span>
+    <span class="label">Updated Oct 11, 2026</span>
     <span class="label">移ろい · utsuroi</span>
   </div>
   <h1>Utsuroi <span class="jp" lang="ja">移ろい</span></h1>
   <p class="lede">A journal where most entries are not meant to be kept. You write the things you need to let out, then hand them to <em>the tide, the wind, a flame</em>, or carve them into <em>stone</em> so they stay.</p>
   <nav class="toc" aria-label="Contents">
-    <a href="#changes">What changed</a><a href="#name">Name</a><a href="#idea">Idea</a><a href="#decisions">Decisions</a><a href="#rituals">The four rituals</a><a href="#handwriting">Handwriting from typing</a><a href="#cairn">The cairn</a><a href="#calendar">Ritual calendar</a><a href="#flow">App flow</a><a href="#privacy">Privacy model</a><a href="#tech">Technical approach</a><a href="#milestones">Milestones</a><a href="#questions">Open questions</a>
+    <a href="#changes">What changed</a><a href="#name">Name</a><a href="#icon">Icon</a><a href="#home">Home</a><a href="#idea">Idea</a><a href="#decisions">Decisions</a><a href="#rituals">The four rituals</a><a href="#handwriting">Handwriting from typing</a><a href="#cairn">The cairn</a><a href="#calendar">Ritual calendar</a><a href="#flow">App flow</a><a href="#privacy">Privacy model</a><a href="#tech">Technical approach</a><a href="#milestones">Milestones</a><a href="#questions">Open questions</a>
   </nav>
 </header>
 
 <section id="changes" class="changes">
-  <span class="label">What changed in 0.9</span>
+  <span class="label">What changed in 1.0</span>
   <ul>
-    <li><b>Wind is built.</b> A meadow under a tree on a sunny day, sunlight through the leaves. Typed words float in the air until you press <b>Let the wind take it</b>.</li>
-    <li><b>Fire is built.</b> A dark room lit by one candle. Type a letter on a blank page; when it's done, press <b>Light it</b>.</li>
-    <li>Both use a hand-lettered font (Caveat). No mic or match gestures for now: release is a button press, by choice.</li>
+    <li><b>All four places are built</b>, each with natural recorded sound (CC0 field recordings, no typing sounds).</li>
+    <li><b>Stone is built.</b> Typed words are carved into a flat stone and set on a cairn. Drag to look along the shore; tap a kept stone to hold it up and read it, with the shore blurred behind it.</li>
+    <li><b>A plain journal</b> sits beside the rituals, for writing you want to keep, reread and edit. Stored encrypted, like stones.</li>
+    <li><b>A new home page.</b> <span class="jp" lang="ja">移ろい</span> written top to bottom, what it means, and today's micro-season. The places are ink characters on the sand.</li>
+    <li><b>Your days</b> moves into a frosted panel beside the home page: a quiet list of the months you wrote in. Marked days show what happened when you hover or tap them.</li>
+    <li><b>Icon studies:</b> eight directions drawn from the finished look, to choose from below.</li>
   </ul>
-  <p style="color:var(--muted);font-size:0.9rem">0.8: landing page, calendar, the ocean's mark when the sea has taken everything, typing only off in textured scenes.</p>
-  <p style="color:var(--muted);font-size:0.9rem">0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones. 0.3 added the stick that writes typed text, cairns, choosing the scene first, the input switch, fixed moods, and support that never reacts to content.</p>
+  <p style="color:var(--muted);font-size:0.9rem">0.9: wind and fire built. 0.8: landing page, calendar, the ocean's mark. 0.5 named the app Utsuroi. 0.4 added backups, your own handwriting, no minimum length and self-settling stones.</p>
 </section>
 
 <section id="name">
@@ -287,37 +384,107 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 
   <h3>Using Japanese in the app</h3>
   <ul>
-    <li><b>First launch:</b> the stick writes <span class="jp" lang="ja">移ろい</span> in the sand with correct stroke order, the tide washes it away, and the scene picker appears. The name teaches the idea before any explanation.</li>
-    <li><b>Wordmark:</b> lowercase "utsuroi" in the display face with <span class="jp" lang="ja">移ろい</span> set small beside or beneath it.</li>
-    <li><b>Scene names</b> could carry a single character each: <span class="jp" lang="ja">波</span> (wave), <span class="jp" lang="ja">風</span> (wind), <span class="jp" lang="ja">火</span> (fire), <span class="jp" lang="ja">石</span> (stone). Shown small, as a seal, not replacing the English.</li>
+    <li><b>Home:</b> <span class="jp" lang="ja">移ろい</span> set vertically as the page's heading, with its meaning beside it. See <a href="#home">Home</a>.</li>
+    <li><b>Places:</b> each is a single character, <span class="jp" lang="ja">波</span> (wave), <span class="jp" lang="ja">風</span> (wind), <span class="jp" lang="ja">火</span> (fire), <span class="jp" lang="ja">石</span> (stone), and <span class="jp" lang="ja">記</span> (record) for the journal, always with the English name under it.</li>
+    <li><b>Wordmark:</b> lowercase "utsuroi" with <span class="jp" lang="ja">移ろい</span> set small beside it.</li>
+    <li><b>Later:</b> on first launch the stick writes <span class="jp" lang="ja">移ろい</span> in the sand and the tide washes it away before the places appear.</li>
   </ul>
+</section>
 
-  <h3>Icon concepts</h3>
-  <div class="icons">
-    <div class="icon-concept">
-      <div class="icon-tile fade" aria-hidden="true"><span class="k jp">移</span><span class="dust"></span></div>
-      <b>Fading character</b>
-      <span>A brushed <span class="jp" lang="ja">移</span> whose right side breaks into sand grains. The most direct statement of the idea.</span>
-    </div>
-    <div class="icon-concept">
-      <div class="icon-tile sand" aria-hidden="true"><span class="k jp">移</span></div>
+<section id="icon">
+  <span class="label">Icon</span>
+  <h2>Eight directions for the icon</h2>
+  <p>Drawn from the finished look: the dusk palette of the home page, the vertical name, the ink characters, the sand and the cairns. Each is shown at app size, home-screen size, toolbar size and as a browser tab, because an icon that only works large isn't an icon.</p>
+  <div class="icon-grid">
+    <article class="icon-study pick" id="icon-dusk">
+      <div class="icon-sizes" role="img" aria-label="Dusk at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-dusk"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-dusk"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-dusk"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-dusk"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <span class="pick-tag">Recommended</span><b>Dusk</b>
+      <p><span class="jp" lang="ja">移</span> in the sky over the painted shore, the sun low on the left, exactly as the home page looks.</p>
+      <p class="verdict">Holds at every size: one strong glyph on a palette nothing else on a home screen uses. Ties the icon to the first thing you see.</p>
+    </article>
+    <article class="icon-study" id="icon-vertical">
+      <div class="icon-sizes" role="img" aria-label="The name, top to bottom at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-vertical"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-vertical"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-vertical"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-vertical"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <b>The name, top to bottom</b>
+      <p>The full <span class="jp" lang="ja">移ろい</span> set vertically, like the home heading, over a dusk sky with a sliver of sea.</p>
+      <p class="verdict">Lovely large. Below about 40 px the three characters blur together.</p>
+    </article>
+    <article class="icon-study" id="icon-sand">
+      <div class="icon-sizes" role="img" aria-label="Written in sand at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-sand"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-sand"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-sand"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-sand"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
       <b>Written in sand</b>
-      <span><span class="jp" lang="ja">移</span> drawn into wet sand at the waterline, with foam about to reach it.</span>
-    </div>
-    <div class="icon-concept">
-      <div class="icon-tile vert" aria-hidden="true"><span class="k jp">移ろい</span></div>
-      <b>Vertical name</b>
-      <span>The full name set vertically, like a scroll or a hanging sign. Quiet and typographic.</span>
-    </div>
-    <div class="icon-concept">
-      <div class="icon-tile" aria-hidden="true">
-        <svg viewBox="0 0 74 74"><ellipse cx="37" cy="60" rx="24" ry="8" fill="var(--icon-ink)" opacity="0.85"/><ellipse cx="36" cy="45" rx="18" ry="7" fill="var(--icon-ink)" opacity="0.7"/><ellipse cx="38" cy="32" rx="12" ry="5.5" fill="var(--icon-ink)" opacity="0.55"/><ellipse cx="37" cy="21" rx="7" ry="3.6" fill="var(--icon-ink)" opacity="0.4"/></svg>
-      </div>
-      <b>Cairn</b>
-      <span>A small stack of stones, getting lighter toward the top. Speaks to what's kept rather than what passes.</span>
+      <p><span class="jp" lang="ja">移</span> drawn into wet sand, seen from above, with the foam already taking its top.</p>
+      <p class="verdict">Tells the whole idea in one picture. The groove gets faint at 16 px.</p>
+    </article>
+    <article class="icon-study" id="icon-enso">
+      <div class="icon-sizes" role="img" aria-label="Ensō sun at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-enso"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-enso"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-enso"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-enso"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <b>Ensō sun</b>
+      <p>The setting sun as a single brushed circle, open at one side, half sunk in the sea.</p>
+      <p class="verdict">No text, so it reads anywhere. Calm, but says less about writing.</p>
+    </article>
+    <article class="icon-study" id="icon-cairn">
+      <div class="icon-sizes" role="img" aria-label="Cairn at dusk at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-cairn"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-cairn"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-cairn"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-cairn"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <b>Cairn at dusk</b>
+      <p>A stack of stones against the setting sun on the shore. What you keep, standing through what passes.</p>
+      <p class="verdict">A clear silhouette at all sizes. Leans toward keeping, while most of the app is letting go.</p>
+    </article>
+    <article class="icon-study" id="icon-seal">
+      <div class="icon-sizes" role="img" aria-label="Seal at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-seal"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-seal"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-seal"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-seal"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <b>Seal</b>
+      <p><span class="jp" lang="ja">移</span> reversed out of a rose seal, the way a name is stamped on a letter or a painting.</p>
+      <p class="verdict">The sharpest at 16 px, and a good favicon. Plainer as an app icon.</p>
+    </article>
+    <article class="icon-study" id="icon-fade">
+      <div class="icon-sizes" role="img" aria-label="Fading character at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-fade"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-fade"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-fade"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-fade"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <b>Fading character</b>
+      <p><span class="jp" lang="ja">移</span> coming apart into grains on its right side, drifting off like sand in the wind.</p>
+      <p class="verdict">The idea in its most literal form. The grains become noise when small.</p>
+    </article>
+    <article class="icon-study" id="icon-edge">
+      <div class="icon-sizes" role="img" aria-label="The tide’s edge at app, home screen, toolbar and tab sizes"><svg class="app-tile xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-edge"/></svg><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-edge"/></svg><svg class="app-tile sm" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-edge"/></svg><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-edge"/></svg></div>
+      <div class="size-note"><span>120</span><span>58</span><span>28</span><span>16 px</span></div>
+      <b>The tide’s edge</b>
+      <p>A single line of handwriting on the sand, with the foam about to reach it. Abstract, no character.</p>
+      <p class="verdict">Reads as a beach first. The line needs at least 28 px to be seen.</p>
+    </article>
+  </div>
+
+  <h3>Side by side on a home screen</h3>
+  <div class="homescreen">
+    <div class="homescreen-row"><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-dusk"/></svg><figcaption>Dusk</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-vertical"/></svg><figcaption>The name, top to bottom</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-sand"/></svg><figcaption>Written in sand</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-enso"/></svg><figcaption>Ensō sun</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-cairn"/></svg><figcaption>Cairn at dusk</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-seal"/></svg><figcaption>Seal</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-fade"/></svg><figcaption>Fading character</figcaption></figure><figure><svg class="app-tile md" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-edge"/></svg><figcaption>The tide’s edge</figcaption></figure>
     </div>
   </div>
-  <p style="color:var(--muted);font-size:0.9rem">These are rough sketches to compare directions. The real icon would be drawn or rendered from the actual scenes.</p>
+
+  <h3>As a browser tab</h3>
+  <div class="tabbar"><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-dusk"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-vertical"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-sand"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-enso"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-cairn"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-seal"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-fade"/></svg>Utsuroi</span><span class="tab"><svg class="app-tile xs" viewBox="0 0 100 100" aria-hidden="true"><use href="#app-edge"/></svg>Utsuroi</span>
+  </div>
+
+  <p><b>Recommendation:</b> <a href="#icon-dusk">Dusk</a> for the app icon, with the <a href="#icon-seal">Seal</a> as the browser tab icon, where a full scene is too small to read. They share the same character and the same rose, so they read as one family. The app's current tab icon (a dusk gradient with a sand stroke) would be replaced.</p>
+  <p style="color:var(--muted);font-size:0.9rem">These are vector studies. The chosen one gets drawn properly: hand-brushed strokes for the character, and exported at every size the stores and browsers ask for.</p>
+</section>
+
+<section id="home">
+  <span class="label">Home</span>
+  <h2>The first thing you see</h2>
+  <div class="home-sketch" role="img" aria-label="Sketch of the home page heading: 移ろい written vertically, its meaning, and today's season">
+    <div class="v" lang="ja">移ろい</div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <i>utsuroi</i>
+      <p>the quiet passing of things: a color fading, a season turning, a feeling changing.</p>
+      <p class="season"><span class="jp" lang="ja">鴻雁来</span><i style="font-size:1rem">wild geese return</i></p>
+    </div>
+  </div>
+  <ul>
+    <li><b>The word, defined.</b> <span class="jp" lang="ja">移ろい</span> runs top to bottom in the sky, with a one-line gloss beside it, so the name explains the app before any instructions do.</li>
+    <li><b>Today's season.</b> Under it, the current one of the <span class="jp" lang="ja">七十二候</span>, the seventy-two seasons of the old Japanese calendar, each about five days long (Oct 8–12: wild geese return). The page itself changes every few days, which is utsuroi without having to say so.</li>
+    <li><b>The places on the sand.</b> "Set it down. Let it change." Then <span class="jp" lang="ja">波 風 火 石</span> as ink characters with their names, and <span class="jp" lang="ja">記</span> for the journal set a little apart. Each place's one line appears as you point at it.</li>
+    <li><b>Your days</b> sit in a frosted panel on the left (a drawer behind the menu on phones). See <a href="#calendar">Your days</a>.</li>
+  </ul>
 </section>
 
 <section id="idea">
@@ -348,16 +515,18 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
         <tr><td>Scene choice</td><td>Chosen before writing. You can leave at any time, and leaving discards the words without a mark.</td></tr>
         <tr><td>Addressing</td><td>No "To" field. Who the words are for is part of the writing.</td></tr>
         <tr><td>Released entries</td><td>No record of the words. The calendar keeps only the date and an icon for the ritual.</td></tr>
-        <tr><td>Kept entries</td><td>Only stone entries keep their words. Stones can't be removed. They settle on top of a cairn by themselves.</td></tr>
+        <tr><td>Kept entries</td><td>Stones and journal entries keep their words, encrypted on the device. Stones can't be removed and settle on a cairn by themselves; journal entries can be edited and deleted.</td></tr>
         <tr><td>Backup</td><td>Stones and calendar marks can be saved to an encrypted backup file and restored on another device.</td></tr>
-        <tr><td>Kept places</td><td>A calendar view instead of a walkable garden. Only days with stone entries can be opened.</td></tr>
+        <tr><td>Your days</td><td>A list of the months you wrote in, beside the home page. Marked days show what happened on hover or tap; stone and journal days open.</td></tr>
         <tr><td>Visual direction</td><td>Painted and stylized, like an animated game (Journey, The Witness), not photoreal. Fixed, designed mood per scene.</td></tr>
         <tr><td>Ocean release</td><td>No gesture. The sea washes the words on its own, with varied wave timing and reach.</td></tr>
-        <tr><td>Camera</td><td>Looking down at the writing, as if standing over it. Drag the sea or sky to tilt up to the horizon or turn.</td></tr>
+        <tr><td>Camera</td><td>Looking down at the writing, as if standing over it. At the sea and the stone shore, drag to tilt up to the horizon or turn.</td></tr>
+        <tr><td>Sound</td><td>Natural CC0 recordings for each place: surf, wind in leaves, candle and paper, pebbles and chisel taps. No typing sounds. One mute switch.</td></tr>
         <tr><td>Care</td><td>Support resources are always reachable and never triggered by content. Writing is never judged.</td></tr>
         <tr><td>MVP scenes</td><td>Ocean, Wind, Fire, Stone.</td></tr>
         <tr><td>Platform</td><td>Web first as an installable PWA, then wrapped for iOS and Android.</td></tr>
         <tr><td>Name</td><td>Utsuroi (移ろい). Japanese writing is used in the app and the icon.</td></tr>
+        <tr><td>Home</td><td>The word 移ろい written vertically with its meaning and today's micro-season; the places as ink characters on the sand.</td></tr>
       </tbody>
     </table>
   </div>
@@ -426,14 +595,17 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
     <article class="ritual">
       <div class="ritual-head c-stone"><svg><use href="#i-stone"/></svg><h3>Stone</h3><span class="label">Kept</span></div>
       <dl>
-        <dt>Where you write</dt><dd>A quiet pebble shore in soft morning light. You pick up a flat, smooth stone and carve its top face.</dd>
-        <dt>How you write</dt><dd>Hand-drawing: trace each stroke and the chisel follows, slowly. Typing: the chisel follows the same synthesized strokes as the ocean stick, at a deliberate pace, with a tap and a puff of dust on each cut.</dd>
-        <dt>How much fits</dt><dd>A few words to one short line. The effort is the point.</dd>
-        <dt>Release gesture</dt><dd>Carry the stone to your cairn and set it on top. It settles with a soft click.</dd>
-        <dt>What happens</dt><dd>The stone stays, and the cairn grows by one. It can't be removed. You can reopen it from the calendar.</dd>
-        <dt>Technique</dt><dd>Strokes become a signed distance field, then a V-groove depth and normal map revealed by a carving-progress mask. Dust particles. Triplanar rock material on a flattened, noise-shaped pebble so it stacks. Saved as data (strokes plus a rock seed and its place in the cairn), not as an image.</dd>
-        <dt>Sound</dt><dd>Chisel taps, small waves on pebbles.</dd>
+        <dt>Where you write</dt><dd>A quiet pebble shore in soft morning light. A flat stone lies in front of you; cairns of kept stones stand along the beach.</dd>
+        <dt>How you write</dt><dd>Typed. Each character is cut into the stone's top face as you type, with a chisel tap and a puff of dust.</dd>
+        <dt>How much fits</dt><dd>Up to four short lines. The letters get smaller as there's more, then the stone is full.</dd>
+        <dt>Release gesture</dt><dd><b>Set it on the cairn</b> carries the stone to the top of a cairn, where it settles with a small wobble and a click.</dd>
+        <dt>What happens</dt><dd>The stone stays. A new cairn starts after eight. Drag to look along the shore; tap any kept stone to lift it toward you and read it, with the shore blurred behind it. Tap anywhere or <b>Put it back</b> to return it.</dd>
+        <dt>Technique</dt><dd>Stones are generated from a seed (a lumpy, flattened ellipsoid). The carving is a canvas groove texture that tilts the normal into each letter. The held view draws the shore through a Gaussian blur pass and the held stone sharp on top.</dd>
+        <dt>Sound</dt><dd>Small waves on pebbles, chisel taps, the stone set down.</dd>
       </dl>
+    </article>
+  </div>
+</section>      </dl>
     </article>
   </div>
 </section>
@@ -511,33 +683,26 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
 </section>
 
 <section id="calendar">
-  <span class="label">Ritual calendar</span>
+  <span class="label">Your days</span>
   <h2>The only trace is the ritual itself</h2>
-  <p>The calendar replaces a "kept places" world. Every ritual leaves a small icon on the day it happened. Released rituals keep nothing else, so their days can't be opened. Only days with a stone entry can be opened, and they show the carved words.</p>
+  <p>A quiet list of every month you wrote in, newest at the bottom, like the end of a notebook. A day with anything in it is softly marked. Hover or tap it to see what happened. Released words were never kept, so those days only name the place that took them. Stone and journal days open.</p>
   <ul>
-    <li>Each ritual adds one icon. A day shows up to three, then a count.</li>
-    <li>Days with a stone are tinted and can be opened. Opening one takes you to that stone on its cairn.</li>
+    <li>Only months with something in them are shown, plus the current month.</li>
     <li>No time of day or length is recorded for released rituals.</li>
     <li>Leaving a scene before the release leaves no mark at all.</li>
+    <li>On wide screens the panel sits at the left of the home page; on phones it's a drawer behind the menu.</li>
   </ul>
 
-  <div class="cal-box">
+  <div class="days-demo">
     <div>
-      <div class="cal-top">
-        <h3>October 2026</h3>
-        <span class="example-tag">Example data</span>
-      </div>
-      <div class="cal-grid" id="cal" aria-label="October 2026"></div>
-      <div class="cal-legend" style="margin-top:12px">
-        <span class="c-ocean"><svg><use href="#i-ocean"/></svg>Ocean</span>
-        <span class="c-wind"><svg><use href="#i-wind"/></svg>Wind</span>
-        <span class="c-fire"><svg><use href="#i-fire"/></svg>Fire</span>
-        <span class="c-stone"><svg><use href="#i-stone"/></svg>Stone</span>
+      <div class="cal-top"><h3>Your days</h3><span class="example-tag">Example data</span></div>
+      <div class="days-list" id="days-list">
+        <div class="days-week" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
       </div>
     </div>
-    <div class="cal-panel" id="cal-panel" aria-live="polite">
-      <span class="label">Select a tinted day</span>
-      <p style="color:var(--muted)">Stone days open to show what was carved. Every other mark is only a reminder that something was let go.</p>
+    <div class="days-note" id="days-note" aria-live="polite">
+      <span class="label">Select a marked day</span>
+      <p style="color:var(--muted)">Each mark is only a reminder that something was let go, or kept.</p>
     </div>
   </div>
 </section>
@@ -547,11 +712,11 @@ footer { color: var(--muted); font-size: var(--step--1); border-top: 1px solid v
   <h2>One ritual, start to finish</h2>
   <ol class="flow">
     <li><div><b>Arrive.</b> <span>A short, quiet threshold: the last scene's ambience, one slow breath. Skippable.</span></div></li>
-    <li><div><b>Choose a ritual.</b> <span>Ocean, wind, fire, or stone, before you write anything. The scene sets the mood for the writing.</span></div></li>
+    <li><div><b>Choose a place.</b> <span>Ocean, wind, fire, or stone, before you write anything, or the plain journal. The scene sets the mood for the writing.</span></div></li>
     <li><div><b>Write.</b> <span>Inside the scene. Hand-drawing or typing, with a quiet switch in the corner. Nothing is autosaved.</span></div></li>
-    <li><div><b>Release.</b> <span>The ritual's gesture: turn to the sea, blow, strike the match, set the stone on the cairn.</span></div></li>
+    <li><div><b>Release.</b> <span>The sea takes it on its own; the others when you choose: let the wind take it, light it, set it on the cairn.</span></div></li>
     <li><div><b>Stay a moment.</b> <span>The scene keeps playing after the words are gone. You leave when you're ready.</span></div></li>
-    <li><div><b>Calendar.</b> <span>Today's icon appears. Stone days can be reopened.</span></div></li>
+    <li><div><b>Your days.</b> <span>Today is marked. Stone and journal days can be reopened.</span></div></li>
   </ol>
   <p><b>Leaving early.</b> A small "Leave" control is always visible while writing. Leaving discards the words, records nothing, and returns you to the scene picker. No "Are you sure?" prompt: nothing has been kept, so nothing is lost that you meant to keep.</p>
   <p><b>Support.</b> The menu always has a "Need to talk to someone?" entry with crisis lines for your region. It's never triggered by what you write, because the app never reads it.</p>
@@ -675,12 +840,12 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   <h2>Order of work</h2>
   <ol class="milestones">
     <li><span class="m">M0</span><div><b>Sand-writing spike · done</b><span>A stick writing typed text into the sand in cursive, with curvature-based timing, backspace wipes, a draw mode, and the tide washing it away. Live at <a href="https://aubrey-li.github.io/utsuroi/">aubrey-li.github.io/utsuroi</a>, code at <a href="https://github.com/Aubrey-Li/utsuroi">github.com/Aubrey-Li/utsuroi</a>.</span></div></li>
-    <li><span class="m">M1</span><div><b>Stroke pipeline</b><span>Hand-drawing input, the input switch, and the typed-to-strokes engine (single-line font, variation, curvature timing). Shared mask + SDF module.</span></div></li>
-    <li><span class="m">M2</span><div><b>Ocean</b><span>Driftwood stick, sand height field with ridges, wave erosion buffer, dusk lighting.</span></div></li>
-    <li><span class="m">M3</span><div><b>Wind and Stone</b><span>GPU particles with mic input. Chisel reveal, stackable pebbles, and the cairn.</span></div></li>
-    <li><span class="m">M4</span><div><b>Fire and calendar</b><span>Burning letter. Ritual marks, encrypted stone entries, backup file, offline PWA.</span></div></li>
-    <li><span class="m">M5</span><div><b>Your own hand</b><span>Alphabet setup, multi-sample glyphs, synthesized joins.</span></div></li>
-    <li><span class="m">M6</span><div><b>Atmosphere pass</b><span>Sound design, threshold screen, scene transitions, quality tiers.</span></div></li>
+    <li><span class="m">M1</span><div><b>Stroke pipeline · done</b><span>Hand-drawing input and the typed-to-strokes engine. Typing later moved to a hand-lettered font outside the ocean.</span></div></li>
+    <li><span class="m">M2</span><div><b>Ocean · done</b><span>Writing anywhere on the beach, waves that creep up the writing until it's gone, dusk lighting.</span></div></li>
+    <li><span class="m">M3</span><div><b>Wind and Stone · done</b><span>Words blown off a sunlit meadow. Carved stones, cairns, and holding a stone up to read. Breath input is left for later.</span></div></li>
+    <li><span class="m">M4</span><div><b>Fire, Your days, Journal · done</b><span>Burning letter, ritual marks, encrypted kept entries, the plain journal. Still to do: the backup file and offline install.</span></div></li>
+    <li><span class="m">M5</span><div><b>Icon and first launch · next</b><span>Draw the chosen icon at every size. The stick writing 移ろい in the sand on first launch.</span></div></li>
+    <li><span class="m">M6</span><div><b>Your own hand</b><span>Alphabet setup, multi-sample glyphs, synthesized joins.</span></div></li>
     <li><span class="m">M7</span><div><b>Mobile wrap</b><span>Capacitor build, haptics, native mic, share-sheet backups.</span></div></li>
   </ol>
 </section>
@@ -689,12 +854,15 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   <span class="label">Open questions</span>
   <h2>Left to decide</h2>
   <ol class="questions">
-    <li><b>Typed text in fire, wind and stone.</b> Shown in a hand-lettered font, or written stroke by stroke with the cursive engine?</li>
-    <li><b>Icon.</b> Which of the concepts in <a href="#name">Name</a> to develop.</li>
+    <li><b>Icon.</b> Which of the eight directions in <a href="#icon">Icon</a> to draw properly.</li>
+    <li><b>Backups.</b> When to add the encrypted backup file, now that stones and the journal both hold words.</li>
   </ol>
   <h3>Resolved</h3>
   <ul>
     <li>Name: Utsuroi (移ろい).</li>
+    <li>Typed text in fire, wind and stone: a hand-lettered font (Caveat).</li>
+    <li>Home: the vertical name, its meaning, and today's micro-season.</li>
+    <li>Your days: a list of months beside the home page, details on hover or tap.</li>
     <li>Scene choice: before writing, and you can leave at any time.</li>
     <li>Stones: can't be removed. They settle on top of a cairn by themselves.</li>
     <li>Backup: encrypted backup file.</li>
@@ -708,72 +876,106 @@ type HandAlphabet = { glyphs: Record&lt;string, Stroke[][]&gt; };</pre>
   </ul>
 </section>
 
-<footer>Draft 0.9 · A snapshot lives in the repository at docs/design.html.</footer>
+<footer>Draft 1.0 · A snapshot lives in the repository at docs/design.html.</footer>
 
 </div>
 
 <script>
 (function () {
-  var marks = {
-    1: ["stone"], 3: ["ocean"], 5: ["fire"], 7: ["wind", "wind"],
-    8: ["fire", "ocean", "wind", "fire"], 9: ["stone", "ocean"], 10: ["fire"]
+  // Example data: a few months with something in them, newest last.
+  var NAMES = { ocean: "Ocean", wind: "Wind", fire: "Fire", stone: "Stone", journal: "Journal" };
+  var months = [
+    { y: 2026, m: 5, days: { 23: ["ocean"], 27: ["wind", "wind"] } },
+    { y: 2026, m: 8, days: { 2: ["fire"], 14: ["journal"], 21: ["stone", "ocean"] } },
+    { y: 2026, m: 9, days: { 1: ["stone"], 3: ["ocean"], 7: ["wind"], 8: ["fire", "ocean", "journal"], 10: ["fire"], 11: ["journal"] } }
+  ];
+  var stones = {
+    "2026-9-21": "Grandpa, I still hear you humming in the garden.",
+    "2026-10-1": "Moved to the city today. Remember how brave this felt."
   };
-  var kept = {
-    1: { cairn: 1, level: 4, text: "Moved to the city today. Remember how brave this felt." },
-    9: { cairn: 1, level: 5, text: "Grandpa, I still hear you humming in the garden." }
-  };
-  var today = 10;
-  var cal = document.getElementById("cal");
-  var panel = document.getElementById("cal-panel");
-  var dows = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  dows.forEach(function (d) {
-    var el = document.createElement("div");
-    el.className = "cal-dow"; el.textContent = d; cal.appendChild(el);
-  });
-  // Oct 1, 2026 is a Thursday: three blank cells in a Monday-first week.
-  for (var b = 0; b < 3; b++) cal.appendChild(document.createElement("div"));
+  var today = { y: 2026, m: 9, d: 11 };
+  var list = document.getElementById("days-list");
+  var note = document.getElementById("days-note");
+  var fmt = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
+  var dayFmt = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" });
+  var pressed = null;
 
-  function icon(r) {
-    return '<svg class="c-' + r + '" aria-hidden="true"><use href="#i-' + r + '"/></svg>';
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function icon(kind) {
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("class", "c-" + kind);
+    svg.setAttribute("aria-hidden", "true");
+    var use = document.createElementNS(ns, "use");
+    use.setAttribute("href", "#i-" + kind);
+    svg.appendChild(use);
+    return svg;
   }
 
-  for (var d = 1; d <= 31; d++) {
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.id = "cal-day-" + d;
-    btn.className = "cal-day" + (d > today ? " future" : "") + (d === today ? " today" : "");
-    var m = marks[d] || [];
-    var shown = m.slice(0, 3).map(icon).join("");
-    var extra = m.length > 3 ? '<span style="font-size:0.65rem;color:var(--muted)">+' + (m.length - 3) + "</span>" : "";
-    btn.innerHTML = '<span class="num">' + d + '</span><span class="marks">' + shown + extra + "</span>";
-    var label = "October " + d + (m.length ? ", " + m.join(", ") : ", no rituals");
-    btn.setAttribute("aria-label", label);
-    if (kept[d]) {
-      btn.classList.add("kept");
-      btn.setAttribute("aria-pressed", "false");
-      (function (day, el) {
-        el.addEventListener("click", function () { openDay(day, el); });
-      })(d, btn);
-    } else {
-      btn.disabled = true;
+  months.forEach(function (mo) {
+    list.appendChild(el("div", "days-month", fmt.format(new Date(mo.y, mo.m, 1))));
+    var grid = el("div");
+    grid.setAttribute("role", "grid");
+    var lead = (new Date(mo.y, mo.m, 1).getDay() + 6) % 7;
+    var count = new Date(mo.y, mo.m + 1, 0).getDate();
+    var row = el("div", "days-row");
+    for (var b = 0; b < lead; b++) row.appendChild(el("span"));
+    for (var d = 1; d <= count; d++) {
+      var what = mo.days[d];
+      var isToday = mo.y === today.y && mo.m === today.m && d === today.d;
+      var future = mo.y === today.y && mo.m === today.m && d > today.d;
+      var cell = el("span");
+      var btn = el(what ? "button" : "span", "dd" + (what ? " on" : "") + (isToday ? " today" : "") + (future ? " future" : ""), String(d));
+      if (what) {
+        btn.type = "button";
+        btn.id = "dd-" + mo.m + "-" + d;
+        btn.setAttribute("aria-pressed", "false");
+        btn.setAttribute("aria-label", dayFmt.format(new Date(mo.y, mo.m, d)) + ": " + what.map(function (k) { return NAMES[k].toLowerCase(); }).join(", "));
+        (function (date, items, b) {
+          b.addEventListener("click", function () { show(date, items, b); });
+          b.addEventListener("mouseenter", function () { if (window.matchMedia("(hover: hover)").matches) show(date, items, b); });
+        })(new Date(mo.y, mo.m, d), what, btn);
+      }
+      cell.appendChild(btn);
+      row.appendChild(cell);
+      if ((lead + d) % 7 === 0) { grid.appendChild(row); row = el("div", "days-row"); }
     }
-    cal.appendChild(btn);
-  }
+    if (row.childNodes.length) grid.appendChild(row);
+    list.appendChild(grid);
+  });
+  requestAnimationFrame(function () { list.scrollTop = list.scrollHeight; });
 
-  function openDay(day, el) {
-    cal.querySelectorAll(".cal-day.kept").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
-    el.setAttribute("aria-pressed", "true");
-    var k = kept[day];
-    var released = (marks[day] || []).filter(function (r) { return r !== "stone"; }).length;
-    panel.innerHTML =
-      '<span class="label">October ' + day + ' · Stone</span>' +
-      '<div class="stone-card"><span class="label">Cairn ' + k.cairn + ' · stone ' + k.level + '</span><blockquote></blockquote></div>' +
-      (released ? '<p style="color:var(--muted);font-size:0.9rem">Also let go this day: ' + released + ' ' + (released === 1 ? "entry" : "entries") + '. Nothing else was kept.</p>' : "") +
-      '<span class="example-tag">Example entry</span>';
-    panel.querySelector("blockquote").textContent = k.text;
+  function show(date, items, btn) {
+    if (pressed) pressed.setAttribute("aria-pressed", "false");
+    pressed = btn;
+    btn.setAttribute("aria-pressed", "true");
+    note.textContent = "";
+    note.appendChild(el("span", "label", dayFmt.format(date)));
+    var ul = el("ul");
+    var counts = {};
+    items.forEach(function (k) { counts[k] = (counts[k] || 0) + 1; });
+    Object.keys(counts).forEach(function (k) {
+      var li = el("li");
+      li.appendChild(icon(k));
+      li.appendChild(el("span", null, NAMES[k] + (counts[k] > 1 ? " \u00d7" + counts[k] : "")));
+      if (k === "stone" || k === "journal") li.appendChild(el("span", "go", "Open"));
+      ul.appendChild(li);
+    });
+    note.appendChild(ul);
+    var key = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+    if (stones[key]) note.appendChild(el("blockquote", null, stones[key]));
+    var released = items.filter(function (k) { return k !== "stone" && k !== "journal"; }).length;
+    if (released) {
+      var p = el("p", null, "Released words aren't kept. Only the place is.");
+      p.style.color = "var(--muted)";
+      note.appendChild(p);
+    }
+    note.appendChild(el("span", "example-tag", "Example entry"));
   }
 })();
 </script>
-
-</body>
-</html>
