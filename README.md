@@ -16,15 +16,19 @@ changing or the color going out of a flower.
 **Landing page, calendar, and four rituals: ocean, wind, fire and stone.**
 Painted and stylized (Journey, The Witness) rather than photoreal.
 
-- **Landing** (`#/`): choose where to write: ocean, wind, fire or stone, or
-  just open the journal.
+- **Landing** (`#/`): 移ろい written top to bottom, with what it means
+  (the quiet passing of things) and today's micro-season from the old
+  calendar of seventy-two seasons, which changes every five days or so. The
+  places sit below on the sand as ink characters (波 風 火 石, and 記 for the
+  journal). A quiet "Need to talk to someone?" link is always there.
 - **Journal** (`#/journal`): a plain journal for writing you want to keep and
   reread. Saves as you type; entries can be edited and deleted; empty ones
-  aren't kept. Stored on the device, encrypted like stones. A quiet "Need to talk to someone?" link is always there.
-- **Your days**: a frosted calendar panel at the left of the landing page (on
-  phones, a drawer behind the ☰ beside the name; `#/calendar` opens it). Each
-  completed ritual leaves its icon on the day it happened. Released rituals store only the date and the ritual, no
-  words. Stone and journal days can be opened.
+  aren't kept. Stored on the device, encrypted like stones.
+- **Your days**: a frosted panel at the left of the landing page (on phones,
+  a drawer behind the ☰ beside the name; `#/calendar` opens it), listing every
+  month you've written in. A day with anything in it is softly marked; hover
+  or tap it to see what happened there. Released rituals store only the date
+  and the ritual, no words. Stone and journal days open.
 - **Ocean** (`#/ocean`):
 
 - Write anywhere on the sand by hand, with a mouse, trackpad, finger or

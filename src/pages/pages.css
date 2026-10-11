@@ -151,124 +151,176 @@
 
 /* ---- Landing ---- */
 
+/* The words up in the sky; the places down on the sand. */
+.home-content {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .home-main {
-  min-height: calc(100% - 80px);
+  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 1040px;
+  max-width: 980px;
   margin-inline: auto;
 }
 
-.home-title {
-  margin: 13vh 0 0;
-  font-weight: 400;
-  font-style: italic;
-  font-size: clamp(1.8rem, 4.4vw, 2.9rem);
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 移ろい written top to bottom, with what it means beside it. */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(18px, 3vw, 34px);
+  margin-top: 9vh;
   color: var(--sky-ink);
-  text-align: center;
-  text-wrap: balance;
   text-shadow: 0 2px 20px rgba(40, 30, 70, 0.35);
 }
 
-.home-title:focus {
+.hero-word {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-jp);
+  font-weight: 400;
+  font-size: clamp(3.4rem, 7vw, 5.4rem);
+  line-height: 1;
+  letter-spacing: 0.14em;
+}
+
+.hero-word:focus {
   outline: none;
 }
 
-.home-sub {
-  margin: 12px 0 0;
-  max-width: 34em;
-  text-align: center;
-  color: rgba(255, 243, 230, 0.86);
-  font-size: 1.05rem;
-  text-wrap: balance;
-  text-shadow: 0 1px 12px rgba(40, 30, 70, 0.35);
+.hero-gloss {
+  max-width: 17.5em;
+  padding-top: 0.6em;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
 }
 
+.hero-gloss p {
+  margin: 0;
+}
+
+.gloss-word {
+  font-style: italic;
+  font-size: 1.3em;
+  letter-spacing: 0.04em;
+}
+
+.gloss {
+  margin-top: 6px !important;
+  line-height: 1.5;
+  color: rgba(255, 243, 230, 0.86);
+}
+
+/* Today, in the old calendar of seventy-two seasons. Changes every five days or so. */
+.season {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 22px !important;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 243, 230, 0.32);
+  color: rgba(255, 243, 230, 0.8);
+  font-size: 0.95em;
+  cursor: help;
+}
+
+.season-kanji {
+  font-family: var(--font-jp);
+  letter-spacing: 0.08em;
+  color: var(--sky-ink);
+}
+
+.season-name {
+  font-style: italic;
+}
+
+.home-invite {
+  margin: auto 0 0;
+  padding-top: 36px;
+  font-style: italic;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: var(--page-ink);
+}
+
+/* The places, as ink characters on the sand. */
 .rituals {
   list-style: none;
   padding: 0;
-  margin: auto 0 0;
-  padding-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  margin: 18px 0 0;
+  display: flex;
+  justify-content: center;
+  gap: clamp(6px, 2.4vw, 30px);
   width: 100%;
 }
 
-.ritual {
-  width: 100%;
-  height: 100%;
-  min-height: 168px;
+.ink {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
-  text-align: left;
-  padding: 18px 20px 20px;
+  min-width: 76px;
+  padding: 12px 10px 10px;
   color: var(--page-ink);
-  background: var(--card);
-  border: 1px solid var(--card-line);
-  /* Slightly uneven corners, like smooth beach stones. */
-  border-radius: 30px 38px 32px 40px / 34px 30px 40px 32px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 10px 30px rgba(120, 60, 70, 0.14);
+  background: none;
+  border: none;
+  border-radius: 999px 999px 26px 26px;
+  backdrop-filter: none;
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    background 0.25s ease;
+    transform 0.4s ease,
+    background 0.4s ease;
 }
 
-.ritual:not([aria-disabled='true']):hover,
-.ritual:not([aria-disabled='true']):focus-visible {
-  transform: translateY(-4px);
-  background: var(--card-strong);
-  box-shadow: 0 16px 36px rgba(120, 60, 70, 0.22);
+.ink:hover:not(:disabled),
+.ink:focus-visible {
+  background: rgba(255, 246, 234, 0.32);
+  transform: translateY(-3px);
 }
 
-.ritual:focus-visible {
+.ink:focus-visible {
   outline: 2px solid var(--groove);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
-.ritual[aria-disabled='true'] {
-  cursor: default;
-  opacity: 0.7;
-}
-
-.ritual-seal {
+.ink-seal {
   font-family: var(--font-jp);
-  font-size: 2.4rem;
+  font-size: clamp(2.2rem, 4vw, 2.9rem);
   line-height: 1;
   color: var(--groove);
 }
 
-.ritual-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 1.25rem;
-  margin-top: 6px;
-}
-
-.ritual-icon {
-  width: 22px;
-  height: 22px;
-}
-
-.ritual-line {
-  font-size: 0.95rem;
+.ink-name {
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
   color: var(--page-ink-soft);
-  line-height: 1.35;
 }
 
-.ritual-soon {
-  margin-top: auto;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* The journal keeps; the others let go. A little space sets it apart. */
+.rituals li:last-child {
+  margin-left: clamp(4px, 2vw, 22px);
+  padding-left: clamp(8px, 2.4vw, 30px);
+  border-left: 1px solid rgba(74, 43, 58, 0.16);
+}
+
+.ink-caption {
+  min-height: 1.5em;
+  margin: 10px 0 0;
+  font-size: 0.98rem;
+  font-style: italic;
   color: var(--page-ink-soft);
+  text-align: center;
 }
 
 .home-links {
@@ -377,7 +429,7 @@
 /* ---- Your days: a frosted panel at the left (a drawer on small screens) ---- */
 
 .home {
-  --days-w: 340px;
+  --days-w: 316px;
 }
 
 .brand-mark {
@@ -393,16 +445,14 @@
   left: 0;
   z-index: 2;
   width: var(--days-w);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(74, 43, 58, 0.25) transparent;
-  padding: calc(env(safe-area-inset-top, 0px) + 18px) 18px calc(env(safe-area-inset-bottom, 0px) + 22px) calc(env(safe-area-inset-left, 0px) + 20px);
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 0 0 env(safe-area-inset-left, 0px);
   color: var(--page-ink);
-  background: linear-gradient(180deg, rgba(255, 246, 234, 0.62) 0%, rgba(255, 246, 234, 0.46) 45%, rgba(255, 246, 234, 0.5) 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(16px) saturate(1.1);
-  -webkit-backdrop-filter: blur(16px) saturate(1.1);
-  box-shadow: 8px 0 40px rgba(60, 30, 70, 0.12);
+  background: rgba(255, 248, 240, 0.5);
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(22px) saturate(1.05);
+  -webkit-backdrop-filter: blur(22px) saturate(1.05);
 }
 
 .days-top {
@@ -410,7 +460,14 @@
   align-items: center;
   justify-content: space-between;
   min-height: 30px;
-  margin-bottom: 34px;
+  padding: 0 16px 0 20px;
+}
+
+.days-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .days-close {
@@ -452,7 +509,7 @@
   transition: opacity 0.35s ease;
 }
 
-/* Side by side: the days on the left, the rituals beside them. */
+/* Side by side: the days on the left, the rest beside them. */
 @media (min-width: 900px) {
   .home-content {
     margin-left: calc(var(--days-w) - 20px);
@@ -478,21 +535,11 @@
   }
 }
 
-@media (min-width: 900px) and (max-width: 1239px) {
-  .rituals {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .ritual {
-    min-height: 0;
-  }
-}
-
-/* Small screens: the days slide in from the left under the menu. */
+/* Small screens: the days slide in from the left. */
 @media (max-width: 899px) {
   .home-days {
-    width: min(88vw, 380px);
-    background: rgba(255, 246, 234, 0.72);
+    width: min(88vw, 360px);
+    background: rgba(255, 248, 240, 0.8);
     transform: translateX(-104%);
     visibility: hidden;
     transition:
@@ -513,10 +560,6 @@
     pointer-events: auto;
   }
 
-  .days-top {
-    margin-bottom: 18px;
-  }
-
   .days-brand {
     visibility: hidden;
   }
@@ -535,211 +578,213 @@
   }
 }
 
-/* ---- Calendar ---- */
+/* ---- Calendar: every month you've written in, newest at the bottom ---- */
 
 .cal-title {
-  margin: 0;
+  margin: 26px 20px 10px;
   font-weight: 400;
-  font-size: 1.6rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--page-ink-soft);
 }
 
 .cal-title:focus {
   outline: none;
 }
 
-.cal-sub {
-  margin: 6px 0 18px;
-  color: var(--page-ink-soft);
-  line-height: 1.45;
+.cal-week,
+.cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
-.cal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+.cal-week {
+  padding: 0 14px 8px;
+  border-bottom: 1px solid rgba(74, 43, 58, 0.1);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: var(--page-ink-soft);
+}
+
+.cal-months {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 14px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 43, 58, 0.22) transparent;
+}
+
+.cal-block + .cal-block {
+  margin-top: 10px;
 }
 
 .cal-month {
-  margin: 0;
+  margin: 16px 6px 8px;
   font-weight: 400;
-  font-size: 1.2rem;
-  font-style: italic;
-}
-
-.cal-step {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--page-ink);
-  background: rgba(156, 95, 108, 0.1);
-  border-color: rgba(156, 95, 108, 0.25);
-}
-
-.cal-step:hover:not(:disabled) {
-  background: rgba(156, 95, 108, 0.2);
+  font-size: 1.12rem;
+  letter-spacing: 0.01em;
 }
 
 .cal-grid {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
-.cal-row {
+.cal-row > span {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
-}
-
-.cal-dow {
-  text-align: center;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  color: var(--page-ink-soft);
-  padding-bottom: 4px;
+  place-items: center;
 }
 
 .cal-day {
-  aspect-ratio: 1 / 1;
-  border-radius: 12px;
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.35);
+  width: 34px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  padding: 0;
+  font: inherit;
+  font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
-  min-width: 0;
-}
-
-.cal-day.empty {
-  background: transparent;
+  color: var(--page-ink);
+  background: none;
+  border: none;
+  border-radius: 9px;
+  backdrop-filter: none;
 }
 
 .cal-day.future {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.cal-day.future .home-days .cal-day {
-  padding: 3px;
-  border-radius: 9px;
-}
-
-.home-days .cal-marks .icon,
-.home-days .cal-open .icon {
-  width: 13px;
-  height: 13px;
-}
-
-.home-days .cal-legend {
-  font-size: 0.82rem;
-  gap: 6px 14px;
-}
-
-.cal-num {
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 .cal-day.today {
-  box-shadow: inset 0 0 0 1.5px var(--groove);
-}
-
-.cal-day.today .cal-num {
   color: var(--groove);
   font-weight: 600;
+  box-shadow: inset 0 0 0 1.5px rgba(156, 95, 108, 0.55);
 }
 
-.cal-day.kept {
-  background: rgba(156, 95, 108, 0.16);
-  color: inherit;
-  text-decoration: none;
+/* A day with anything in it: a soft wash of the shore's rose. */
+.cal-day.active {
+  color: #fffaf4;
+  background: rgba(176, 108, 120, 0.72);
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.cal-day.kept:hover,
-.cal-day.kept:focus-visible {
-  background: rgba(156, 95, 108, 0.28);
-  outline: none;
-  box-shadow: inset 0 0 0 1.5px var(--groove);
+.cal-day.active.today {
+  box-shadow: inset 0 0 0 1.5px rgba(255, 250, 244, 0.85);
 }
 
-.cal-num {
-  font-size: 0.82rem;
-  line-height: 1;
+.cal-day.active:hover,
+.cal-day.active[aria-expanded='true'] {
+  background: rgba(156, 85, 100, 0.9);
 }
 
-.cal-marks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1px;
-  justify-content: center;
-  align-items: center;
-}
-
-.cal-marks .icon {
-  width: 17px;
-  height: 17px;
-}
-
-.cal-more {
-  font-size: 0.68rem;
-  color: var(--page-ink-soft);
+.cal-day.active:focus-visible {
+  outline: 2px solid var(--groove);
+  outline-offset: 2px;
 }
 
 .cal-note {
-  margin: 14px 0 0;
-  min-height: 1.4em;
+  margin: 18px 6px 0;
+  font-size: 0.9rem;
   font-style: italic;
   color: var(--page-ink-soft);
   line-height: 1.45;
 }
 
-.cal-legend {
-  list-style: none;
-  padding: 0;
-  margin: 14px 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  font-size: 0.88rem;
+.cal-note:empty {
+  display: none;
+}
+
+/* What happened on a day. */
+.cal-pop {
+  position: absolute;
+  z-index: 3;
+  min-width: 170px;
+  max-width: 240px;
+  padding: 10px 8px 8px;
+  color: var(--page-ink);
+  background: rgba(255, 249, 242, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(70, 40, 60, 0.18);
+}
+
+.cal-pop[hidden] {
+  display: none;
+}
+
+.cal-pop-date {
+  margin: 0 8px 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
   color: var(--page-ink-soft);
 }
 
-.cal-legend li {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.cal-pop ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.cal-legend .icon {
+.cal-pop-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cal-pop-item .icon {
   width: 18px;
   height: 18px;
+  flex: none;
+}
+
+.cal-pop-count {
+  color: var(--page-ink-soft);
+  font-size: 0.85rem;
+}
+
+.cal-pop-go {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--groove);
+}
+
+.cal-pop-open:hover,
+.cal-pop-open:focus-visible {
+  background: rgba(156, 95, 108, 0.12);
+  outline: none;
+}
+
+.icon-journal {
+  color: #6b5b8f;
 }
 
 /* ---- Small screens ---- */
 
 @media (max-width: 760px) {
-  .rituals {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+  .hero {
+    margin-top: 6vh;
   }
 
-  .ritual {
-    min-height: 0;
-    padding: 14px 16px 16px;
+  .ink {
+    min-width: 0;
+    padding: 10px 6px 8px;
   }
 
-  .ritual-seal {
-    font-size: 1.9rem;
+  .home-invite {
+    padding-top: 28px;
   }
-
-  .home-title {
-    margin-top: 9vh;
-  }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -749,89 +794,11 @@
     animation: none;
   }
   .home-days,
-  .days-scrim {
+  .days-scrim,
+  .ink,
+  .cal-day.active {
     transition: none;
   }
-  .ritual {
-    transition: none;
-  }
-}
-
-/* ---- Calendar: kept writing opens ---- */
-
-.cal-opens {
-  display: flex;
-  justify-content: center;
-  gap: 2px;
-}
-
-.cal-open {
-  display: inline-grid;
-  place-items: center;
-  border-radius: 6px;
-  padding: 1px;
-  color: inherit;
-}
-
-.cal-open:hover,
-.cal-open:focus-visible {
-  background: rgba(156, 95, 108, 0.22);
-  outline: none;
-}
-
-.cal-open .icon {
-  width: 17px;
-  height: 17px;
-}
-
-.icon-journal {
-  color: #6b5b8f;
-}
-
-/* ---- Landing: the journal ---- */
-
-.journal-card {
-  margin-top: 14px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  text-align: left;
-  padding: 14px 22px;
-  color: var(--page-ink);
-  background: rgba(255, 246, 234, 0.5);
-  border: 1px solid var(--card-line);
-  border-radius: 26px 32px 28px 34px / 30px 26px 34px 28px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition:
-    transform 0.25s ease,
-    background 0.25s ease;
-}
-
-.journal-card:hover,
-.journal-card:focus-visible {
-  transform: translateY(-3px);
-  background: var(--card-strong);
-}
-
-.journal-card:focus-visible {
-  outline: 2px solid var(--groove);
-  outline-offset: 3px;
-}
-
-.journal-card .ritual-seal {
-  font-size: 2rem;
-}
-
-.journal-card-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.journal-card .ritual-name {
-  margin-top: 0;
 }
 
 /* ---- Journal ---- */

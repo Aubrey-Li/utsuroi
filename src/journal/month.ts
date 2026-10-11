@@ -51,3 +51,13 @@ export function addMonths(year: number, month: number, delta: number): { year: n
   const d = new Date(year, month + delta, 1);
   return { year: d.getFullYear(), month: d.getMonth() };
 }
+
+/**
+ * The months worth showing: every month with something in it, and the
+ * current month, oldest first.
+ */
+export function activeMonths(dates: Iterable<string>, today: string): { year: number; month: number }[] {
+  const keys = new Set<string>([today.slice(0, 7)]);
+  for (const d of dates) if (d <= today) keys.add(d.slice(0, 7));
+  return [...keys].sort().map((k) => ({ year: Number(k.slice(0, 4)), month: Number(k.slice(5, 7)) - 1 }));
+}

@@ -1,5 +1,6 @@
 import { RITUALS, type Ritual } from '../journal/marks';
-import { el, journalIcon, ritualIcon, RITUAL_INFO } from './icons';
+import { microSeason } from '../journal/seasons';
+import { el, RITUAL_INFO } from './icons';
 
 /** The landing page's controls. */
 export interface Home {
@@ -16,35 +17,50 @@ const SIDE_BY_SIDE = '(min-width: 900px)';
  * The landing page: choose where to write today, with your days beside it.
  */
 export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, openJournal: () => void): Home {
-  const list = el('ul', { class: 'rituals' });
+  // The places, as ink characters. A short line about each shows as you point at it.
+  const caption = el('p', { class: 'ink-caption', 'aria-hidden': 'true' });
+  const list = el('ul', { class: 'rituals', 'aria-label': 'Where to write' });
+  const place = (seal: string, name: string, line: string, cls: string, onChoose: () => void) => {
+    const btn = el(
+      'button',
+      { type: 'button', class: `ink ${cls}` },
+      el('span', { class: 'ink-seal', lang: 'ja', 'aria-hidden': 'true' }, seal),
+      el('span', { class: 'ink-name' }, name),
+      el('span', { class: 'visually-hidden' }, `. ${line}`),
+    );
+    const say = () => (caption.textContent = line);
+    btn.addEventListener('mouseenter', say);
+    btn.addEventListener('focus', say);
+    btn.addEventListener('mouseleave', () => (caption.textContent = ''));
+    btn.addEventListener('blur', () => (caption.textContent = ''));
+    btn.addEventListener('click', onChoose);
+    list.append(el('li', {}, btn));
+  };
   for (const r of RITUALS) {
     const info = RITUAL_INFO[r];
-    const card = el(
-      'button',
-      { class: `ritual ritual-${r}`, type: 'button', 'data-ritual': r },
-      el('span', { class: 'ritual-seal', lang: 'ja', 'aria-hidden': 'true' }, info.seal),
-      el('span', { class: 'ritual-name' }, ritualIcon(r, 'ritual-icon'), info.name),
-      el('span', { class: 'ritual-line' }, info.line),
-      info.ready ? null : el('span', { class: 'ritual-soon' }, 'Coming soon'),
-    );
-    if (info.ready) card.addEventListener('click', () => choose(r));
-    else card.setAttribute('aria-disabled', 'true');
-    list.append(el('li', {}, card));
+    place(info.seal, info.name, info.line, `ritual-${r}`, () => choose(r));
   }
-
   // Not a ritual: a plain journal for writing you want to keep and reread.
-  const journal = el(
-    'button',
-    { type: 'button', class: 'journal-card' },
-    el('span', { class: 'ritual-seal', lang: 'ja', 'aria-hidden': 'true' }, '記'),
+  place('記', 'Journal', 'Or just write, and keep it. Private, on this device.', 'ink-journal', openJournal);
+
+  const season = microSeason();
+  const hero = el(
+    'div',
+    { class: 'hero' },
+    el('h1', { class: 'hero-word', lang: 'ja', tabindex: '-1', 'aria-label': 'Utsuroi, 移ろい' }, '移ろい'),
     el(
-      'span',
-      { class: 'journal-card-text' },
-      el('span', { class: 'ritual-name' }, journalIcon('ritual-icon'), 'Journal'),
-      el('span', { class: 'ritual-line' }, 'Or just write, and keep it. Entries stay on this device, private.'),
+      'div',
+      { class: 'hero-gloss' },
+      el('p', { class: 'gloss-word' }, 'utsuroi'),
+      el('p', { class: 'gloss' }, 'the quiet passing of things: a color fading, a season turning, a feeling changing.'),
+      el(
+        'p',
+        { class: 'season', title: 'One of the seventy-two seasons of the old Japanese calendar, each about five days long.' },
+        el('span', { class: 'season-kanji', lang: 'ja' }, season.kanji),
+        el('span', { class: 'season-name' }, season.english.toLowerCase()),
+      ),
     ),
   );
-  journal.addEventListener('click', openJournal);
 
   const dialog = supportDialog();
   const supportBtn = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
@@ -72,10 +88,10 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
     el(
       'main',
       { class: 'home-main' },
-      el('h1', { class: 'home-title', tabindex: '-1' }, 'Where will you write today?'),
-      el('p', { class: 'home-sub' }, 'Write what you need to let go of, and let a place take it. Or carve it in stone to keep.'),
+      hero,
+      el('p', { class: 'home-invite' }, 'Set it down. Let it change.'),
       list,
-      journal,
+      caption,
     ),
     el('nav', { class: 'home-links', 'aria-label': 'More' }, supportBtn),
   );

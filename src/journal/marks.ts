@@ -23,6 +23,8 @@ export interface MarkStore {
   add(mark: RitualMark): Promise<void>;
   /** All marks in a month (month is 0-based, like Date). */
   inMonth(year: number, month: number): Promise<RitualMark[]>;
+  /** Every mark, oldest day first. */
+  all(): Promise<RitualMark[]>;
 }
 
 const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
@@ -72,6 +74,10 @@ export class MemoryMarkStore implements MarkStore {
     const prefix = monthPrefix(year, month);
     return this.marks.filter((m) => m.date.startsWith(prefix));
   }
+
+  async all(): Promise<RitualMark[]> {
+    return [...this.marks].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  }
 }
 
 const STORE = 'marks';
@@ -95,6 +101,12 @@ export class IdbMarkStore implements MarkStore {
     const range = IDBKeyRange.bound(`${prefix}01`, `${prefix}31`);
     const tx = this.db.transaction(STORE, 'readonly');
     const rows: unknown[] = await request(tx.objectStore(STORE).index('date').getAll(range));
+    return rows.filter(isRitualMark);
+  }
+
+  async all(): Promise<RitualMark[]> {
+    const tx = this.db.transaction(STORE, 'readonly');
+    const rows: unknown[] = await request(tx.objectStore(STORE).index('date').getAll());
     return rows.filter(isRitualMark);
   }
 }
