@@ -17,7 +17,13 @@ export interface LenticularOptions {
   shift?: number;
 }
 
-const BANDS = 28;
+const BANDS = 40;
+
+/** A stable 0..1 value for a strip in a band, so the same strips stay broken from frame to frame. */
+function hash(a: number, b: number): number {
+  const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
 
 export class LenticularText {
   /** 0..1: scales the whole effect (for hover in and out). */
@@ -149,9 +155,11 @@ export class LenticularText {
           ctx.drawImage(this.source, x, y, period, bandH, x, y, period, bandH);
           continue;
         }
-        // The gap opens as the strips separate; odd strips show the shifted copy.
-        const fill = Math.max(1, Math.round(period * (1 - 0.32 * Math.min(1, s * 1.2))));
-        const odd = Math.round(x / period) % 2 === 1;
+        // Further along, the gaps widen, the copy slides further, and more strips break away.
+        const k = Math.round(x / period);
+        if (hash(k, b) < Math.max(0, s - 0.5) * 0.5) continue;
+        const fill = Math.max(1, Math.round(period * (1 - (0.06 + 0.36 * s))));
+        const odd = k % 2 === 1;
         const shift = odd ? maxShift * s * this.phase : -maxShift * s * this.phase * 0.25;
         const sx = Math.min(W - fill, Math.max(0, x - shift));
         ctx.drawImage(this.source, sx, y, fill, bandH, x, y, fill, bandH);
@@ -168,7 +176,11 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
  */
 export function animateHeading(host: HTMLElement): void {
   const lens = new LenticularText(host, {
-    strength: (t) => 0.8 * Math.min(1, Math.max(0, (t - 0.3) / 0.62)) ** 1.2,
+    // Barely open at the top of 移, more and more broken toward the bottom of い.
+    strength: (t) => {
+      const u = Math.min(1, Math.max(0, (t - 0.1) / 0.86));
+      return 0.88 * u ** 1.7;
+    },
     stripe: 4,
     shift: 0.11,
   });
