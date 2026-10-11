@@ -169,7 +169,7 @@ export class SandField implements WriterSink {
         const v = c[k]!;
         if (v === 0) continue;
         const foamy = smoothstep(0.4, 0, f - u);
-        const rate = strength * (0.2 + 0.55 * foamy);
+        const rate = strength * (0.3 + 0.9 * foamy);
         const avg = (c[k - 1]! + c[k + 1]! + c[k - ZONE.w]! + c[k + ZONE.w]!) * 0.25;
         const alpha = Math.min(0.24, rate * dt * 9);
         let next = (v + (avg - v) * alpha) * Math.exp(-rate * dt);
@@ -261,6 +261,21 @@ export class SandField implements WriterSink {
       }
     }
     return m;
+  }
+
+  /** How far up the beach (m) the mark nearest the water is, or null if the sand is smooth. */
+  nearestMark(): number | null {
+    for (let j = ZONE.h - 1; j >= 0; j--) {
+      if (this.rowHasMarks[j]) return WATERLINE_Y - (ZONE.y0 + (j + 1) * ZONE_DY);
+    }
+    return null;
+  }
+
+  /** Where the writing is, as distances up the beach (m), or null if the sand is smooth. */
+  writingSpan(): { nearest: number; farthest: number } | null {
+    const nearest = this.nearestMark();
+    const farthest = this.farthestMark();
+    return nearest === null || farthest === null ? null : { nearest, farthest };
   }
 
   /** How far up the beach (m) the farthest mark is, or null if the sand is smooth. */

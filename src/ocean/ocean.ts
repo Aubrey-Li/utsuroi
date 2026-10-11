@@ -180,7 +180,7 @@ export class OceanScene {
     this.tide.writing = this.drawing !== null || this.clock - this.lastInput < 5;
     if (this.clock > this.nextSeek) {
       this.nextSeek = this.clock + 0.5;
-      this.tide.seek = this.marks ? this.field.farthestMark() : null;
+      this.tide.seek = this.marks ? this.field.writingSpan() : null;
     }
     this.tide.update(dt);
     this.field.erode(dt, this.tide);

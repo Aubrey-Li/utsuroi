@@ -27,9 +27,11 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
   stylus. A driftwood stick follows your hand.
 - Drag the sea or sky (or scroll, or use two fingers) to look around: tilt
   up to the horizon, turn left and right.
-- The sea never stops. Most waves lap at the waterline; now and then the
-  swell builds and a bigger wave runs up and takes some of the writing,
-  nearest the water first. The sea eases off a little while you're writing.
+- The sea never stops. With nothing written, most waves lap at the
+  waterline and now and then the swell sends a bigger one. Once you've
+  written something and paused, the sea comes for it from the water's side:
+  the first wave just touches the nearest writing, and each wave after runs a
+  little further, until the last of it is gone. It eases off while you write.
 - When the sand is smooth everywhere, the marks are forgotten, quietly.
   That completes the ritual and leaves an ocean mark on today in the calendar.
   Leaving before then leaves no mark.

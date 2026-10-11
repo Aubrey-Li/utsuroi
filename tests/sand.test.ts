@@ -112,7 +112,7 @@ function washUntilClear(f: SandField, tide: Tide, maxSeconds = 120) {
   while (t < maxSeconds) {
     if (t >= nextSeek) {
       nextSeek = t + 0.5;
-      tide.seek = f.farthestMark();
+      tide.seek = f.writingSpan();
     }
     tide.update(dt);
     f.erode(dt, tide);
@@ -126,14 +126,18 @@ function washUntilClear(f: SandField, tide: Tide, maxSeconds = 120) {
 }
 
 describe('the sea coming for the writing', () => {
-  it('finds how far up the beach the farthest mark is', () => {
+  it('finds how far up the beach the writing starts and ends', () => {
     const f = new SandField();
     expect(f.farthestMark()).toBeNull();
+    expect(f.writingSpan()).toBeNull();
     f.stamp(0, 1, 1, 0.2, 1, 1);
     f.stamp(1, -2, 1, 1.2, -2, 1);
     f.packCarve();
     expect(f.farthestMark()!).toBeGreaterThan(WATERLINE_Y + 2 - 0.1);
     expect(f.farthestMark()!).toBeLessThan(WATERLINE_Y + 2 + 0.1);
+    const span = f.writingSpan()!;
+    expect(span.nearest).toBeGreaterThan(WATERLINE_Y - 1 - 0.1);
+    expect(span.nearest).toBeLessThan(WATERLINE_Y - 1 + 0.1);
   });
 
   for (const [where, y] of [
@@ -148,11 +152,42 @@ describe('the sea coming for the writing', () => {
         f.packCarve();
         const r = washUntilClear(f, new Tide(seed * 37));
         expect(r.left, `seed ${seed}`).toBeLessThan(0.08);
-        expect(r.big, `seed ${seed}`).toBeLessThanOrEqual(4);
-        expect(r.seconds, `seed ${seed}`).toBeLessThan(75);
+        expect(r.seconds, `seed ${seed}`).toBeLessThan(90);
       }
     });
   }
+
+  it('creeps up the writing: the first wave touches the nearest, each runs further', () => {
+    for (const seed of [2, 4, 6]) {
+      const f = new SandField();
+      // Three lines of writing, from 3.6 m to 6.6 m up the beach.
+      for (const y of [1.4, 0.4, -1.6]) f.stamp(-2, y, 0.9, 2, y + 0.05, 0.9);
+      f.packCarve();
+      const span = f.writingSpan()!;
+      const tide = new Tide(seed);
+      const reaches: number[] = [];
+      let big = tide.bigWaves;
+      const dt = 1 / 30;
+      for (let t = 0; t < 150 && f.maxCarve() > 0.0006; t += dt) {
+        if (Math.round(t / dt) % 15 === 0) {
+          tide.seek = f.writingSpan();
+          f.packCarve();
+        }
+        tide.update(dt);
+        if (tide.bigWaves !== big) {
+          big = tide.bigWaves;
+          reaches.push(tide.reach);
+        }
+        f.erode(dt, tide);
+      }
+      expect(reaches[0]!, `seed ${seed}`).toBeLessThan(span.nearest + 0.8);
+      expect(reaches[0]!, `seed ${seed}`).toBeGreaterThan(span.nearest);
+      for (let i = 1; i < reaches.length; i++) expect(reaches[i]!, `seed ${seed} wave ${i}`).toBeGreaterThan(reaches[i - 1]! - 0.25);
+      expect(Math.max(...reaches), `seed ${seed}`).toBeGreaterThan(span.farthest);
+      expect(reaches.length, `seed ${seed}`).toBeGreaterThan(3);
+      expect(f.maxCarve()).toBeLessThan(0.0006);
+    }
+  });
 
   it('leaves writing alone while someone is still writing', () => {
     const f = new SandField();
@@ -162,7 +197,7 @@ describe('the sea coming for the writing', () => {
     tide.writing = true;
     const before = f.maxCarve();
     for (let t = 0; t < 30; t += 1 / 30) {
-      tide.seek = f.farthestMark();
+      tide.seek = f.writingSpan();
       tide.update(1 / 30);
       f.erode(1 / 30, tide);
     }
