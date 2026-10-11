@@ -683,8 +683,16 @@
 
 /* ---- Journal ---- */
 
+.journal,
+.journal * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 47, 44, 0.22) transparent;
+}
+
 .journal {
   overflow-y: auto;
+  /* A light page: no dark scrollbar gutter from the app's dark color scheme. */
+  color-scheme: light;
   color: #3b2f2c;
   background:
     radial-gradient(ellipse at 30% 0%, rgba(255, 236, 214, 0.9), rgba(255, 236, 214, 0) 60%),
