@@ -23,8 +23,7 @@
   display: none;
 }
 
-.home,
-.calendar {
+.home {
   overflow-y: auto;
   color: var(--page-ink);
   padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
@@ -375,24 +374,173 @@
   background: rgba(156, 95, 108, 0.2);
 }
 
-/* ---- Calendar ---- */
+/* ---- Your days: a frosted panel at the left (a drawer on small screens) ---- */
 
-.cal-panel {
-  max-width: 560px;
-  margin: 6vh auto 0;
-  padding: 26px 26px 22px;
-  background: var(--card-strong);
-  border: 1px solid var(--card-line);
-  border-radius: 30px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 20px 50px rgba(90, 50, 80, 0.2);
+.home {
+  --days-w: 340px;
 }
+
+.brand-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.home-days {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: var(--days-w);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 43, 58, 0.25) transparent;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 18px calc(env(safe-area-inset-bottom, 0px) + 22px) calc(env(safe-area-inset-left, 0px) + 20px);
+  color: var(--page-ink);
+  background: linear-gradient(180deg, rgba(255, 246, 234, 0.62) 0%, rgba(255, 246, 234, 0.46) 45%, rgba(255, 246, 234, 0.5) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow: 8px 0 40px rgba(60, 30, 70, 0.12);
+}
+
+.days-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 30px;
+  margin-bottom: 34px;
+}
+
+.days-close {
+  display: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--page-ink);
+  background: rgba(156, 95, 108, 0.1);
+  border-color: rgba(156, 95, 108, 0.25);
+}
+
+.days-menu {
+  display: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+  align-self: center;
+  color: var(--sky-ink);
+  background: rgba(255, 246, 234, 0.12);
+  border-color: rgba(255, 246, 234, 0.35);
+}
+
+.days-menu .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.days-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: rgba(40, 30, 60, 0.32);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+/* Side by side: the days on the left, the rituals beside them. */
+@media (min-width: 900px) {
+  .home-content {
+    margin-left: calc(var(--days-w) - 20px);
+    padding-left: 28px;
+  }
+
+  .home-brand {
+    display: none;
+  }
+
+  /* Keep the sun in view beside the panel. */
+  .home .painted .sun {
+    left: calc(var(--days-w) + 9%);
+  }
+
+  .home-days .days-brand {
+    color: var(--page-ink);
+    text-shadow: none;
+  }
+
+  .home-days .days-brand .brand-jp {
+    color: var(--page-ink-soft);
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1239px) {
+  .rituals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ritual {
+    min-height: 0;
+  }
+}
+
+/* Small screens: the days slide in from the left under the menu. */
+@media (max-width: 899px) {
+  .home-days {
+    width: min(88vw, 380px);
+    background: rgba(255, 246, 234, 0.72);
+    transform: translateX(-104%);
+    visibility: hidden;
+    transition:
+      transform 0.4s cubic-bezier(0.3, 0.7, 0.2, 1),
+      visibility 0s 0.4s;
+  }
+
+  .days-open .home-days {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform 0.4s cubic-bezier(0.3, 0.7, 0.2, 1),
+      visibility 0s;
+  }
+
+  .days-open .days-scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .days-top {
+    margin-bottom: 18px;
+  }
+
+  .days-brand {
+    visibility: hidden;
+  }
+
+  .days-close,
+  .days-menu {
+    display: inline-grid;
+  }
+
+  .days-close {
+    place-items: center;
+  }
+
+  .home-brand {
+    align-items: center;
+  }
+}
+
+/* ---- Calendar ---- */
 
 .cal-title {
   margin: 0;
   font-weight: 400;
-  font-size: 1.9rem;
+  font-size: 1.6rem;
 }
 
 .cal-title:focus {
@@ -475,7 +623,23 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-.cal-day.future .cal-num {
+.cal-day.future .home-days .cal-day {
+  padding: 3px;
+  border-radius: 9px;
+}
+
+.home-days .cal-marks .icon,
+.home-days .cal-open .icon {
+  width: 13px;
+  height: 13px;
+}
+
+.home-days .cal-legend {
+  font-size: 0.82rem;
+  gap: 6px 14px;
+}
+
+.cal-num {
   opacity: 0.45;
 }
 
@@ -576,28 +740,17 @@
     margin-top: 9vh;
   }
 
-  .cal-panel {
-    padding: 20px 14px 18px;
-    margin-top: 3vh;
-  }
-
-  .cal-day {
-    padding: 3px;
-    border-radius: 9px;
-  }
-
-  .cal-marks .icon {
-    width: 13px;
-    height: 13px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .painted::after,
   .painted .swell,
-  .home,
-  .calendar {
+  .home {
     animation: none;
+  }
+  .home-days,
+  .days-scrim {
+    transition: none;
   }
   .ritual {
     transition: none;

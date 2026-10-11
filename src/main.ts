@@ -11,7 +11,7 @@ import { renderHome } from './pages/home';
 import { StoneScene } from './stone/stone';
 import { WindScene } from './wind/wind';
 
-type Page = 'home' | 'ocean' | 'wind' | 'fire' | 'stone' | 'calendar' | 'journal';
+type Page = 'home' | 'ocean' | 'wind' | 'fire' | 'stone' | 'journal';
 
 const TITLES: Record<Page, string> = {
   home: 'Utsuroi',
@@ -19,7 +19,6 @@ const TITLES: Record<Page, string> = {
   wind: 'Wind · Utsuroi',
   fire: 'Fire · Utsuroi',
   stone: 'Stone · Utsuroi',
-  calendar: 'Your days · Utsuroi',
   journal: 'Journal · Utsuroi',
 };
 
@@ -29,8 +28,11 @@ function $(id: string): HTMLElement {
   return node;
 }
 
-/** Hash routes (#/, #/ocean, #/stone/visit/2026-10-11, ...) so static hosting needs no server rules. */
-function route(): { page: Page; visit?: string; day?: string } {
+/**
+ * Hash routes (#/, #/ocean, #/stone/visit/2026-10-11, ...) so static hosting
+ * needs no server rules. #/calendar is the landing page with your days open.
+ */
+function route(): { page: Page; visit?: string; day?: string; days?: boolean } {
   const path = location.hash.replace(/^#/, '') || '/';
   const visit = path.match(/^\/stone\/visit\/(\d{4}-\d{2}-\d{2})$/);
   if (visit) return { page: 'stone', visit: visit[1] };
@@ -41,7 +43,7 @@ function route(): { page: Page; visit?: string; day?: string } {
   if (path === '/wind') return { page: 'wind' };
   if (path === '/fire') return { page: 'fire' };
   if (path === '/stone') return { page: 'stone' };
-  if (path === '/calendar') return { page: 'calendar' };
+  if (path === '/calendar') return { page: 'home', days: true };
   return { page: 'home' };
 }
 
@@ -60,16 +62,15 @@ async function boot(): Promise<void> {
     wind: $('wind'),
     fire: $('fire'),
     stone: $('stone'),
-    calendar: $('calendar'),
     journal: $('journal'),
   };
 
-  renderHome(
+  const home = renderHome(
     sections.home,
     (ritual: Ritual) => go(`/${ritual}`),
     () => go('/journal'),
   );
-  const calendar = new CalendarPage(sections.calendar, store, keptStore);
+  const calendar = new CalendarPage(home.days, store, keptStore);
   const journal = new JournalPage(sections.journal, keptStore);
   const ocean = new OceanScene(
     sections.ocean,
@@ -102,8 +103,8 @@ async function boot(): Promise<void> {
   let current: Page | null = null;
   let currentKey = '';
   const show = async () => {
-    const { page, visit, day } = route();
-    const key = `${page}:${visit ?? day ?? ''}`;
+    const { page, visit, day, days } = route();
+    const key = `${page}:${visit ?? day ?? (days ? 'days' : '')}`;
     if (key === currentKey) return;
     currentKey = key;
     if (current === 'ocean') ocean.exit();
@@ -118,9 +119,11 @@ async function boot(): Promise<void> {
     if (page === 'wind') await wind.enter();
     if (page === 'fire') await fire.enter();
     if (page === 'stone') await stone.enter(visit);
-    if (page === 'calendar') await calendar.show();
+    if (page === 'home') await calendar.show();
     if (page === 'journal') await journal.show(day);
-    if (page === 'home' || page === 'calendar' || (page === 'journal' && !day)) sections[page].querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
+    if (page === 'home' && days) home.showDays(true);
+    else if (page === 'home') home.showDays(false);
+    if ((page === 'home' && !days) || (page === 'journal' && !day)) sections[page].querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
   };
   window.addEventListener('hashchange', () => void show());
   await show();

@@ -7,8 +7,9 @@ import { el, journalIcon, ritualIcon, RITUAL_INFO } from './icons';
 const MAX_ICONS = 3;
 
 /**
- * The calendar: each ritual leaves a small mark on its day, and nothing
- * else. Only days with a stone can be opened (none exist yet).
+ * Your days: each ritual leaves a small mark on its day, and nothing
+ * else. Days with a stone or a journal entry can be opened. Lives in the
+ * landing page's side panel.
  */
 export class CalendarPage {
   private year: number;
@@ -20,7 +21,7 @@ export class CalendarPage {
   private readonly next: HTMLButtonElement;
 
   constructor(
-    private readonly root: HTMLElement,
+    root: HTMLElement,
     private readonly store: MarkStore,
     private readonly kept: KeptStore,
   ) {
@@ -28,7 +29,7 @@ export class CalendarPage {
     this.year = now.getFullYear();
     this.month = now.getMonth();
 
-    this.title = el('h2', { class: 'cal-month', 'aria-live': 'polite' });
+    this.title = el('h3', { class: 'cal-month', 'aria-live': 'polite' });
     this.prev = el('button', { type: 'button', class: 'cal-step', 'aria-label': 'Previous month' }, '‹');
     this.next = el('button', { type: 'button', class: 'cal-step', 'aria-label': 'Next month' }, '›');
     this.prev.addEventListener('click', () => this.step(-1));
@@ -42,29 +43,17 @@ export class CalendarPage {
     legend.append(el('li', {}, journalIcon(), 'Journal'));
 
     root.replaceChildren(
-      el('div', { class: 'painted calm', 'aria-hidden': 'true' }, el('div', { class: 'sky' }, el('div', { class: 'sun' })), el('div', { class: 'swell' })),
-      el(
-        'header',
-        { class: 'page-brand' },
-        el('a', { href: '#/', class: 'back' }, '← Back'),
-        el('span', { class: 'brand-name' }, 'utsuroi'),
-        el('span', { class: 'brand-jp', lang: 'ja' }, '移ろい'),
-      ),
-      el(
-        'main',
-        { class: 'cal-panel' },
-        el('h1', { class: 'cal-title', tabindex: '-1' }, 'Your days'),
-        el('p', { class: 'cal-sub' }, 'Each ritual leaves a mark on the day it happened. Released words are never kept; stones and journal entries can be opened.'),
-        el('div', { class: 'cal-head' }, this.prev, this.title, this.next),
-        this.grid,
-        this.note,
-        legend,
-      ),
+      el('h2', { class: 'cal-title', id: 'days-title', tabindex: '-1' }, 'Your days'),
+      el('p', { class: 'cal-sub' }, 'Each ritual leaves a mark on its day. Released words are never kept; stones and journal entries open.'),
+      el('div', { class: 'cal-head' }, this.prev, this.title, this.next),
+      this.grid,
+      this.note,
+      legend,
     );
-    window.addEventListener('keydown', (e) => {
-      if (this.root.hidden) return;
-      if (e.key === 'ArrowLeft' && !(e.target instanceof HTMLInputElement)) this.step(-1);
-      if (e.key === 'ArrowRight' && !(e.target instanceof HTMLInputElement)) this.step(1);
+    // Arrow keys turn the months while you're in the calendar.
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') void this.step(-1);
+      if (e.key === 'ArrowRight') void this.step(1);
     });
   }
 

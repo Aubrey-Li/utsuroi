@@ -1,11 +1,21 @@
 import { RITUALS, type Ritual } from '../journal/marks';
 import { el, journalIcon, ritualIcon, RITUAL_INFO } from './icons';
 
+/** The landing page's controls. */
+export interface Home {
+  /** Where the calendar of your days goes. */
+  days: HTMLElement;
+  /** Opens or closes the days panel (on small screens it's a drawer; on large ones it's always there). */
+  showDays(open: boolean): void;
+}
+
+/** Wide enough for the days to sit beside the rituals instead of in a drawer. */
+const SIDE_BY_SIDE = '(min-width: 900px)';
+
 /**
- * The landing page: choose where to write today.
- * Only the ocean is ready; the other rituals are shown as coming.
+ * The landing page: choose where to write today, with your days beside it.
  */
-export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, openJournal: () => void): void {
+export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, openJournal: () => void): Home {
   const list = el('ul', { class: 'rituals' });
   for (const r of RITUALS) {
     const info = RITUAL_INFO[r];
@@ -40,14 +50,25 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
   const supportBtn = el('button', { class: 'linklike', type: 'button' }, 'Need to talk to someone?');
   supportBtn.addEventListener('click', () => dialog.showModal());
 
-  root.replaceChildren(
-    el('div', { class: 'painted', 'aria-hidden': 'true' }, el('div', { class: 'sky' }, el('div', { class: 'sun' })), el('div', { class: 'swell' })),
-    el(
-      'header',
-      { class: 'page-brand' },
-      el('span', { class: 'brand-name' }, 'utsuroi'),
-      el('span', { class: 'brand-jp', lang: 'ja' }, '移ろい'),
-    ),
+  const brand = () => el('span', { class: 'brand-mark' }, el('span', { class: 'brand-name' }, 'utsuroi'), el('span', { class: 'brand-jp', lang: 'ja' }, '移ろい'));
+  const menu = el(
+    'button',
+    { type: 'button', class: 'days-menu', 'aria-controls': 'home-days', 'aria-expanded': 'false', 'aria-label': 'Your days' },
+    menuIcon(),
+  );
+  const close = el('button', { type: 'button', class: 'days-close', 'aria-label': 'Close' }, '×');
+  const days = el('div', { class: 'days-body' });
+  const panel = el(
+    'aside',
+    { class: 'home-days', id: 'home-days', 'aria-labelledby': 'days-title' },
+    el('div', { class: 'days-top' }, el('span', { class: 'page-brand days-brand' }, brand()), close),
+    days,
+  );
+  const scrim = el('div', { class: 'days-scrim', 'aria-hidden': 'true' });
+  const content = el(
+    'div',
+    { class: 'home-content' },
+    el('header', { class: 'page-brand home-brand' }, menu, brand()),
     el(
       'main',
       { class: 'home-main' },
@@ -56,9 +77,65 @@ export function renderHome(root: HTMLElement, choose: (ritual: Ritual) => void, 
       list,
       journal,
     ),
-    el('nav', { class: 'home-links', 'aria-label': 'More' }, el('a', { href: '#/calendar' }, 'Your days'), supportBtn),
+    el('nav', { class: 'home-links', 'aria-label': 'More' }, supportBtn),
+  );
+
+  root.replaceChildren(
+    el('div', { class: 'painted', 'aria-hidden': 'true' }, el('div', { class: 'sky' }, el('div', { class: 'sun' })), el('div', { class: 'swell' })),
+    panel,
+    scrim,
+    content,
     dialog,
   );
+
+  const wide = window.matchMedia(SIDE_BY_SIDE);
+  const showDays = (open: boolean) => {
+    const drawer = open && !wide.matches;
+    root.classList.toggle('days-open', drawer);
+    menu.setAttribute('aria-expanded', String(drawer));
+    // While the drawer covers the page, only the drawer can be used.
+    content.inert = drawer;
+    if (open) panel.querySelector<HTMLElement>('.cal-title')?.focus({ preventScroll: true });
+    else if (document.activeElement && panel.contains(document.activeElement)) menu.focus();
+    // Closing the drawer that #/calendar opened leaves you on the landing page.
+    if (!open && location.hash === '#/calendar') history.replaceState(null, '', '#/');
+  };
+  menu.addEventListener('click', () => showDays(true));
+  close.addEventListener('click', () => showDays(false));
+  scrim.addEventListener('click', () => showDays(false));
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && root.classList.contains('days-open')) showDays(false);
+  });
+  // Opening a day (a stone, a journal entry) leaves the drawer closed for when you come back.
+  panel.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) {
+      root.classList.remove('days-open');
+      content.inert = false;
+      menu.setAttribute('aria-expanded', 'false');
+    }
+  });
+  wide.addEventListener('change', () => {
+    if (wide.matches) {
+      root.classList.remove('days-open');
+      content.inert = false;
+      menu.setAttribute('aria-expanded', 'false');
+    }
+  });
+  return { days, showDays };
+}
+
+/** Three lines, for the days menu. */
+function menuIcon(): SVGSVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('class', 'icon');
+  svg.setAttribute('aria-hidden', 'true');
+  for (const d of ['M4 7h16', 'M4 12h16', 'M4 17h16']) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+  }
+  return svg;
 }
 
 /** Always reachable, never triggered by anything written. */

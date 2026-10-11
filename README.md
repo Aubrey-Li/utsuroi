@@ -21,8 +21,9 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
 - **Journal** (`#/journal`): a plain journal for writing you want to keep and
   reread. Saves as you type; entries can be edited and deleted; empty ones
   aren't kept. Stored on the device, encrypted like stones. A quiet "Need to talk to someone?" link is always there.
-- **Your days** (`#/calendar`): each completed ritual leaves its icon on the
-  day it happened. Released rituals store only the date and the ritual, no
+- **Your days**: a frosted calendar panel at the left of the landing page (on
+  phones, a drawer behind the ☰ beside the name; `#/calendar` opens it). Each
+  completed ritual leaves its icon on the day it happened. Released rituals store only the date and the ritual, no
   words. Stone and journal days can be opened.
 - **Ocean** (`#/ocean`):
 
