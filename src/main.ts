@@ -1,5 +1,6 @@
 import './style.css';
 import './pages/pages.css';
+import { AudioEngine } from './audio/engine';
 import { isRitual, localDate, openMarkStore, type Ritual } from './journal/marks';
 import { FireScene } from './fire/fire';
 import { OceanScene } from './ocean/ocean';
@@ -39,6 +40,7 @@ function go(path: string): void {
 
 async function boot(): Promise<void> {
   const params = new URLSearchParams(location.search);
+  AudioEngine.shared();
   const store = await openMarkStore();
   const sections: Record<Page, HTMLElement> = {
     home: $('home'),
@@ -92,6 +94,10 @@ async function boot(): Promise<void> {
   (window as unknown as { __utsuroi?: object }).__utsuroi = {
     get page() {
       return current;
+    },
+    get audio() {
+      const engine = AudioEngine.shared();
+      return { state: engine.ctx?.state ?? 'none', enabled: engine.enabled };
     },
     get ocean() {
       return ocean.debugState();

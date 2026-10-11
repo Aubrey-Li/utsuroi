@@ -83,6 +83,11 @@ export class Tide {
     return this.baseFront() * 1.35 + 0.35;
   }
 
+  /** How far up the beach (m) the current wave's front is, before shaping along the shore. */
+  get level(): number {
+    return this.baseFront();
+  }
+
   /** True while the current wave is still running up the beach (foam is brightest then). */
   get rushing(): boolean {
     return this.wave.t < this.wave.rise;

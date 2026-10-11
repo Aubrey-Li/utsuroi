@@ -33,6 +33,11 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
 - When the sand is smooth everywhere, the marks are forgotten, quietly.
   That completes the ritual and leaves an ocean mark on today in the calendar.
   Leaving before then leaves no mark.
+- **Sound**: every scene has its own soundscape, synthesized live with the Web
+  Audio API (no recordings): surf that swells with each wave and sand under the
+  stick; a breeze, rustling leaves and birds, then the rush of the gust; a quiet
+  room, a pen on paper, the paper catching, crackling and the burning page. A
+  speaker button in each scene turns sound off and remembers the choice.
 - **Wind** (`#/wind`): a meadow under a tree on a sunny day, sunlight coming
   through the leaves. Type, and your words float in the air in a hand-lettered
   font. They wait until you press **Let the wind take it**; then a gust bends
@@ -73,6 +78,7 @@ WebGPU isn't available.
 | `__utsuroi.addMark('2026-10-03', 'fire')` | In the dev console (development builds only): add a calendar mark. |
 | `/?tune` | Opens a panel for tuning the groove and the sea. |
 | `/tools/glyphs.html` | Glyph sheet: every letter's stroke order and direction, plus a line written by the real writer. |
+| `/tools/sound-check.html` | Renders each soundscape offline over a scripted timeline: loudness, peaks, spectrogram, and buttons to listen. |
 
 ## How it works
 
@@ -114,6 +120,7 @@ src/
   wind/                the wind ritual: meadow, canopy, words in the air, flight
   fire/                the fire ritual: desk, candle, paper, burn map, flames
   text/, ui/           hand-lettered font, wrapping, typed input, scene shell
+  audio/               shared audio engine and the three soundscapes
   strokes/             cursive stroke engine (pure TypeScript, unit tested)
   sand/                sand height grid, water state, tide
   scene/               three.js world and the sand shader

@@ -5,7 +5,7 @@ import { HAND_STACK } from '../text/font';
 import { wrapText } from '../text/wrap';
 import { allGone, liftDelays, makeFlier, stepFliers, type Flier } from './flight';
 import { makeFlowers, makeGrass, makeGround } from './meadow';
-import { cloudTexture, hillTexture, SKY_COLORS, skyTexture, wispTexture } from './sky';
+import { hillTexture, SKY_COLORS, skyTexture } from './sky';
 import { makeTree } from './tree';
 
 /** A sunny afternoon under a tree. Painted, like the ocean scene. */
@@ -97,7 +97,6 @@ export class WindWorld {
   readonly camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
   private readonly gust = floatUniform();
   private gustTarget = 0;
-  private readonly clouds: THREE.Mesh[] = [];
   private readonly shafts: THREE.Group;
   private readonly motes: THREE.Sprite[] = [];
   private readonly textGroup = new THREE.Group();
@@ -140,37 +139,6 @@ export class WindWorld {
     sun.position.copy(SUN_AT);
     sun.scale.setScalar(16);
     this.scene.add(sun);
-
-    // Clouds at a few depths drift at different speeds; high wisps above them.
-    const cloudSpots = [
-      { x: -26, y: 11, z: -50, s: 1.2 },
-      { x: -6, y: 19, z: -62, s: 1.5 },
-      { x: 9, y: 7.2, z: -42, s: 0.75 },
-      { x: 24, y: 15, z: -55, s: 1.15 },
-      { x: 38, y: 8.5, z: -46, s: 0.85 },
-      { x: -40, y: 22, z: -70, s: 1.3 },
-    ];
-    cloudSpots.forEach((c, i) => {
-      const cloud = new THREE.Mesh(
-        new THREE.PlaneGeometry(18, 9),
-        new THREE.MeshBasicMaterial({ map: cloudTexture(100 + i * 17), transparent: true, depthWrite: false, fog: false }),
-      );
-      cloud.position.set(c.x, c.y, c.z);
-      cloud.scale.setScalar(c.s);
-      cloud.userData.speed = 0.18 + (60 + c.z) * 0.008;
-      this.clouds.push(cloud);
-      this.scene.add(cloud);
-    });
-    for (let i = 0; i < 2; i++) {
-      const wisp = new THREE.Mesh(
-        new THREE.PlaneGeometry(60, 15),
-        new THREE.MeshBasicMaterial({ map: wispTexture(300 + i), transparent: true, depthWrite: false, fog: false, opacity: 0.8 }),
-      );
-      wisp.position.set(-20 + i * 45, 22 + i * 4, -80);
-      wisp.userData.speed = 0.12;
-      this.clouds.push(wisp);
-      this.scene.add(wisp);
-    }
 
     // Layers of land into the distance: a pale mountain, hills with lines of trees.
     const layers = [
@@ -222,6 +190,11 @@ export class WindWorld {
   get usingWebGPU(): boolean {
     const backend = (this.renderer as unknown as { backend?: { isWebGPUBackend?: boolean } }).backend;
     return Boolean(backend?.isWebGPUBackend);
+  }
+
+  /** How hard the wind is blowing right now (0..1). */
+  get gustLevel(): number {
+    return this.gust.value;
   }
 
   get flying(): boolean {
@@ -314,10 +287,6 @@ export class WindWorld {
     const g = this.gust.value;
     this.gust.value = g + (this.gustTarget - g) * (1 - Math.exp(-dt * (this.gustTarget > g ? 2.5 : 0.8)));
 
-    for (const c of this.clouds) {
-      c.position.x += dt * (c.userData.speed + this.gust.value * 0.8);
-      if (c.position.x > 48) c.position.x = -48;
-    }
     for (const s of this.shafts.children as THREE.Mesh[]) {
       const m = s.material as THREE.MeshBasicMaterial;
       // Shafts brighten and fade as leaves move in front of the sun.

@@ -1,3 +1,5 @@
+import { AudioEngine } from '../audio/engine';
+import { WindSound } from '../audio/wind-sound';
 import { loadHandFont } from '../text/font';
 import { SceneShell, type RitualEvents } from '../ui/scene-shell';
 import { TypedInput } from '../ui/typed-input';
@@ -15,6 +17,7 @@ const COPY = {
  */
 export class WindScene {
   private world: WindWorld | null = null;
+  private sound: WindSound | null = null;
   private readonly shell: SceneShell;
   private readonly input: TypedInput;
   private active = false;
@@ -65,6 +68,7 @@ export class WindScene {
     this.resize();
     this.last = performance.now();
     this.world.renderer.setAnimationLoop(() => this.frame());
+    this.startSound();
     this.shell.arrive();
     this.input.setEnabled(true);
   }
@@ -73,6 +77,15 @@ export class WindScene {
     this.active = false;
     this.input.setEnabled(false);
     this.world?.renderer.setAnimationLoop(null);
+    this.sound?.stop();
+  }
+
+  private startSound(): void {
+    const engine = AudioEngine.shared();
+    const ctx = engine.context();
+    if (!ctx || !engine.master) return;
+    this.sound ??= new WindSound(ctx, engine.master);
+    this.sound.start();
   }
 
   private resize(): void {
@@ -90,6 +103,7 @@ export class WindScene {
     if (!this.world || this.releasing || this.input.value.trim() === '') return;
     this.releasing = true;
     this.world.release();
+    this.sound?.whoosh();
     this.input.setEnabled(false);
     // The words now exist only in the air.
     this.input.clear();
@@ -102,6 +116,7 @@ export class WindScene {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     const finished = this.world!.update(dt);
+    this.sound?.update(dt, this.world!.gustLevel);
     if (finished && this.releasing) {
       this.releasing = false;
       this.events.released();

@@ -1,3 +1,5 @@
+import { AudioEngine, bindSoundToggle } from '../audio/engine';
+import { OceanSound } from '../audio/ocean-sound';
 import { SandField, WATERLINE_Y, ZONE } from '../sand/field';
 import { DEFAULT_TIDE, Tide } from '../sand/tide';
 import { World } from '../scene/world';
@@ -33,6 +35,10 @@ export interface OceanEvents {
  */
 export class OceanScene {
   private world: World | null = null;
+  private sound: OceanSound | null = null;
+  /** How fast the stick is moving through the sand (m/s), for its sound. */
+  private drawSpeed = 0;
+  private lastDrawAt = 0;
   private readonly field = new SandField();
   private readonly tide: Tide;
   private readonly canvas: HTMLCanvasElement;
@@ -69,6 +75,7 @@ export class OceanScene {
     if (params.get('sea') === 'rough') Object.assign(tideParams, { bigChanceCalm: 0.6, bigChanceSwell: 0.8, writingLull: 1 });
     this.tide = new Tide((Math.random() * 2 ** 32) >>> 0, tideParams);
     q<HTMLButtonElement>('[data-leave]').addEventListener('click', () => this.leave());
+    bindSoundToggle(q<HTMLButtonElement>('[data-sound]'));
     this.bindPointer();
     window.addEventListener('resize', () => this.active && this.resize());
   }
@@ -108,6 +115,12 @@ export class OceanScene {
     world.jumpView(1, 0);
     this.last = performance.now();
     world.renderer.setAnimationLoop(() => this.frame());
+    const engine = AudioEngine.shared();
+    const ctx = engine.context();
+    if (ctx && engine.master) {
+      this.sound ??= new OceanSound(ctx, engine.master);
+      this.sound.start();
+    }
     requestAnimationFrame(() => this.veil.classList.remove('shown'));
     window.clearTimeout(this.glideTimer);
     this.glideTimer = window.setTimeout(() => world.setView(0, 0, 0.9), 700);
@@ -121,6 +134,7 @@ export class OceanScene {
     this.active = false;
     window.clearTimeout(this.glideTimer);
     this.world?.renderer.setAnimationLoop(null);
+    this.sound?.stop();
   }
 
   private reset(): void {
@@ -173,6 +187,8 @@ export class OceanScene {
     }
     if (this.marks && this.hint.textContent) this.hint.textContent = '';
 
+    this.drawSpeed *= Math.exp(-dt * 10);
+    this.sound?.update(dt, this.tide.level, this.tide.rushing, this.drawing || this.demoWriter?.busy ? this.drawSpeed : 0);
     const tool = this.demoWriter?.busy ? this.demoWriter.tool : this.hand;
     world.placeStick(tool.x, tool.y, tool.lift, dt);
     world.update(dt, this.field.packCarve());
@@ -242,6 +258,10 @@ export class OceanScene {
           const p = world.pick(ev.clientX, ev.clientY);
           if (!writable(p)) continue;
           const pr = pressureOf(ev);
+          const moved = Math.hypot(p.x - this.drawing.x, p.y - this.drawing.y);
+          const elapsed = Math.max(0.004, (ev.timeStamp - this.lastDrawAt) / 1000);
+          this.lastDrawAt = ev.timeStamp;
+          this.drawSpeed = Math.min(4, this.drawSpeed * 0.6 + (moved / elapsed) * 0.4);
           this.field.stamp(this.drawing.x, this.drawing.y, this.drawing.p, p.x, p.y, pr);
           this.drawing = { ...p, p: pr, id: this.drawing.id };
           this.marks = true;

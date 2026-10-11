@@ -1,3 +1,5 @@
+import { AudioEngine } from '../audio/engine';
+import { FireSound } from '../audio/fire-sound';
 import { loadHandFont } from '../text/font';
 import { SceneShell, type RitualEvents } from '../ui/scene-shell';
 import { TypedInput } from '../ui/typed-input';
@@ -15,6 +17,7 @@ const COPY = {
  */
 export class FireScene {
   private world: FireWorld | null = null;
+  private sound: FireSound | null = null;
   private readonly shell: SceneShell;
   private readonly input: TypedInput;
   private active = false;
@@ -37,6 +40,9 @@ export class FireScene {
           this.flashHint(COPY.full);
           return;
         }
+        // A pen stroke for each new character (a few at most, for pasted text).
+        const added = Math.min(3, Array.from(text).length - Array.from(this.fitted).length);
+        for (let i = 0; i < added; i++) window.setTimeout(() => this.sound?.penStroke(), i * 40);
         this.fitted = text;
         this.shell.action.disabled = text.trim() === '';
       },
@@ -58,6 +64,7 @@ export class FireScene {
         this.shell.arrive();
         return;
       }
+      world.onIgnite = () => this.sound?.ignite();
       this.world = world;
     }
     this.world.reset();
@@ -71,6 +78,7 @@ export class FireScene {
     this.resize();
     this.last = performance.now();
     this.world.renderer.setAnimationLoop(() => this.frame());
+    this.startSound();
     this.shell.arrive();
     this.input.setEnabled(true);
   }
@@ -79,6 +87,15 @@ export class FireScene {
     this.active = false;
     this.input.setEnabled(false);
     this.world?.renderer.setAnimationLoop(null);
+    this.sound?.stop();
+  }
+
+  private startSound(): void {
+    const engine = AudioEngine.shared();
+    const ctx = engine.context();
+    if (!ctx || !engine.master) return;
+    this.sound ??= new FireSound(ctx, engine.master);
+    this.sound.start();
   }
 
   private resize(): void {
@@ -108,7 +125,9 @@ export class FireScene {
     const now = performance.now();
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
-    if (world.update(dt)) {
+    const burntOut = world.update(dt);
+    this.sound?.update(dt, world.intensity, world.flickerLevel);
+    if (burntOut) {
       this.events.released();
     }
     // A fresh page has settled: ready for another letter.

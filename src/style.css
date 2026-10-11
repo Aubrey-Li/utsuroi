@@ -228,3 +228,44 @@ button:disabled {
 .fire-scene .leave {
   opacity: 0.7;
 }
+
+/* ---- Sound toggle ---- */
+
+.sound {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  right: 98px;
+  width: 34px;
+  height: 31px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.sound svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sound .speaker {
+  fill: currentColor;
+  stroke: none;
+}
+
+.sound .cross,
+.sound.off .waves {
+  display: none;
+}
+
+.sound.off .cross {
+  display: inline;
+}
+
+.fire-scene .sound {
+  opacity: 0.7;
+}

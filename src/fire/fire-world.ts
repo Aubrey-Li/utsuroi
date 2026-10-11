@@ -330,6 +330,18 @@ export class FireWorld {
     return Boolean(backend?.isWebGPUBackend);
   }
 
+  /** Called the moment the page catches. */
+  onIgnite: (() => void) | null = null;
+
+  /** How much of the page is alight (0..1). */
+  get intensity(): number {
+    return this.fireLight.value;
+  }
+
+  get flickerLevel(): number {
+    return this.flicker.value;
+  }
+
   get canWrite(): boolean {
     return this.stage === 'writing';
   }
@@ -403,6 +415,7 @@ export class FireWorld {
         this.stageTime = 0;
         this.front.value = 0;
         this.burning.value = 1;
+        this.onIgnite?.();
       }
     } else if (this.stage === 'burning') {
       const f = this.front.value;

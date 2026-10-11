@@ -1,3 +1,5 @@
+import { bindSoundToggle } from '../audio/engine';
+
 /** Events every ritual scene reports to the app. */
 export interface RitualEvents {
   /** The place has taken what was written: the ritual is complete. */
@@ -30,6 +32,7 @@ export class SceneShell {
     this.field = q<HTMLTextAreaElement>('textarea');
     this.veil = q('[data-veil]');
     q<HTMLButtonElement>('[data-leave]').addEventListener('click', () => this.leave());
+    bindSoundToggle(q<HTMLButtonElement>('[data-sound]'));
   }
 
   get isLeaving(): boolean {
