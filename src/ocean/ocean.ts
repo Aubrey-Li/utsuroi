@@ -5,7 +5,6 @@ import type { SandWriter } from '../strokes/writer';
 
 const COPY = {
   hint: 'Draw in the sand. Drag the sea or sky to look around.',
-  gone: 'The sea has it.',
   unsupported: 'This browser can’t show the beach. Try a recent Chrome, Edge, Safari or Firefox.',
 };
 
@@ -38,12 +37,10 @@ export class OceanScene {
   private readonly tide: Tide;
   private readonly canvas: HTMLCanvasElement;
   private readonly hint: HTMLElement;
-  private readonly message: HTMLElement;
   private readonly veil: HTMLElement;
   private active = false;
   private leaving = false;
   private marks = false;
-  private messageTimer = 0;
   private lastInput = -Infinity;
   private clock = 0;
   private nextClearCheck = 0;
@@ -67,7 +64,6 @@ export class OceanScene {
     };
     this.canvas = q<HTMLCanvasElement>('canvas');
     this.hint = q('[data-hint]');
-    this.message = q('[data-message]');
     this.veil = q('[data-veil]');
     const tideParams = { ...DEFAULT_TIDE };
     if (params.get('sea') === 'rough') Object.assign(tideParams, { bigChanceCalm: 0.6, bigChanceSwell: 0.8, writingLull: 1 });
@@ -134,7 +130,6 @@ export class OceanScene {
     this.looking = null;
     this.pointers.clear();
     this.demoWriter = null;
-    this.message.hidden = true;
     this.hint.textContent = COPY.hint;
     this.lastInput = -Infinity;
   }
@@ -148,17 +143,6 @@ export class OceanScene {
 
   private resize(): void {
     this.world?.resize(window.innerWidth, window.innerHeight);
-  }
-
-  private showMessage(text: string): void {
-    this.message.querySelector('p')!.textContent = text;
-    this.message.hidden = false;
-    this.message.classList.remove('fading');
-    window.clearTimeout(this.messageTimer);
-    this.messageTimer = window.setTimeout(() => {
-      this.message.classList.add('fading');
-      this.messageTimer = window.setTimeout(() => (this.message.hidden = true), 1600);
-    }, 3200);
   }
 
   private frame(): void {
@@ -184,7 +168,6 @@ export class OceanScene {
       const idle = !this.drawing && !this.demoWriter?.busy && this.clock - this.lastInput > 2;
       if (this.marks && idle && this.field.maxCarve() < SAND_CLEAR) {
         this.marks = false;
-        this.showMessage(COPY.gone);
         this.events.released();
       }
     }

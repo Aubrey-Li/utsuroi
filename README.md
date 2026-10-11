@@ -30,7 +30,7 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
 - The sea never stops. Most waves lap at the waterline; now and then the
   swell builds and a bigger wave runs up and takes some of the writing,
   nearest the water first. The sea eases off a little while you're writing.
-- When the sand is smooth everywhere, the marks are forgotten: "The sea has it."
+- When the sand is smooth everywhere, the marks are forgotten, quietly.
   That completes the ritual and leaves an ocean mark on today in the calendar.
   Leaving before then leaves no mark.
 - **Wind** (`#/wind`): a meadow under a tree on a sunny day, sunlight coming

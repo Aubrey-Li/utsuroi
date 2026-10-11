@@ -6,7 +6,6 @@ import { WindWorld } from './wind-world';
 const COPY = {
   hint: 'Type what you want to let go. It will wait here until you’re ready.',
   full: 'That’s as much as the wind can carry at once.',
-  gone: 'The wind has it.',
   unsupported: 'This browser can’t show the meadow. Try a recent Chrome, Edge, Safari or Firefox.',
 };
 
@@ -105,7 +104,6 @@ export class WindScene {
     const finished = this.world!.update(dt);
     if (finished && this.releasing) {
       this.releasing = false;
-      this.shell.showMessage(COPY.gone);
       this.events.released();
       window.setTimeout(() => {
         if (!this.active) return;

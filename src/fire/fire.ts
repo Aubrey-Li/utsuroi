@@ -6,7 +6,6 @@ import { FireWorld } from './fire-world';
 const COPY = {
   hint: 'Write your letter. When it’s done, light it.',
   full: 'The page is full.',
-  gone: 'The fire has it.',
   unsupported: 'This browser can’t show the room. Try a recent Chrome, Edge, Safari or Firefox.',
 };
 
@@ -110,7 +109,6 @@ export class FireScene {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     if (world.update(dt)) {
-      this.shell.showMessage(COPY.gone);
       this.events.released();
     }
     // A fresh page has settled: ready for another letter.
