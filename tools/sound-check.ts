@@ -2,7 +2,7 @@
 import { FireSound } from '../src/audio/fire-sound';
 import { OceanSound } from '../src/audio/ocean-sound';
 import { WindSound } from '../src/audio/wind-sound';
-import { Tide } from '../src/sand/tide';
+import { DEFAULT_TIDE, Tide } from '../src/sand/tide';
 
 const RATE = 44100;
 const STEP = 1 / 30;
@@ -15,7 +15,7 @@ const scripts: Script[] = [
     seconds: 20,
     async make(ctx, out) {
       const s = await OceanSound.create(ctx, out);
-      const tide = new Tide(3, { gapMin: 0.3, gapMax: 1, bigChanceCalm: 0.5, bigChanceSwell: 0.5, bigReachMin: 3, bigReachMax: 5, swellPeriod: 40, writingLull: 1 });
+      const tide = new Tide(3, { ...DEFAULT_TIDE, gapMin: 0.3, gapMax: 1, bigChanceCalm: 0.5, bigChanceSwell: 0.5, bigReachMin: 3, bigReachMax: 5, swellPeriod: 40, writingLull: 1 });
       s.start();
       return (t, dt) => {
         tide.update(dt);

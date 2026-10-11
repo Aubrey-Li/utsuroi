@@ -101,6 +101,75 @@ function simulate(tide: Tide, seconds: number, each: (front: number) => void) {
   }
 }
 
+/** Lets the sea run against writing until it's gone, the way the ocean scene does. */
+function washUntilClear(f: SandField, tide: Tide, maxSeconds = 120) {
+  const before = f.maxCarve();
+  const dt = 1 / 30;
+  let t = 0;
+  let nextSeek = 0;
+  let wavesBefore = tide.waves;
+  let bigBefore = tide.bigWaves;
+  while (t < maxSeconds) {
+    if (t >= nextSeek) {
+      nextSeek = t + 0.5;
+      tide.seek = f.farthestMark();
+    }
+    tide.update(dt);
+    f.erode(dt, tide);
+    t += dt;
+    if (Math.round(t / dt) % 15 === 0) {
+      f.packCarve();
+      if (f.maxCarve() < before * 0.08) break;
+    }
+  }
+  return { seconds: t, waves: tide.waves - wavesBefore, big: tide.bigWaves - bigBefore, left: f.maxCarve() / before };
+}
+
+describe('the sea coming for the writing', () => {
+  it('finds how far up the beach the farthest mark is', () => {
+    const f = new SandField();
+    expect(f.farthestMark()).toBeNull();
+    f.stamp(0, 1, 1, 0.2, 1, 1);
+    f.stamp(1, -2, 1, 1.2, -2, 1);
+    f.packCarve();
+    expect(f.farthestMark()!).toBeGreaterThan(WATERLINE_Y + 2 - 0.1);
+    expect(f.farthestMark()!).toBeLessThan(WATERLINE_Y + 2 + 0.1);
+  });
+
+  for (const [where, y] of [
+    ['near the water', 3.2],
+    ['in the middle of the beach', 0.8],
+    ['at the bottom of a phone screen', -2.6],
+  ] as const) {
+    it(`washes writing ${where} away within about three big waves`, () => {
+      for (const seed of [1, 2, 3, 4, 5]) {
+        const f = new SandField();
+        for (let k = 0; k < 4; k++) f.stamp(-2 + k, y, 0.9, -1.5 + k, y + 0.3, 0.9);
+        f.packCarve();
+        const r = washUntilClear(f, new Tide(seed * 37));
+        expect(r.left, `seed ${seed}`).toBeLessThan(0.08);
+        expect(r.big, `seed ${seed}`).toBeLessThanOrEqual(4);
+        expect(r.seconds, `seed ${seed}`).toBeLessThan(75);
+      }
+    });
+  }
+
+  it('leaves writing alone while someone is still writing', () => {
+    const f = new SandField();
+    f.stamp(-1, -2.6, 0.9, 1, -2.6, 0.9);
+    f.packCarve();
+    const tide = new Tide(8);
+    tide.writing = true;
+    const before = f.maxCarve();
+    for (let t = 0; t < 30; t += 1 / 30) {
+      tide.seek = f.farthestMark();
+      tide.update(1 / 30);
+      f.erode(1 / 30, tide);
+    }
+    expect(f.maxCarve()).toBeGreaterThan(before * 0.9);
+  });
+});
+
 describe('Tide', () => {
   it('keeps the waterline wet', () => {
     const tide = new Tide(1);

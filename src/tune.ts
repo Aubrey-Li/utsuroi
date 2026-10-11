@@ -18,6 +18,7 @@ export function createTuner(field: SandField, tide: TideParams): GUI {
   sea.add(tide, 'bigReachMax', 1, 8, 0.1).name('big reach max (m)');
   sea.add(tide, 'swellPeriod', 5, 180, 1).name('swell period (s)');
   sea.add(tide, 'writingLull', 0, 1, 0.01).name('ease off while drawing');
+  sea.add(tide, 'seekChance', 0, 1, 0.01).name('come for the writing');
   gui.add({ smooth: () => field.clear() }, 'smooth').name('Smooth the sand');
   return gui;
 }

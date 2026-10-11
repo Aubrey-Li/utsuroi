@@ -169,7 +169,7 @@ export class SandField implements WriterSink {
         const v = c[k]!;
         if (v === 0) continue;
         const foamy = smoothstep(0.4, 0, f - u);
-        const rate = strength * (0.35 + 2.4 * foamy);
+        const rate = strength * (0.2 + 0.55 * foamy);
         const avg = (c[k - 1]! + c[k + 1]! + c[k - ZONE.w]! + c[k + ZONE.w]!) * 0.25;
         const alpha = Math.min(0.24, rate * dt * 9);
         let next = (v + (avg - v) * alpha) * Math.exp(-rate * dt);
@@ -261,6 +261,14 @@ export class SandField implements WriterSink {
       }
     }
     return m;
+  }
+
+  /** How far up the beach (m) the farthest mark is, or null if the sand is smooth. */
+  farthestMark(): number | null {
+    for (let j = 0; j < ZONE.h; j++) {
+      if (this.rowHasMarks[j]) return WATERLINE_Y - (ZONE.y0 + j * ZONE_DY);
+    }
+    return null;
   }
 
   /** Deepest groove left anywhere, so we can tell when the sea has taken everything. */

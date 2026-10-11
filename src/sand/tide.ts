@@ -30,6 +30,8 @@ export interface TideParams {
   swellPeriod: number;
   /** Big waves are this much less likely while someone is writing. */
   writingLull: number;
+  /** Chance a wave is big once there's writing to take and nobody is writing. */
+  seekChance: number;
 }
 
 export const DEFAULT_TIDE: TideParams = {
@@ -41,6 +43,7 @@ export const DEFAULT_TIDE: TideParams = {
   bigReachMax: 6.4,
   swellPeriod: 45,
   writingLull: 0.3,
+  seekChance: 0.6,
 };
 
 /** Lowest the water ever sits, so the waterline always stays wet and meets the sea. */
@@ -57,6 +60,12 @@ export class Tide {
   params: TideParams;
   /** Set by the app while someone is writing, to ease off the big waves a little. */
   writing = false;
+  /**
+   * How far up the beach (m) the farthest writing is, or null if the sand is
+   * smooth. Once nobody is writing, the sea comes for it: most waves run up
+   * past it, so two or three take everything.
+   */
+  seek: number | null = null;
   /** Total waves so far, and how many of them were big. */
   waves = 0;
   bigWaves = 0;
@@ -116,10 +125,15 @@ export class Tide {
     const p = this.params;
     const swell = this.swell;
     let chance = p.bigChanceCalm + (p.bigChanceSwell - p.bigChanceCalm) * swell * swell;
+    const seeking = this.seek !== null && !this.writing;
+    if (seeking) chance = Math.max(chance, p.seekChance);
     if (this.writing) chance *= p.writingLull;
     if (this.rng() < chance) {
       const r = Math.pow(this.rng(), 0.6) * (0.7 + 0.3 * swell);
-      this.wave = this.bigWave(p.bigReachMin + (p.bigReachMax - p.bigReachMin) * r);
+      let reach = p.bigReachMin + (p.bigReachMax - p.bigReachMin) * r;
+      // Run up past the farthest writing, wherever it is.
+      if (seeking) reach = Math.max(reach, this.seek! + 0.4 + this.rng() * 0.8);
+      this.wave = this.bigWave(reach);
       this.bigWaves++;
     } else {
       this.wave = this.smallWave();

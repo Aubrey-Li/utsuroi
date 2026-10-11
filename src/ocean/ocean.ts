@@ -51,6 +51,7 @@ export class OceanScene {
   private lastInput = -Infinity;
   private clock = 0;
   private nextClearCheck = 0;
+  private nextSeek = 0;
   private last = 0;
   private readonly hand = { x: 0, y: 1.2, lift: 0.06 };
   private drawing: { x: number; y: number; p: number; id: number } | null = null;
@@ -177,6 +178,10 @@ export class OceanScene {
       this.lastInput = this.clock;
     }
     this.tide.writing = this.drawing !== null || this.clock - this.lastInput < 5;
+    if (this.clock > this.nextSeek) {
+      this.nextSeek = this.clock + 0.5;
+      this.tide.seek = this.marks ? this.field.farthestMark() : null;
+    }
     this.tide.update(dt);
     this.field.erode(dt, this.tide);
     this.field.updateWater(dt, this.tide);
