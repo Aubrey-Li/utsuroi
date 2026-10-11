@@ -11,6 +11,7 @@ import {
   mx_noise_float,
   normalize,
   normalLocal,
+  pass,
   positionLocal,
   positionWorld,
   sin,
@@ -21,7 +22,9 @@ import {
   uniform,
   vec2,
   vec3,
+  vec4,
 } from 'three/tsl';
+import { gaussianBlur } from 'three/addons/tsl/display/GaussianBlurNode.js';
 import type { StoneEntry, StonePlacement } from '../journal/kept';
 import { createRng } from '../strokes/random';
 import { HAND_STACK } from '../text/font';
@@ -61,6 +64,19 @@ const STONE_TONES = [
 /** Where the stone you're carving lies, in front of you. */
 const WRITING_SPOT = new THREE.Vector3(0, 0, 0.35);
 const CAMERA_WRITING = { position: new THREE.Vector3(0, 0.78, 1.18), target: new THREE.Vector3(0, 0.03, 0.27) };
+
+/**
+ * Where you can look: from down at the stone (tilt 0) up to the sea and the
+ * cairns along the shore (tilt 1), turning a little either way.
+ */
+const VIEW = {
+  down: { position: CAMERA_WRITING.position, pitch: -Math.atan2(0.75, 0.91) },
+  up: { position: new THREE.Vector3(0, 0.6, 1.5), pitch: THREE.MathUtils.degToRad(-4) },
+  maxYaw: 0.85,
+};
+
+/** How long a stone takes to come to you, and to go back. */
+const HOLD_TIME = 1.3;
 
 const floatUniform = (v = 0) => uniform(v);
 
@@ -256,6 +272,7 @@ interface Dust {
   life: number;
 }
 
+/** `visiting`: a kept stone held up in front of you to read; `returning`: going back to its cairn. */
 export type StoneStage = 'carving' | 'lifting' | 'carrying' | 'settling' | 'resting' | 'returning' | 'visiting';
 
 /**
@@ -300,8 +317,17 @@ export class StoneWorld {
   private readonly camLookTo = CAMERA_WRITING.target.clone();
   private camRate = 3;
   private visiting: Placed | null = null;
-  private visitHome = new THREE.Vector3();
-  private visitRot = new THREE.Euler();
+  private readonly visitHome = new THREE.Vector3();
+  private readonly visitRot = new THREE.Euler();
+  private readonly visitHomeQuat = new THREE.Quaternion();
+  private readonly view = { tilt: 0, yaw: 0, rate: 12 };
+  private tiltNow = 0;
+  private yawNow = 0;
+  /** The stone being held is drawn sharp, on its own, over the blurred shore. */
+  private readonly heldScene = new THREE.Scene();
+  private pipeline: THREE.RenderPipeline | null = null;
+  private readonly blur = floatUniform(0);
+  private readonly raycaster = new THREE.Raycaster();
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGPURenderer({ canvas, antialias: true });
@@ -437,6 +463,8 @@ export class StoneWorld {
     this.stageTime = 0;
     this.chisel.visible = false;
     this.carryFrom.copy(this.stone.position);
+    // Afterward, look back down at the fresh stone.
+    this.setView(0, 0, 3);
   }
 
   /** Lifts a kept stone off its cairn so it can be read, until `putBack`. */
@@ -446,10 +474,49 @@ export class StoneWorld {
     this.visiting = p;
     this.visitHome.copy(p.mesh.position);
     this.visitRot.copy(p.mesh.rotation);
+    this.visitHomeQuat.copy(p.mesh.quaternion);
+    this.scene.remove(p.mesh);
+    this.heldScene.add(p.mesh);
     this.stage = 'visiting';
     this.stageTime = 0;
-    this.stone.visible = false;
+    this.chisel.visible = false;
     return p.entry;
+  }
+
+  /** The kept stone under a point on the screen, if any. */
+  stoneAt(clientX: number, clientY: number): StoneEntry | null {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const hit = this.raycaster.intersectObjects(
+      this.placed.map((p) => p.mesh),
+      false,
+    )[0];
+    return hit ? (this.placed.find((p) => p.mesh === hit.object)?.entry ?? null) : null;
+  }
+
+  /** Where each kept stone is on screen, in client pixels (for automated checks). */
+  onScreen(): { id: string; x: number; y: number; visible: boolean }[] {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    return this.placed.map((p) => {
+      const v = p.mesh.getWorldPosition(new THREE.Vector3()).project(this.camera);
+      return { id: p.entry.id, x: rect.left + ((v.x + 1) / 2) * rect.width, y: rect.top + ((1 - v.y) / 2) * rect.height, visible: Math.abs(v.x) < 1 && Math.abs(v.y) < 1 && v.z < 1 };
+    });
+  }
+
+  get tilt(): number {
+    return this.view.tilt;
+  }
+
+  get yaw(): number {
+    return this.view.yaw;
+  }
+
+  /** Where to look, eased toward at `rate`. */
+  setView(tilt: number, yaw: number, rate = 12): void {
+    this.view.tilt = THREE.MathUtils.clamp(tilt, 0, 1);
+    this.view.yaw = THREE.MathUtils.clamp(yaw, -VIEW.maxYaw, VIEW.maxYaw);
+    this.view.rate = rate;
   }
 
   putBack(): void {
@@ -463,8 +530,10 @@ export class StoneWorld {
     this.stageTime += dt;
     this.glow.value = 0;
 
+    const looking = this.stage === 'carving' || this.stage === 'visiting' || this.stage === 'returning';
+    if (looking) this.lookFromView(dt);
+
     if (this.stage === 'carving') {
-      this.aim(CAMERA_WRITING.position, CAMERA_WRITING.target, 3);
       // The newest letter appears as the chisel cuts it.
       const reveal = Math.min(1, (this.clock - this.revealAt) / 0.45);
       if (reveal < 1) {
@@ -517,31 +586,19 @@ export class StoneWorld {
       }
     } else if (this.stage === 'visiting' && this.visiting) {
       const mesh = this.visiting.mesh;
-      const u = Math.min(1, this.stageTime / 1.6);
+      const u = Math.min(1, this.stageTime / HOLD_TIME);
       const e = u * u * (3 - 2 * u);
-      const view = new THREE.Vector3(0, 0.12, 0.42);
-      mesh.position.copy(this.visitHome).lerp(view, e);
-      mesh.position.y += Math.sin(Math.PI * u) * 0.25;
-      mesh.rotation.set(this.visitRot.x * (1 - e), this.visitRot.y * (1 - e) + Math.sin(this.clock * 0.4) * 0.05 * e, this.visitRot.z * (1 - e));
-      this.aim(CAMERA_WRITING.position, new THREE.Vector3(0, 0.08, 0.3), 2.5);
+      this.holdPose(mesh, e, Math.sin(Math.PI * u) * 0.18);
+      this.blur.value = e;
       (mesh.userData.glow as typeof this.glow).value = e * (0.5 + 0.5 * Math.sin(this.clock * 1.5));
     } else if (this.stage === 'returning' && this.visiting) {
       const mesh = this.visiting.mesh;
-      const u = Math.min(1, this.stageTime / 1.6);
+      const u = Math.min(1, this.stageTime / HOLD_TIME);
       const e = u * u * (3 - 2 * u);
-      const view = new THREE.Vector3(0, 0.12, 0.42);
-      mesh.position.copy(view).lerp(this.visitHome, e);
-      mesh.position.y += Math.sin(Math.PI * u) * 0.2;
-      mesh.rotation.set(this.visitRot.x * e, this.visitRot.y * e, this.visitRot.z * e);
+      this.holdPose(mesh, 1 - e, Math.sin(Math.PI * u) * 0.14);
+      this.blur.value = 1 - e;
       (mesh.userData.glow as typeof this.glow).value = 0;
-      if (u >= 1) {
-        mesh.position.copy(this.visitHome);
-        mesh.rotation.copy(this.visitRot);
-        this.visiting = null;
-        this.onSettle?.();
-        this.stone.visible = true;
-        this.next('carving');
-      }
+      if (u >= 1) this.release();
     }
 
     // A fresh stone grows into place.
@@ -553,16 +610,13 @@ export class StoneWorld {
     this.camLook.lerp(this.camLookTo, follow);
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this.camLook);
-    this.renderer.render(this.scene, this.camera);
+    if (this.visiting) this.renderHeld();
+    else this.renderer.render(this.scene, this.camera);
   }
 
   /** Clears the stone in front of you (when leaving). */
   reset(): void {
-    if (this.visiting) {
-      this.visiting.mesh.position.copy(this.visitHome);
-      this.visiting.mesh.rotation.copy(this.visitRot);
-      this.visiting = null;
-    }
+    if (this.visiting) this.release(false);
     if (this.stage !== 'carving') this.newStone(Math.floor(Math.random() * 1e6));
     this.stage = 'carving';
     this.stone.visible = true;
@@ -571,9 +625,76 @@ export class StoneWorld {
     this.chisel.visible = false;
     const layout = this.layout('');
     if (layout) this.drawCarving(layout, 1);
+    this.setView(0, 0);
+    this.tiltNow = this.yawNow = 0;
     this.camPos.copy(CAMERA_WRITING.position);
     this.camLook.copy(CAMERA_WRITING.target);
     this.aim(CAMERA_WRITING.position, CAMERA_WRITING.target, 3);
+  }
+
+  /** The held stone is back on its cairn. */
+  private release(settle = true): void {
+    const p = this.visiting!;
+    this.heldScene.remove(p.mesh);
+    this.scene.add(p.mesh);
+    p.mesh.position.copy(this.visitHome);
+    p.mesh.rotation.copy(this.visitRot);
+    (p.mesh.userData.glow as typeof this.glow).value = 0;
+    this.visiting = null;
+    this.blur.value = 0;
+    if (settle) this.onSettle?.();
+    this.next('carving');
+  }
+
+  /** Points the camera where you're looking. Eases in slowly after the camera has been elsewhere. */
+  private lookFromView(dt: number): void {
+    const follow = 1 - Math.exp(-dt * this.view.rate);
+    this.tiltNow += (this.view.tilt - this.tiltNow) * follow;
+    this.yawNow += (this.view.yaw - this.yawNow) * follow;
+    const e = THREE.MathUtils.smoothstep(this.tiltNow, 0, 1);
+    const pos = VIEW.down.position.clone().lerp(VIEW.up.position, e);
+    const pitch = THREE.MathUtils.lerp(VIEW.down.pitch, VIEW.up.pitch, e);
+    const dir = new THREE.Vector3(Math.sin(this.yawNow) * Math.cos(pitch), Math.sin(pitch), -Math.cos(this.yawNow) * Math.cos(pitch));
+    // Look at a point about as far as the stone, so easing between aims stays steady.
+    const rate = this.stage === 'carving' ? Math.min(30, 3 + this.stageTime * 12) : 30;
+    this.aim(pos, pos.clone().addScaledVector(dir, 1.1), rate);
+  }
+
+  /**
+   * Places a stone between its cairn (k = 0) and held up in front of the
+   * camera (k = 1): close enough to fill the view's width, a little above
+   * center to leave room for its words below, its face turned toward you.
+   */
+  private holdPose(mesh: THREE.Mesh, k: number, arc: number): void {
+    const shape = stoneShape(this.visiting!.entry.seed);
+    const cam = this.camera;
+    const vHalf = THREE.MathUtils.degToRad(cam.fov / 2);
+    const hHalf = Math.atan(Math.tan(vHalf) * cam.aspect);
+    const fill = cam.aspect < 0.8 ? 0.8 : 0.4;
+    const d = Math.max((shape.rx * 2.1) / (fill * 2 * Math.tan(hHalf)), (shape.rz * 2) / (0.5 * 2 * Math.tan(vHalf)));
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
+    const held = cam.position.clone().addScaledVector(forward, d).addScaledVector(up, d * Math.tan(vHalf) * 0.2);
+    mesh.position.copy(this.visitHome).lerp(held, k);
+    mesh.position.y += arc;
+    // Face up toward the camera, leaning back a little the way you'd hold it in your palm.
+    const face = cam.quaternion
+      .clone()
+      .multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2 - 0.3, Math.sin(this.clock * 0.4) * 0.05, 0)));
+    mesh.quaternion.copy(this.visitHomeQuat).slerp(face, k);
+  }
+
+  /** The shore, blurred and dimmed by how far the stone has come; the held stone sharp on top. */
+  private renderHeld(): void {
+    if (!this.pipeline) {
+      const shore = pass(this.scene, this.camera).getTextureNode('output');
+      const held = pass(this.heldScene, this.camera).getTextureNode('output');
+      const soft = gaussianBlur(shore, vec2(1, 1), 9, { resolutionScale: 0.5 });
+      const back = mix(shore.rgb, soft.rgb.mul(vec3(0.86, 0.85, 0.84)).add(vec3(0.07, 0.065, 0.06)), this.blur);
+      // The held pass is clear where the stone isn't; its edges are antialiased, so blend by coverage.
+      this.pipeline = new THREE.RenderPipeline(this.renderer, vec4(back.mul(held.a.oneMinus()).add(held.rgb), 1));
+    }
+    this.pipeline.render();
   }
 
   private next(stage: StoneStage): void {

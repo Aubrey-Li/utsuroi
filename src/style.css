@@ -298,6 +298,73 @@ button:disabled {
   background: rgba(90, 80, 76, 0.45);
 }
 
+/* Words of a stone held up to read, under the stone. */
+.held {
+  position: absolute;
+  left: 50%;
+  top: 67%;
+  width: min(92vw, 34rem);
+  margin: 0;
+  transform: translate(-50%, 8px);
+  text-align: center;
+  color: #3b3230;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.7s,
+    transform 0.7s,
+    visibility 0s 0.7s;
+}
+
+.held.shown {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition:
+    opacity 0.9s 0.8s,
+    transform 0.9s 0.8s,
+    visibility 0s;
+}
+
+.held-words {
+  margin: 0;
+  font-family: 'Caveat', 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  font-size: clamp(1.9rem, 4.2vw, 2.6rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-shadow:
+    0 0 14px rgba(250, 244, 236, 0.95),
+    0 0 4px rgba(250, 244, 236, 0.9);
+}
+
+.held-date {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: rgba(59, 50, 48, 0.78);
+  text-shadow: 0 0 8px rgba(250, 244, 236, 0.95);
+}
+
+.stone-scene canvas {
+  cursor: grab;
+}
+
+.stone-scene canvas.dragging {
+  cursor: grabbing;
+}
+
+.stone-scene canvas.over-stone {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .held,
+  .held.shown {
+    transition: none;
+  }
+}
+
 .fire-scene .sound {
   opacity: 0.7;
 }

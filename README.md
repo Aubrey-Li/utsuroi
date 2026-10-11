@@ -52,8 +52,11 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
   character is chiselled into a flat stone in front of you. **Set it on the
   cairn** carries it to the top of a cairn along the shore, where it stays;
   stones can't be removed, and a new cairn starts after eight. The words are
-  kept on the device, encrypted (AES-GCM, non-extractable key). Stone days in
-  the calendar open that day's stones, lifted off the cairn to read.
+  kept on the device, encrypted (AES-GCM, non-extractable key). Drag (or
+  scroll) to look up at the sea and along the shore. Tap a stone on a cairn
+  to hold it up to read: the shore blurs behind it and its words show
+  beneath; tap anywhere, press Esc or **Put it back** to return it. Stone days
+  in the calendar open that day's stones the same way.
 - **Fire** (`#/fire`): a dark room, a desk, a candle, and a blank page. Type a
   letter; when it's done, press **Light it**. The candle's flame is carried to
   the corner of the page, which browns, chars, curls and burns away with
