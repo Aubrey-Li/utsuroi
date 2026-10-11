@@ -212,8 +212,8 @@
 }
 
 .gloss-word {
-  font-style: italic;
-  font-size: 1.3em;
+  /* The same wordmark as the days panel. */
+  font-size: 1.25rem;
   letter-spacing: 0.04em;
 }
 
@@ -241,10 +241,6 @@
   color: var(--sky-ink);
 }
 
-.season-name {
-  font-style: italic;
-}
-
 /*
  * The sky part of the page reaches down to the foam line (60.7% of the
  * painted background), so the places always start on the sand.
@@ -261,7 +257,6 @@
 .home-invite {
   margin: 0;
   padding-top: 22px;
-  font-style: italic;
   font-size: 1.15rem;
   letter-spacing: 0.02em;
   color: var(--page-ink);
@@ -330,7 +325,6 @@
   min-height: 1.5em;
   margin: 10px 0 0;
   font-size: 0.98rem;
-  font-style: italic;
   color: var(--page-ink-soft);
   text-align: center;
 }
@@ -827,7 +821,6 @@
 .cal-note {
   margin: 18px 6px 0;
   font-size: 0.9rem;
-  font-style: italic;
   color: var(--page-ink-soft);
   line-height: 1.45;
 }
