@@ -266,6 +266,38 @@ button:disabled {
   display: inline;
 }
 
+.stone-scene .brand {
+  color: #4b4240;
+  text-shadow: none;
+  background: rgba(250, 244, 236, 0.72);
+  padding: 3px 12px;
+  border-radius: 999px;
+  width: fit-content;
+  opacity: 1;
+}
+
+.stone-scene .brand .brand-jp {
+  color: rgba(75, 66, 64, 0.75);
+}
+
+.stone-scene .hint {
+  color: rgba(70, 60, 58, 0.9);
+  text-shadow: none;
+  background: rgba(250, 244, 236, 0.72);
+  padding: 4px 14px;
+  border-radius: 999px;
+  min-height: 0;
+}
+
+.stone-scene .hint:empty {
+  display: none;
+}
+
+.stone-scene .action {
+  color: #fffaf3;
+  background: rgba(90, 80, 76, 0.45);
+}
+
 .fire-scene .sound {
   opacity: 0.7;
 }

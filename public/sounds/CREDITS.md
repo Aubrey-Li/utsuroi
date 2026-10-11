@@ -15,3 +15,6 @@ converted to AAC for this app. Credit isn't required, but they deserve it.
 | `catch.m4a` | [Match Ignite (No Strike)](https://freesound.org/s/398448/) | brachern |
 | `crackle.m4a` | [fire crackles](https://freesound.org/s/563766/) | florianreichelt |
 | `blaze.m4a` | [Fireplace Crackles](https://freesound.org/s/512685/) | WavJunction.com |
+| `pebble-shore.m4a` | [Corfu – Boukari Beach – Waves Lapping Pebbles](https://freesound.org/s/824573/) | TicAshfield |
+| `chisel.m4a` | [R26-21-Metal Hand Tools on Stone](https://freesound.org/s/487084/) | craigsmith |
+| `stone-set.m4a` | [Stone dropping](https://freesound.org/s/364711/) | alegemaate |

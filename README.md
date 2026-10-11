@@ -13,11 +13,10 @@ changing or the color going out of a flower.
 
 ## Status
 
-**Landing page, calendar, and three rituals: ocean, wind and fire.**
+**Landing page, calendar, and four rituals: ocean, wind, fire and stone.**
 Painted and stylized (Journey, The Witness) rather than photoreal.
 
-- **Landing** (`#/`): choose where to write. Ocean, wind and fire are ready;
-  stone is coming. A quiet "Need to talk to someone?" link is always there.
+- **Landing** (`#/`): choose where to write: ocean, wind, fire or stone. A quiet "Need to talk to someone?" link is always there.
 - **Your days** (`#/calendar`): each completed ritual leaves its icon on the
   day it happened. Only the date and the ritual are stored, on the device
   (IndexedDB). No words.
@@ -45,6 +44,12 @@ Painted and stylized (Journey, The Witness) rather than photoreal.
   through the leaves. Type, and your words float in the air in a hand-lettered
   font. They wait until you press **Let the wind take it**; then a gust bends
   the grass and carries them off one by one.
+- **Stone** (`#/stone`): a pebble shore in the morning. Type, and each
+  character is chiselled into a flat stone in front of you. **Set it on the
+  cairn** carries it to the top of a cairn along the shore, where it stays;
+  stones can't be removed, and a new cairn starts after eight. The words are
+  kept on the device, encrypted (AES-GCM, non-extractable key). Stone days in
+  the calendar open that day's stones, lifted off the cairn to read.
 - **Fire** (`#/fire`): a dark room, a desk, a candle, and a blank page. Type a
   letter; when it's done, press **Light it**. The candle's flame is carried to
   the corner of the page, which browns, chars, curls and burns away with
@@ -118,7 +123,8 @@ strokes rather than drawing a font:
 src/
   main.ts              routes between the pages
   pages/               landing page, calendar, icons
-  journal/             ritual marks (IndexedDB) and calendar month math
+  journal/             on-device database: ritual marks, encrypted kept words, month math
+  stone/               the stone ritual: pebble shore, carving, cairns, revisiting
   ocean/               the ocean ritual: drawing, looking around, the frame loop
   wind/                the wind ritual: meadow, canopy, words in the air, flight
   fire/                the fire ritual: desk, candle, paper, burn map, flames
@@ -141,4 +147,5 @@ docs/design.html       product design doc
 - Caveat by The Caveat Project Authors, for typed words in the wind and fire
   scenes. SIL Open Font License 1.1, see `public/fonts/Caveat-OFL.txt`.
 - Sounds: CC0 recordings from Freesound by amholma, florianreichelt,
-  crashoverride6, DanGasior, teadrinker, brachern and WavJunction.com. See [`public/sounds/CREDITS.md`](public/sounds/CREDITS.md).
+  crashoverride6, DanGasior, teadrinker, brachern, WavJunction.com,
+  TicAshfield, craigsmith and alegemaate. See [`public/sounds/CREDITS.md`](public/sounds/CREDITS.md).

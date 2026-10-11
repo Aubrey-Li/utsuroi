@@ -490,6 +490,16 @@
 
 .cal-day.kept {
   background: rgba(156, 95, 108, 0.16);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cal-day.kept:hover,
+.cal-day.kept:focus-visible {
+  background: rgba(156, 95, 108, 0.28);
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--groove);
 }
 
 .cal-num {

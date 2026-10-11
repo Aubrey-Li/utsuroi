@@ -1,3 +1,5 @@
+import { openDb, request } from './db';
+
 /**
  * Ritual marks: the only record the journal keeps of released writing.
  *
@@ -72,15 +74,7 @@ export class MemoryMarkStore implements MarkStore {
   }
 }
 
-const DB_NAME = 'utsuroi';
 const STORE = 'marks';
-
-function request<T>(req: IDBRequest<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
 
 export class IdbMarkStore implements MarkStore {
   readonly persistent: boolean = true;
@@ -88,12 +82,7 @@ export class IdbMarkStore implements MarkStore {
   private constructor(private readonly db: IDBDatabase) {}
 
   static async open(factory: IDBFactory = indexedDB): Promise<IdbMarkStore> {
-    const req = factory.open(DB_NAME, 1);
-    req.onupgradeneeded = () => {
-      const store = req.result.createObjectStore(STORE, { autoIncrement: true });
-      store.createIndex('date', 'date');
-    };
-    return new IdbMarkStore(await request(req));
+    return new IdbMarkStore(await openDb(factory));
   }
 
   async add(mark: RitualMark): Promise<void> {

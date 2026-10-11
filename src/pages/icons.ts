@@ -14,7 +14,7 @@ export const RITUAL_INFO: Record<Ritual, { name: string; seal: string; line: str
   ocean: { name: 'Ocean', seal: '波', line: 'Write in the sand. The tide takes it.', ready: true },
   wind: { name: 'Wind', seal: '風', line: 'Let the wind carry your words away.', ready: true },
   fire: { name: 'Fire', seal: '火', line: 'Write a letter by candlelight, then burn it.', ready: true },
-  stone: { name: 'Stone', seal: '石', line: 'Carve what you want to keep.', ready: false },
+  stone: { name: 'Stone', seal: '石', line: 'Carve what you want to keep.', ready: true },
 };
 
 export function ritualIcon(ritual: Ritual, className = 'icon'): SVGSVGElement {

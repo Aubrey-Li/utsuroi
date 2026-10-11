@@ -88,6 +88,30 @@
       </div>
     </section>
 
+    <section id="stone" class="page scene stone-scene" hidden>
+      <canvas aria-label="A pebble shore in the morning. A flat stone lies in front of you; cairns of stones stand along the beach."></canvas>
+      <div class="hud">
+        <header class="brand">
+          <span class="brand-name">utsuroi</span>
+          <span class="brand-jp" lang="ja">移ろい</span>
+        </header>
+
+        <button class="leave" type="button" data-leave>Leave</button>
+        <button class="sound" type="button" data-sound aria-pressed="true" aria-label="Sound">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="speaker" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path class="waves" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /><path class="cross" d="M15.5 9.5l5 5M20.5 9.5l-5 5" /></svg>
+        </button>
+
+        <div class="dock">
+          <p class="hint" aria-live="polite" data-hint></p>
+          <button class="action" type="button" data-action disabled>Set it on the cairn</button>
+        </div>
+
+
+        <textarea class="typed-sink" aria-label="Write here" autocapitalize="sentences" autocomplete="off" spellcheck="false" rows="1"></textarea>
+        <div class="veil" data-veil></div>
+      </div>
+    </section>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

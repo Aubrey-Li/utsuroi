@@ -110,12 +110,14 @@ export class CalendarPage {
         if (rituals.length > MAX_ICONS) icons.append(el('span', { class: 'cal-more' }, `+${rituals.length - MAX_ICONS}`));
         const names = rituals.map((r) => RITUAL_INFO[r].name.toLowerCase());
         const label = new Date(this.year, this.month, cell.day).toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+        const kept = rituals.includes('stone');
         const day = el(
-          'span',
+          kept ? 'a' : 'span',
           {
+            ...(kept ? { href: `#/stone/visit/${cell.date}` } : {}),
             class: `cal-day${cell.isToday ? ' today' : ''}${cell.isFuture ? ' future' : ''}${rituals.includes('stone') ? ' kept' : ''}`,
             role: 'gridcell',
-            'aria-label': rituals.length ? `${label}: ${names.join(', ')}` : label,
+            'aria-label': rituals.length ? `${label}: ${names.join(', ')}${kept ? '. Open to see the stone' : ''}` : label,
           },
           el('span', { class: 'cal-num' }, String(cell.day)),
           icons,
